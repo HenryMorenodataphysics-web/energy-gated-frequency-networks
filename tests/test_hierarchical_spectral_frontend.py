@@ -53,6 +53,22 @@ def test_tone_is_localized_inside_its_physical_subband() -> None:
     assert low <= 500.0 <= high
 
 
+def test_opposite_phase_channels_are_combined_in_power_domain() -> None:
+    frontend = build_frontend()
+    tone = sine_wave(500.0)
+    opposite_phase = torch.cat((tone, -tone), dim=1)
+
+    mono = frontend(tone)
+    multichannel = frontend(opposite_phase)
+
+    assert torch.allclose(multichannel["spectrogram"], mono["spectrogram"], atol=1e-6)
+    assert torch.allclose(
+        multichannel["subband_energy"],
+        mono["subband_energy"],
+        atol=1e-6,
+    )
+
+
 def test_frontend_is_differentiable() -> None:
     frontend = build_frontend()
     waveform = torch.randn(2, 1, 4_000, requires_grad=True)
