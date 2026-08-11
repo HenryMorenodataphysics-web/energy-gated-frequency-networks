@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import Sequence
+from typing import Mapping, Sequence
 
 import torch
 import torch.nn as nn
@@ -41,6 +41,7 @@ class ConditionedNormalProfile(nn.Module):
         fallback_mean: torch.Tensor,
         fallback_std: torch.Tensor,
         epsilon: float = 1e-8,
+        metadata: Mapping[str, object] | None = None,
     ) -> None:
         super().__init__()
         condition_ids = tuple(condition_ids)
@@ -66,6 +67,7 @@ class ConditionedNormalProfile(nn.Module):
             condition_id: index for index, condition_id in enumerate(condition_ids)
         }
         self.epsilon = float(epsilon)
+        self.metadata = dict(metadata or {})
         self.register_buffer("mean", mean.detach().float())
         self.register_buffer("std", std.detach().float())
         self.register_buffer("record_counts", record_counts.detach().long())
@@ -127,6 +129,7 @@ class ConditionedNormalProfile(nn.Module):
             "fallback_mean": self.fallback_mean.detach().cpu().tolist(),
             "fallback_std": self.fallback_std.detach().cpu().tolist(),
             "epsilon": self.epsilon,
+            "metadata": self.metadata,
         }
 
     def save_json(self, path: str | Path) -> None:
@@ -149,6 +152,7 @@ class ConditionedNormalProfile(nn.Module):
             fallback_mean=torch.tensor(payload["fallback_mean"]),
             fallback_std=torch.tensor(payload["fallback_std"]),
             epsilon=float(payload["epsilon"]),
+            metadata=payload.get("metadata", {}),
         )
 
 
@@ -212,7 +216,10 @@ class NormalProfileEstimator:
                 moments["second_sum"] + record_second_moments[index]
             )
 
-    def finalize(self) -> ConditionedNormalProfile:
+    def finalize(
+        self,
+        metadata: Mapping[str, object] | None = None,
+    ) -> ConditionedNormalProfile:
         if not self._moments:
             raise RuntimeError("no normal records were provided.")
 
@@ -248,4 +255,5 @@ class NormalProfileEstimator:
             fallback_mean=fallback_mean,
             fallback_std=fallback_variance.sqrt(),
             epsilon=self.epsilon,
+            metadata=metadata,
         )

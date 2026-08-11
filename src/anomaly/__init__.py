@@ -4,10 +4,12 @@ from .normal_profile import (
     NormalProfileEstimator,
     energy_descriptors,
 )
+from .scoring import ProfileAnomalyScorer
 
 __all__ = [
     "DESCRIPTOR_NAMES",
     "ConditionedNormalProfile",
     "NormalProfileEstimator",
     "energy_descriptors",
+    "ProfileAnomalyScorer",
 ]

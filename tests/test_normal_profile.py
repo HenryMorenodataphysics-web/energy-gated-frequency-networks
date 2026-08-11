@@ -76,7 +76,9 @@ def test_minimum_condition_count_is_enforced() -> None:
 
 
 def test_json_round_trip() -> None:
-    profile = fit_example_profile()
+    estimator = NormalProfileEstimator(num_subbands=2, minimum_std=0.1)
+    estimator.update(constant_energy(0.0, frames=5), ["machine_a"], ["normal"])
+    profile = estimator.finalize(metadata={"frontend": {"sample_rate": 16_000}})
     path = Path(".tmp") / "normal_profile_test.json"
     try:
         profile.save_json(path)
@@ -90,3 +92,4 @@ def test_json_round_trip() -> None:
     assert torch.allclose(restored.std, profile.std)
     assert torch.allclose(restored.fallback_mean, profile.fallback_mean)
     assert torch.allclose(restored.fallback_std, profile.fallback_std)
+    assert restored.metadata == profile.metadata
