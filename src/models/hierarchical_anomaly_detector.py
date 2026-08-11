@@ -23,15 +23,20 @@ class CompactHierarchicalEncoder(nn.Module):
         if frontend_channels <= 0 or descriptor_channels <= 0 or embedding_channels <= 0:
             raise ValueError("all encoder channel counts must be positive.")
         input_channels = frontend_channels + descriptor_channels
-        self.input_projection = nn.Conv2d(input_channels, embedding_channels, 1)
+        self.input_projection = nn.Conv2d(
+            input_channels, embedding_channels, 1, bias=False
+        )
         self.local_context = nn.Conv2d(
             embedding_channels,
             embedding_channels,
             kernel_size=(3, 5),
             padding=(1, 2),
             groups=embedding_channels,
+            bias=False,
         )
-        self.channel_mixing = nn.Conv2d(embedding_channels, embedding_channels, 1)
+        self.channel_mixing = nn.Conv2d(
+            embedding_channels, embedding_channels, 1, bias=False
+        )
 
     def forward(
         self,

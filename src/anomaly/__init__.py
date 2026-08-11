@@ -5,6 +5,7 @@ from .normal_profile import (
     NormalProfileEstimator,
     energy_descriptors,
 )
+from .one_class import deep_svdd_loss, deep_svdd_scores, stabilize_center
 from .scoring import ProfileAnomalyScorer
 
 __all__ = [
@@ -14,4 +15,7 @@ __all__ = [
     "NormalProfileEstimator",
     "energy_descriptors",
     "ProfileAnomalyScorer",
+    "deep_svdd_loss",
+    "deep_svdd_scores",
+    "stabilize_center",
 ]
