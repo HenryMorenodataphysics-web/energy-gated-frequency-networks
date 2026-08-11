@@ -6,7 +6,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from src.anomaly import ConditionedNormalProfile, ProfileAnomalyScorer
+from src.anomaly import ConditionedNormalProfile, GateRegularizer, ProfileAnomalyScorer
 from src.blocks import HierarchicalSpectralFrontend
 
 
@@ -62,12 +62,14 @@ class HierarchicalAnomalyDetector(nn.Module):
         normal_profile: ConditionedNormalProfile,
         embedding_channels: int = 8,
         scorer: ProfileAnomalyScorer | None = None,
+        gate_regularizer: GateRegularizer | None = None,
     ) -> None:
         super().__init__()
         self._validate_profile_signature(frontend, normal_profile)
         self.frontend = frontend
         self.normal_profile = normal_profile
         self.scorer = scorer or ProfileAnomalyScorer()
+        self.gate_regularizer = gate_regularizer or GateRegularizer()
         self.encoder = CompactHierarchicalEncoder(
             frontend_channels=frontend.temporal_channels,
             descriptor_channels=normal_profile.mean.shape[2],
@@ -104,6 +106,7 @@ class HierarchicalAnomalyDetector(nn.Module):
         self,
         waveform: torch.Tensor,
         condition_ids: Sequence[str],
+        regularization_progress: float = 0.0,
     ) -> dict[str, torch.Tensor]:
         frontend_outputs = self.frontend(waveform)
         profile_outputs = self.normal_profile.standardize(
@@ -118,9 +121,15 @@ class HierarchicalAnomalyDetector(nn.Module):
             frontend_outputs["features"],
             profile_outputs["z_scores"],
         )
+        regularization_outputs = self.gate_regularizer(
+            frontend_outputs["macro_gates"],
+            frontend_outputs["subband_gates"],
+            progress=regularization_progress,
+        )
         return {
             **frontend_outputs,
             **profile_outputs,
             **score_outputs,
             **encoder_outputs,
+            **regularization_outputs,
         }
