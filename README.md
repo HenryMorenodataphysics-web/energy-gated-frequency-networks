@@ -1,6 +1,6 @@
 # Energy-Gated Frequency Neuron
 
-Research-style portfolio project exploring a physically inspired neural block
+ project exploring a physically inspired neural block
 for audio classification.
 
 ## Core Idea
