@@ -1,3 +1,9 @@
+from .anomaly_protocol import (
+    AnomalyAudioRecord,
+    AnomalyDataSplit,
+    split_anomaly_records,
+    validate_anomaly_split,
+)
 from .fsdd_dataset import FSDDDataset, FSDDRecord, find_fsdd_recordings
 from .mimii_dataset import (
     MIMIIDataset,
@@ -5,10 +11,13 @@ from .mimii_dataset import (
     find_mimii_recordings,
     split_records_stratified,
     summarize_records,
+    to_anomaly_audio_record,
 )
 from .speech_commands_dataset import DEFAULT_SPEECH_COMMANDS_LABELS, SpeechCommandsSubset
 
 __all__ = [
+    "AnomalyAudioRecord",
+    "AnomalyDataSplit",
     "DEFAULT_SPEECH_COMMANDS_LABELS",
     "FSDDDataset",
     "FSDDRecord",
@@ -18,5 +27,8 @@ __all__ = [
     "find_fsdd_recordings",
     "find_mimii_recordings",
     "split_records_stratified",
+    "split_anomaly_records",
     "summarize_records",
+    "to_anomaly_audio_record",
+    "validate_anomaly_split",
 ]

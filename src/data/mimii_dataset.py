@@ -9,6 +9,8 @@ from scipy.io import wavfile
 from scipy.signal import resample_poly
 from torch.utils.data import Dataset
 
+from .anomaly_protocol import AnomalyAudioRecord
+
 
 MIMII_MACHINE_TYPES = ("fan", "pump", "slider", "slide_rail", "valve")
 MIMII_LABEL_TO_INDEX = {"normal": 0, "abnormal": 1}
@@ -25,6 +27,21 @@ class MIMIIRecord:
     @property
     def target(self) -> int:
         return MIMII_LABEL_TO_INDEX[self.label]
+
+
+def to_anomaly_audio_record(record: MIMIIRecord) -> AnomalyAudioRecord:
+    """Adapt a MIMII-specific record to the shared anomaly protocol."""
+    condition_id = "/".join((record.machine_type, record.machine_id, record.snr))
+    return AnomalyAudioRecord(
+        path=record.path,
+        dataset_name="mimii",
+        machine_type=record.machine_type,
+        machine_id=record.machine_id,
+        condition_id=condition_id,
+        group_id=record.path.as_posix(),
+        label="normal" if record.label == "normal" else "anomalous",
+        metadata=(("snr", record.snr), ("source_label", record.label)),
+    )
 
 
 def _normalize_machine_type(value: str) -> str:

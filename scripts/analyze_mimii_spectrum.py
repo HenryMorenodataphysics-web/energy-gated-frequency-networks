@@ -12,7 +12,13 @@ import numpy as np
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-from src.data.mimii_dataset import MIMIIRecord, find_mimii_recordings
+from src.data import (
+    AnomalyAudioRecord,
+    find_mimii_recordings,
+    split_anomaly_records,
+    to_anomaly_audio_record,
+    validate_anomaly_split,
+)
 from src.utils.spectral_profile import analyze_wav_bands
 
 
@@ -27,6 +33,14 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--n-fft", type=int, default=1_024)
     parser.add_argument("--hop-length", type=int, default=512)
     parser.add_argument("--num-bands", type=int, default=3)
+    parser.add_argument(
+        "--split",
+        choices=["all", "train", "validation", "test"],
+        default="train",
+    )
+    parser.add_argument("--validation-normal-ratio", type=float, default=0.15)
+    parser.add_argument("--test-normal-ratio", type=float, default=0.15)
+    parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--max-files", type=int, default=None)
     parser.add_argument(
         "--output-dir",
@@ -36,17 +50,20 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
-def select_balanced(records: list[MIMIIRecord], max_files: int | None) -> list[MIMIIRecord]:
+def select_balanced(
+    records: list[AnomalyAudioRecord],
+    max_files: int | None,
+) -> list[AnomalyAudioRecord]:
     if max_files is None or max_files >= len(records):
         return records
     if max_files <= 0:
         raise ValueError("--max-files must be positive.")
 
-    by_label: dict[str, list[MIMIIRecord]] = defaultdict(list)
+    by_label: dict[str, list[AnomalyAudioRecord]] = defaultdict(list)
     for record in records:
         by_label[record.label].append(record)
 
-    selected: list[MIMIIRecord] = []
+    selected: list[AnomalyAudioRecord] = []
     labels = sorted(by_label)
     base, remainder = divmod(max_files, len(labels))
     for index, label in enumerate(labels):
@@ -114,15 +131,54 @@ def write_csv(path: Path, rows: list[dict[str, object]]) -> None:
         writer.writerows(rows)
 
 
+def write_split_manifest(
+    path: Path,
+    split_records: dict[str, tuple[AnomalyAudioRecord, ...]],
+) -> None:
+    rows = []
+    for split_name, records in split_records.items():
+        for record in records:
+            rows.append(
+                {
+                    "split": split_name,
+                    "path": str(record.path),
+                    "dataset_name": record.dataset_name,
+                    "machine_type": record.machine_type,
+                    "machine_id": record.machine_id,
+                    "condition_id": record.condition_id,
+                    "group_id": record.group_id,
+                    "label": record.label,
+                }
+            )
+    write_csv(path, rows)
+
+
 def main() -> None:
     args = parse_args()
-    records = find_mimii_recordings(
+    mimii_records = find_mimii_recordings(
         args.data_dir,
         machine_type=args.machine_type,
         machine_id=args.machine_id,
         snr=args.snr,
     )
-    selected = select_balanced(records, args.max_files)
+    records = [to_anomaly_audio_record(record) for record in mimii_records]
+    split = split_anomaly_records(
+        records,
+        validation_normal_ratio=args.validation_normal_ratio,
+        test_normal_ratio=args.test_normal_ratio,
+        seed=args.seed,
+    )
+    validate_anomaly_split(split)
+    split_records = {
+        "train": split.train,
+        "validation": split.validation,
+        "test": split.test,
+    }
+    selected_pool = records if args.split == "all" else list(split_records[args.split])
+    selected = select_balanced(selected_pool, args.max_files)
+
+    args.output_dir.mkdir(parents=True, exist_ok=True)
+    write_split_manifest(args.output_dir / "split_manifest.csv", split_records)
 
     rows: list[dict[str, object]] = []
     for index, record in enumerate(selected, start=1):
@@ -139,7 +195,7 @@ def main() -> None:
                     "label": record.label,
                     "machine_type": record.machine_type,
                     "machine_id": record.machine_id,
-                    "snr": record.snr,
+                    "snr": record.metadata_dict().get("snr", "unknown"),
                     "sample_rate": sample_rate,
                     "channels": channels,
                     "duration_seconds": duration,
@@ -168,6 +224,10 @@ def main() -> None:
         "n_fft": args.n_fft,
         "hop_length": args.hop_length,
         "num_bands": args.num_bands,
+        "split": args.split,
+        "validation_normal_ratio": args.validation_normal_ratio,
+        "test_normal_ratio": args.test_normal_ratio,
+        "seed": args.seed,
         "recordings": len(selected),
         "summary": summary,
         "summary_by_machine_id": summary_by_machine_id,
