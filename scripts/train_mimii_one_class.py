@@ -60,6 +60,11 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--validation-normal-ratio", type=float, default=0.15)
     parser.add_argument("--test-normal-ratio", type=float, default=0.15)
     parser.add_argument("--patience", type=int, default=5)
+    parser.add_argument(
+        "--early-stopping-min-relative-improvement",
+        type=float,
+        default=0.01,
+    )
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--num-workers", type=int, default=0)
     parser.add_argument("--device", choices=("cuda", "cpu", "auto"), default="cuda")
@@ -269,6 +274,18 @@ def serializable_args(args: argparse.Namespace) -> dict[str, object]:
     }
 
 
+def is_meaningful_improvement(
+    current: float,
+    reference: float,
+    minimum_relative_improvement: float,
+) -> bool:
+    if not 0 <= minimum_relative_improvement < 1:
+        raise ValueError("minimum_relative_improvement must be in [0, 1).")
+    return not np.isfinite(reference) or current < reference * (
+        1.0 - minimum_relative_improvement
+    )
+
+
 def save_history(history: list[dict[str, float]], path: Path) -> None:
     if not history:
         return
@@ -309,6 +326,10 @@ def main() -> None:
     for name in ("recording_quantile", "normal_threshold_quantile"):
         if not 0 < getattr(args, name) < 1:
             raise ValueError(f"--{name.replace('_', '-')} must be in (0, 1).")
+    if not 0 <= args.early_stopping_min_relative_improvement < 1:
+        raise ValueError(
+            "--early-stopping-min-relative-improvement must be in [0, 1)."
+        )
 
     random.seed(args.seed)
     np.random.seed(args.seed)
@@ -426,6 +447,7 @@ def main() -> None:
             weight_decay=args.weight_decay,
         )
         best_validation_score = float("inf")
+        early_stopping_reference = float("inf")
         epochs_without_improvement = 0
         for epoch in range(1, args.epochs + 1):
             progress = (epoch - 1) / max(args.epochs - 1, 1)
@@ -473,11 +495,21 @@ def main() -> None:
                     validation_score,
                     args,
                 )
+            if is_meaningful_improvement(
+                validation_score,
+                early_stopping_reference,
+                args.early_stopping_min_relative_improvement,
+            ):
+                early_stopping_reference = validation_score
                 epochs_without_improvement = 0
             else:
                 epochs_without_improvement += 1
             if args.patience > 0 and epochs_without_improvement >= args.patience:
-                print(f"early_stopping_epoch={epoch}")
+                print(
+                    f"early_stopping_epoch={epoch} "
+                    f"min_relative_improvement="
+                    f"{args.early_stopping_min_relative_improvement:.4f}"
+                )
                 break
 
     if best_state is None:

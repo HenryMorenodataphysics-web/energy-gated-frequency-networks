@@ -11,6 +11,7 @@ from scipy.io import wavfile
 from src.anomaly import deep_svdd_loss, deep_svdd_scores, stabilize_center
 from src.data import AnomalyAudioRecord, AnomalyWindowDataset
 from src.models import Conv1DAnomalyEncoder
+from scripts.train_mimii_one_class import is_meaningful_improvement
 
 
 def test_deep_svdd_scores_and_center_stabilization() -> None:
@@ -20,6 +21,12 @@ def test_deep_svdd_scores_and_center_stabilization() -> None:
     assert center.tolist() == pytest.approx([0.1, -0.1, 2.0])
     assert deep_svdd_scores(embedding, center).tolist() == pytest.approx([0.0, 1.0])
     assert deep_svdd_loss(embedding, center).item() == pytest.approx(0.5)
+
+
+def test_early_stopping_requires_meaningful_relative_improvement() -> None:
+    assert is_meaningful_improvement(0.99, 1.0, 0.005)
+    assert not is_meaningful_improvement(0.995, 1.0, 0.01)
+    assert is_meaningful_improvement(0.989, 1.0, 0.01)
 
 
 def test_conv1d_encoder_shares_weights_across_audio_channels() -> None:
