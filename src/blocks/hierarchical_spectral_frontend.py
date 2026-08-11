@@ -142,8 +142,9 @@ class HierarchicalSpectralFrontend(nn.Module):
         return F.pad(torch.diff(values, dim=-1).abs(), (1, 0))
 
     def _spectrogram(self, waveform: torch.Tensor) -> torch.Tensor:
+        batch_size, channels, samples = waveform.shape
         spectrum = torch.stft(
-            waveform.squeeze(1),
+            waveform.reshape(batch_size * channels, samples),
             n_fft=self.n_fft,
             hop_length=self.hop_length,
             win_length=self.n_fft,
@@ -151,11 +152,14 @@ class HierarchicalSpectralFrontend(nn.Module):
             center=True,
             return_complex=True,
         )
-        return spectrum.abs().square()
+        power = spectrum.abs().square()
+        return power.reshape(batch_size, channels, power.shape[-2], power.shape[-1]).mean(
+            dim=1
+        )
 
     def forward(self, waveform: torch.Tensor) -> dict[str, torch.Tensor]:
-        if waveform.ndim != 3 or waveform.shape[1] != 1:
-            raise ValueError("waveform must have shape [batch, 1, time].")
+        if waveform.ndim != 3 or waveform.shape[1] < 1:
+            raise ValueError("waveform must have shape [batch, channels, time].")
         if waveform.shape[-1] <= self.n_fft // 2:
             raise ValueError("waveform is too short for the configured STFT.")
 
