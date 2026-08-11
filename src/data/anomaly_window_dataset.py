@@ -3,11 +3,10 @@ from __future__ import annotations
 from collections.abc import Sequence
 
 import numpy as np
+import soundfile as sf
 import torch
 from scipy.signal import resample_poly
 from torch.utils.data import Dataset
-
-from src.utils.spectral_profile import load_wav_preserve_level
 
 from .anomaly_protocol import AnomalyAudioRecord
 
@@ -60,8 +59,13 @@ class AnomalyWindowDataset(Dataset):
             axis=0,
         ).astype(np.float32)
 
-    def _window_start(self, sample_count: int, window_index: int) -> int:
-        maximum_start = max(sample_count - self.target_samples, 0)
+    def _window_start(
+        self,
+        sample_count: int,
+        window_samples: int,
+        window_index: int,
+    ) -> int:
+        maximum_start = max(sample_count - window_samples, 0)
         if self.crop_mode == "random":
             return int(torch.randint(maximum_start + 1, (1,)).item())
         if self.crop_mode == "center":
@@ -73,10 +77,25 @@ class AnomalyWindowDataset(Dataset):
     def __getitem__(self, index: int) -> dict[str, torch.Tensor | str]:
         record_index, window_index = self._index[index]
         record = self.records[record_index]
-        audio, source_rate = load_wav_preserve_level(record.path)
+        information = sf.info(str(record.path))
+        source_rate = int(information.samplerate)
+        source_window_samples = int(
+            np.ceil(self.target_samples * source_rate / self.target_sample_rate)
+        )
+        start = self._window_start(
+            int(information.frames),
+            source_window_samples,
+            window_index,
+        )
+        audio, _ = sf.read(
+            str(record.path),
+            start=start,
+            frames=source_window_samples,
+            dtype="float32",
+            always_2d=True,
+        )
         audio = self._resample(audio, source_rate)
-        start = self._window_start(audio.shape[0], window_index)
-        window = audio[start : start + self.target_samples]
+        window = audio[: self.target_samples]
         if window.shape[0] < self.target_samples:
             window = np.pad(
                 window,

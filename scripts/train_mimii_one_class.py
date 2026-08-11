@@ -66,6 +66,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--max-train-records", type=int, default=None)
     parser.add_argument("--max-eval-records-per-label", type=int, default=None)
     parser.add_argument("--output-dir", type=Path, default=None)
+    parser.add_argument("--checkpoint", type=Path, default=None)
+    parser.add_argument("--evaluate-only", action="store_true")
     return parser.parse_args()
 
 
@@ -267,6 +269,39 @@ def serializable_args(args: argparse.Namespace) -> dict[str, object]:
     }
 
 
+def save_history(history: list[dict[str, float]], path: Path) -> None:
+    if not history:
+        return
+    temporary_path = path.with_suffix(".tmp")
+    with temporary_path.open("w", newline="", encoding="utf-8") as handle:
+        writer = csv.DictWriter(handle, fieldnames=list(history[0]))
+        writer.writeheader()
+        writer.writerows(history)
+    temporary_path.replace(path)
+
+
+def save_recovery_checkpoint(
+    path: Path,
+    model_state: dict[str, torch.Tensor],
+    center: torch.Tensor,
+    epoch: int,
+    validation_score: float,
+    args: argparse.Namespace,
+) -> None:
+    temporary_path = path.with_suffix(".tmp")
+    torch.save(
+        {
+            "model_state": model_state,
+            "center": center.detach().cpu(),
+            "epoch": int(epoch),
+            "validation_normal_score": float(validation_score),
+            "args": serializable_args(args),
+        },
+        temporary_path,
+    )
+    temporary_path.replace(path)
+
+
 def main() -> None:
     args = parse_args()
     if args.epochs <= 0 or args.batch_size <= 0:
@@ -284,6 +319,12 @@ def main() -> None:
     print(f"device={device}")
     if device.type == "cuda":
         print(f"cuda_device={torch.cuda.get_device_name(device)}")
+    output_dir = args.output_dir or (
+        ROOT / "outputs" / "mimii_one_class" / f"{args.model}_seed{args.seed}"
+    )
+    output_dir.mkdir(parents=True, exist_ok=True)
+    recovery_checkpoint_path = args.checkpoint or output_dir / "best_checkpoint.pt"
+    recovery_checkpoint_path.parent.mkdir(parents=True, exist_ok=True)
 
     records = [
         to_anomaly_audio_record(record)
@@ -354,60 +395,90 @@ def main() -> None:
         parameter.numel() for parameter in model.parameters() if parameter.requires_grad
     )
     print(f"trainable_parameters={trainable_parameters}")
-    center = estimate_center(model, args.model, center_loader, device)
-    optimizer = torch.optim.AdamW(
-        model.parameters(),
-        lr=args.learning_rate,
-        weight_decay=args.weight_decay,
-    )
-
     history: list[dict[str, float]] = []
-    best_validation_score = float("inf")
     best_state: dict[str, torch.Tensor] | None = None
-    epochs_without_improvement = 0
-    for epoch in range(1, args.epochs + 1):
-        progress = (epoch - 1) / max(args.epochs - 1, 1)
-        train_metrics = run_training_epoch(
-            model,
-            args.model,
-            train_loader,
-            center,
-            optimizer,
-            device,
-            progress,
-            args.gate_regularization_weight,
+    if args.evaluate_only:
+        if not recovery_checkpoint_path.is_file():
+            raise FileNotFoundError(
+                f"recovery checkpoint not found: {recovery_checkpoint_path}"
+            )
+        checkpoint = torch.load(
+            recovery_checkpoint_path,
+            map_location="cpu",
+            weights_only=False,
         )
-        validation_score = evaluate_normal_mean(
-            model,
-            args.model,
-            validation_loader,
-            center,
-            device,
-            args.recording_quantile,
-        )
-        row = {
-            "epoch": float(epoch),
-            **{f"train_{name}": value for name, value in train_metrics.items()},
-            "validation_normal_score": validation_score,
-        }
-        history.append(row)
+        checkpoint_args = checkpoint.get("args", {})
+        if checkpoint_args.get("model") != args.model:
+            raise ValueError("checkpoint model does not match --model.")
+        if int(checkpoint_args.get("seed", -1)) != args.seed:
+            raise ValueError("checkpoint seed does not match --seed.")
+        best_state = checkpoint["model_state"]
+        center = checkpoint["center"].to(device)
         print(
-            f"epoch={epoch:02d} loss={train_metrics['loss']:.6f} "
-            f"embedding_std={train_metrics['embedding_std']:.6f} "
-            f"val_normal_score={validation_score:.6f}"
+            f"loaded_checkpoint={recovery_checkpoint_path} "
+            f"epoch={checkpoint.get('epoch', 'unknown')}"
         )
-        if validation_score < best_validation_score:
-            best_validation_score = validation_score
-            best_state = {
-                name: value.detach().cpu().clone()
-                for name, value in model.state_dict().items()
+    else:
+        center = estimate_center(model, args.model, center_loader, device)
+        optimizer = torch.optim.AdamW(
+            model.parameters(),
+            lr=args.learning_rate,
+            weight_decay=args.weight_decay,
+        )
+        best_validation_score = float("inf")
+        epochs_without_improvement = 0
+        for epoch in range(1, args.epochs + 1):
+            progress = (epoch - 1) / max(args.epochs - 1, 1)
+            train_metrics = run_training_epoch(
+                model,
+                args.model,
+                train_loader,
+                center,
+                optimizer,
+                device,
+                progress,
+                args.gate_regularization_weight,
+            )
+            validation_score = evaluate_normal_mean(
+                model,
+                args.model,
+                validation_loader,
+                center,
+                device,
+                args.recording_quantile,
+            )
+            row = {
+                "epoch": float(epoch),
+                **{f"train_{name}": value for name, value in train_metrics.items()},
+                "validation_normal_score": validation_score,
             }
-            epochs_without_improvement = 0
-        else:
-            epochs_without_improvement += 1
-        if args.patience > 0 and epochs_without_improvement >= args.patience:
-            print(f"early_stopping_epoch={epoch}")
-            break
+            history.append(row)
+            save_history(history, output_dir / "history.csv")
+            print(
+                f"epoch={epoch:02d} loss={train_metrics['loss']:.6f} "
+                f"embedding_std={train_metrics['embedding_std']:.6f} "
+                f"val_normal_score={validation_score:.6f}"
+            )
+            if validation_score < best_validation_score:
+                best_validation_score = validation_score
+                best_state = {
+                    name: value.detach().cpu().clone()
+                    for name, value in model.state_dict().items()
+                }
+                save_recovery_checkpoint(
+                    recovery_checkpoint_path,
+                    best_state,
+                    center,
+                    epoch,
+                    validation_score,
+                    args,
+                )
+                epochs_without_improvement = 0
+            else:
+                epochs_without_improvement += 1
+            if args.patience > 0 and epochs_without_improvement >= args.patience:
+                print(f"early_stopping_epoch={epoch}")
+                break
 
     if best_state is None:
         raise RuntimeError("training did not produce a checkpoint.")
@@ -480,12 +551,7 @@ def main() -> None:
             ),
         )["auc"]
 
-    output_dir = args.output_dir or ROOT / "outputs" / "mimii_one_class" / f"{args.model}_seed{args.seed}"
-    output_dir.mkdir(parents=True, exist_ok=True)
-    with (output_dir / "history.csv").open("w", newline="", encoding="utf-8") as handle:
-        writer = csv.DictWriter(handle, fieldnames=list(history[0]))
-        writer.writeheader()
-        writer.writerows(history)
+    save_history(history, output_dir / "history.csv")
     (output_dir / "results.json").write_text(json.dumps(result, indent=2), encoding="utf-8")
     torch.save(
         {
