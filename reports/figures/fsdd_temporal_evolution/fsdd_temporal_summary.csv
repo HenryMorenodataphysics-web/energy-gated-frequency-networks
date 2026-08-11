@@ -1,0 +1,4 @@
+model,trainable_parameters,best_validation_accuracy,best_epoch,final_train_accuracy,final_validation_accuracy,test_accuracy,test_examples
+Pooled EGFN,4106,0.538,8.0,0.9245,0.392,0.56,500
+Temporal EGFN,44714,0.724,7.0,0.9955,0.654,0.708,500
+Conv1D,27594,0.704,41.0,0.996,0.502,0.746,500

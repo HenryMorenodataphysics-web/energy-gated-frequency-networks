@@ -1,0 +1,33 @@
+difficulty,true_class,predicted_class,count
+easy,low,low,508
+easy,low,mid,0
+easy,low,high,0
+easy,low,low + high,0
+easy,mid,low,0
+easy,mid,mid,519
+easy,mid,high,0
+easy,mid,low + high,0
+easy,high,low,0
+easy,high,mid,0
+easy,high,high,513
+easy,high,low + high,0
+easy,low + high,low,33
+easy,low + high,mid,0
+easy,low + high,high,0
+easy,low + high,low + high,475
+hard,low,low,377
+hard,low,mid,122
+hard,low,high,3
+hard,low,low + high,6
+hard,mid,low,128
+hard,mid,mid,379
+hard,mid,high,11
+hard,mid,low + high,1
+hard,high,low,43
+hard,high,mid,453
+hard,high,high,10
+hard,high,low + high,7
+hard,low + high,low,106
+hard,low + high,mid,390
+hard,low + high,high,10
+hard,low + high,low + high,2

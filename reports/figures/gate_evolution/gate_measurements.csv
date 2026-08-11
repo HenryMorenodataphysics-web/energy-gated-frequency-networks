@@ -1,0 +1,3073 @@
+model,example_index,class,prediction,band,gate
+Independent,0,low,high,<250 Hz,0.56939787
+Independent,0,low,high,250-500 Hz,0.55650806
+Independent,0,low,high,500-750 Hz,0.8684971
+Independent,0,low,high,750-1000 Hz,0.76383334
+Independent,0,low,high,1-1.5 kHz,0.5874908
+Independent,0,low,high,1.5-2.5 kHz,0.5949128
+Independent,0,low,high,2.5-4 kHz,0.5705984
+Independent,0,low,high,>4 kHz,0.6459937
+Independent,1,mid,mid,<250 Hz,0.6479252
+Independent,1,mid,mid,250-500 Hz,0.63813716
+Independent,1,mid,mid,500-750 Hz,0.7045741
+Independent,1,mid,mid,750-1000 Hz,0.6701669
+Independent,1,mid,mid,1-1.5 kHz,0.55259246
+Independent,1,mid,mid,1.5-2.5 kHz,0.5660689
+Independent,1,mid,mid,2.5-4 kHz,0.6257592
+Independent,1,mid,mid,>4 kHz,0.658084
+Independent,2,low + high,low + high,<250 Hz,0.65402204
+Independent,2,low + high,low + high,250-500 Hz,0.71891546
+Independent,2,low + high,low + high,500-750 Hz,0.605612
+Independent,2,low + high,low + high,750-1000 Hz,0.5655517
+Independent,2,low + high,low + high,1-1.5 kHz,0.7348052
+Independent,2,low + high,low + high,1.5-2.5 kHz,0.68831676
+Independent,2,low + high,low + high,2.5-4 kHz,0.6693384
+Independent,2,low + high,low + high,>4 kHz,0.5912812
+Independent,3,high,low + high,<250 Hz,0.5762115
+Independent,3,high,low + high,250-500 Hz,0.641815
+Independent,3,high,low + high,500-750 Hz,0.56502867
+Independent,3,high,low + high,750-1000 Hz,0.53923297
+Independent,3,high,low + high,1-1.5 kHz,0.8583131
+Independent,3,high,low + high,1.5-2.5 kHz,0.733105
+Independent,3,high,low + high,2.5-4 kHz,0.5681684
+Independent,3,high,low + high,>4 kHz,0.5739719
+Independent,4,low,low,<250 Hz,0.6167422
+Independent,4,low,low,250-500 Hz,0.82701904
+Independent,4,low,low,500-750 Hz,0.6649146
+Independent,4,low,low,750-1000 Hz,0.70619226
+Independent,4,low,low,1-1.5 kHz,0.5738595
+Independent,4,low,low,1.5-2.5 kHz,0.5576315
+Independent,4,low,low,2.5-4 kHz,0.7184216
+Independent,4,low,low,>4 kHz,0.5876851
+Independent,5,low + high,low + high,<250 Hz,0.64331144
+Independent,5,low + high,low + high,250-500 Hz,0.67865163
+Independent,5,low + high,low + high,500-750 Hz,0.55323124
+Independent,5,low + high,low + high,750-1000 Hz,0.55875975
+Independent,5,low + high,low + high,1-1.5 kHz,0.7517035
+Independent,5,low + high,low + high,1.5-2.5 kHz,0.65134495
+Independent,5,low + high,low + high,2.5-4 kHz,0.6357951
+Independent,5,low + high,low + high,>4 kHz,0.5940125
+Independent,6,low,low,<250 Hz,0.6884392
+Independent,6,low,low,250-500 Hz,0.71158797
+Independent,6,low,low,500-750 Hz,0.7957456
+Independent,6,low,low,750-1000 Hz,0.5902722
+Independent,6,low,low,1-1.5 kHz,0.5561574
+Independent,6,low,low,1.5-2.5 kHz,0.58653533
+Independent,6,low,low,2.5-4 kHz,0.6830686
+Independent,6,low,low,>4 kHz,0.6151923
+Independent,7,high,mid,<250 Hz,0.58816975
+Independent,7,high,mid,250-500 Hz,0.5563874
+Independent,7,high,mid,500-750 Hz,0.559783
+Independent,7,high,mid,750-1000 Hz,0.5974841
+Independent,7,high,mid,1-1.5 kHz,0.71702904
+Independent,7,high,mid,1.5-2.5 kHz,0.7075138
+Independent,7,high,mid,2.5-4 kHz,0.5701074
+Independent,7,high,mid,>4 kHz,0.8296928
+Independent,8,mid,mid,<250 Hz,0.62115675
+Independent,8,mid,mid,250-500 Hz,0.5702079
+Independent,8,mid,mid,500-750 Hz,0.6875043
+Independent,8,mid,mid,750-1000 Hz,0.63304424
+Independent,8,mid,mid,1-1.5 kHz,0.5751438
+Independent,8,mid,mid,1.5-2.5 kHz,0.5951914
+Independent,8,mid,mid,2.5-4 kHz,0.5925721
+Independent,8,mid,mid,>4 kHz,0.77982336
+Independent,9,mid,mid,<250 Hz,0.59973854
+Independent,9,mid,mid,250-500 Hz,0.5609671
+Independent,9,mid,mid,500-750 Hz,0.6095759
+Independent,9,mid,mid,750-1000 Hz,0.5583092
+Independent,9,mid,mid,1-1.5 kHz,0.645777
+Independent,9,mid,mid,1.5-2.5 kHz,0.68833876
+Independent,9,mid,mid,2.5-4 kHz,0.57446337
+Independent,9,mid,mid,>4 kHz,0.83949107
+Independent,10,mid,mid,<250 Hz,0.6445576
+Independent,10,mid,mid,250-500 Hz,0.60582876
+Independent,10,mid,mid,500-750 Hz,0.5742677
+Independent,10,mid,mid,750-1000 Hz,0.56580025
+Independent,10,mid,mid,1-1.5 kHz,0.6245945
+Independent,10,mid,mid,1.5-2.5 kHz,0.658877
+Independent,10,mid,mid,2.5-4 kHz,0.6004585
+Independent,10,mid,mid,>4 kHz,0.81969094
+Independent,11,low + high,low,<250 Hz,0.81571156
+Independent,11,low + high,low,250-500 Hz,0.87485224
+Independent,11,low + high,low,500-750 Hz,0.57307553
+Independent,11,low + high,low,750-1000 Hz,0.65047896
+Independent,11,low + high,low,1-1.5 kHz,0.5839012
+Independent,11,low + high,low,1.5-2.5 kHz,0.5583481
+Independent,11,low + high,low,2.5-4 kHz,0.83538353
+Independent,11,low + high,low,>4 kHz,0.6562035
+Independent,12,high,low + high,<250 Hz,0.58190626
+Independent,12,high,low + high,250-500 Hz,0.6345033
+Independent,12,high,low + high,500-750 Hz,0.5618185
+Independent,12,high,low + high,750-1000 Hz,0.5389439
+Independent,12,high,low + high,1-1.5 kHz,0.8121991
+Independent,12,high,low + high,1.5-2.5 kHz,0.7744734
+Independent,12,high,low + high,2.5-4 kHz,0.58845574
+Independent,12,high,low + high,>4 kHz,0.58406466
+Independent,13,high,high,<250 Hz,0.5834095
+Independent,13,high,high,250-500 Hz,0.5680025
+Independent,13,high,high,500-750 Hz,0.84895796
+Independent,13,high,high,750-1000 Hz,0.5943258
+Independent,13,high,high,1-1.5 kHz,0.62449086
+Independent,13,high,high,1.5-2.5 kHz,0.6629756
+Independent,13,high,high,2.5-4 kHz,0.57353616
+Independent,13,high,high,>4 kHz,0.75094795
+Independent,14,mid,mid,<250 Hz,0.6564278
+Independent,14,mid,mid,250-500 Hz,0.56909454
+Independent,14,mid,mid,500-750 Hz,0.60851985
+Independent,14,mid,mid,750-1000 Hz,0.66866356
+Independent,14,mid,mid,1-1.5 kHz,0.5900202
+Independent,14,mid,mid,1.5-2.5 kHz,0.60784185
+Independent,14,mid,mid,2.5-4 kHz,0.6106389
+Independent,14,mid,mid,>4 kHz,0.78672695
+Independent,15,mid,mid,<250 Hz,0.6168285
+Independent,15,mid,mid,250-500 Hz,0.5946788
+Independent,15,mid,mid,500-750 Hz,0.7089532
+Independent,15,mid,mid,750-1000 Hz,0.6459848
+Independent,15,mid,mid,1-1.5 kHz,0.5538846
+Independent,15,mid,mid,1.5-2.5 kHz,0.5696156
+Independent,15,mid,mid,2.5-4 kHz,0.6068356
+Independent,15,mid,mid,>4 kHz,0.75808066
+Independent,16,mid,mid,<250 Hz,0.57188314
+Independent,16,mid,mid,250-500 Hz,0.55846936
+Independent,16,mid,mid,500-750 Hz,0.7444283
+Independent,16,mid,mid,750-1000 Hz,0.7270705
+Independent,16,mid,mid,1-1.5 kHz,0.54177797
+Independent,16,mid,mid,1.5-2.5 kHz,0.5715878
+Independent,16,mid,mid,2.5-4 kHz,0.56877184
+Independent,16,mid,mid,>4 kHz,0.7212041
+Independent,17,mid,mid,<250 Hz,0.5842326
+Independent,17,mid,mid,250-500 Hz,0.5579445
+Independent,17,mid,mid,500-750 Hz,0.67903334
+Independent,17,mid,mid,750-1000 Hz,0.68592924
+Independent,17,mid,mid,1-1.5 kHz,0.5348838
+Independent,17,mid,mid,1.5-2.5 kHz,0.5588867
+Independent,17,mid,mid,2.5-4 kHz,0.57366157
+Independent,17,mid,mid,>4 kHz,0.7113364
+Independent,18,low,low,<250 Hz,0.68236953
+Independent,18,low,low,250-500 Hz,0.741955
+Independent,18,low,low,500-750 Hz,0.775739
+Independent,18,low,low,750-1000 Hz,0.59539026
+Independent,18,low,low,1-1.5 kHz,0.56402665
+Independent,18,low,low,1.5-2.5 kHz,0.5798571
+Independent,18,low,low,2.5-4 kHz,0.7014465
+Independent,18,low,low,>4 kHz,0.59963745
+Independent,19,low,low,<250 Hz,0.6967572
+Independent,19,low,low,250-500 Hz,0.707163
+Independent,19,low,low,500-750 Hz,0.58364546
+Independent,19,low,low,750-1000 Hz,0.6954509
+Independent,19,low,low,1-1.5 kHz,0.5591671
+Independent,19,low,low,1.5-2.5 kHz,0.5659635
+Independent,19,low,low,2.5-4 kHz,0.68446827
+Independent,19,low,low,>4 kHz,0.6261839
+Independent,20,low + high,low,<250 Hz,0.78189564
+Independent,20,low + high,low,250-500 Hz,0.83961856
+Independent,20,low + high,low,500-750 Hz,0.5678865
+Independent,20,low + high,low,750-1000 Hz,0.6244439
+Independent,20,low + high,low,1-1.5 kHz,0.5687917
+Independent,20,low + high,low,1.5-2.5 kHz,0.5555731
+Independent,20,low + high,low,2.5-4 kHz,0.7957677
+Independent,20,low + high,low,>4 kHz,0.6381031
+Independent,21,high,mid,<250 Hz,0.5704159
+Independent,21,high,mid,250-500 Hz,0.56470984
+Independent,21,high,mid,500-750 Hz,0.7713463
+Independent,21,high,mid,750-1000 Hz,0.57782555
+Independent,21,high,mid,1-1.5 kHz,0.53563327
+Independent,21,high,mid,1.5-2.5 kHz,0.56054515
+Independent,21,high,mid,2.5-4 kHz,0.56447494
+Independent,21,high,mid,>4 kHz,0.7963267
+Independent,22,low + high,high,<250 Hz,0.57331926
+Independent,22,low + high,high,250-500 Hz,0.5942094
+Independent,22,low + high,high,500-750 Hz,0.6028852
+Independent,22,low + high,high,750-1000 Hz,0.53863496
+Independent,22,low + high,high,1-1.5 kHz,0.756146
+Independent,22,low + high,high,1.5-2.5 kHz,0.845833
+Independent,22,low + high,high,2.5-4 kHz,0.56565815
+Independent,22,low + high,high,>4 kHz,0.5942352
+Independent,23,low + high,low + high,<250 Hz,0.74891216
+Independent,23,low + high,low + high,250-500 Hz,0.82542956
+Independent,23,low + high,low + high,500-750 Hz,0.56114393
+Independent,23,low + high,low + high,750-1000 Hz,0.6018929
+Independent,23,low + high,low + high,1-1.5 kHz,0.6855437
+Independent,23,low + high,low + high,1.5-2.5 kHz,0.60365754
+Independent,23,low + high,low + high,2.5-4 kHz,0.77398896
+Independent,23,low + high,low + high,>4 kHz,0.60723746
+Independent,24,mid,low + high,<250 Hz,0.73388326
+Independent,24,mid,low + high,250-500 Hz,0.784035
+Independent,24,mid,low + high,500-750 Hz,0.5685042
+Independent,24,mid,low + high,750-1000 Hz,0.6055537
+Independent,24,mid,low + high,1-1.5 kHz,0.60589075
+Independent,24,mid,low + high,1.5-2.5 kHz,0.6191336
+Independent,24,mid,low + high,2.5-4 kHz,0.74494547
+Independent,24,mid,low + high,>4 kHz,0.7393493
+Independent,25,low,low,<250 Hz,0.7921679
+Independent,25,low,low,250-500 Hz,0.8766335
+Independent,25,low,low,500-750 Hz,0.5655547
+Independent,25,low,low,750-1000 Hz,0.6268366
+Independent,25,low,low,1-1.5 kHz,0.5865743
+Independent,25,low,low,1.5-2.5 kHz,0.5547447
+Independent,25,low,low,2.5-4 kHz,0.82856965
+Independent,25,low,low,>4 kHz,0.6169547
+Independent,26,low + high,low,<250 Hz,0.62966764
+Independent,26,low + high,low,250-500 Hz,0.88224083
+Independent,26,low + high,low,500-750 Hz,0.5621731
+Independent,26,low + high,low,750-1000 Hz,0.55019945
+Independent,26,low + high,low,1-1.5 kHz,0.5838638
+Independent,26,low + high,low,1.5-2.5 kHz,0.5558452
+Independent,26,low + high,low,2.5-4 kHz,0.76953655
+Independent,26,low + high,low,>4 kHz,0.57275516
+Independent,27,low,low,<250 Hz,0.604959
+Independent,27,low,low,250-500 Hz,0.78902256
+Independent,27,low,low,500-750 Hz,0.7811063
+Independent,27,low,low,750-1000 Hz,0.6044414
+Independent,27,low,low,1-1.5 kHz,0.5743086
+Independent,27,low,low,1.5-2.5 kHz,0.57708776
+Independent,27,low,low,2.5-4 kHz,0.68808275
+Independent,27,low,low,>4 kHz,0.5932089
+Independent,28,low + high,low,<250 Hz,0.6777238
+Independent,28,low + high,low,250-500 Hz,0.91916263
+Independent,28,low + high,low,500-750 Hz,0.56760097
+Independent,28,low + high,low,750-1000 Hz,0.5626256
+Independent,28,low + high,low,1-1.5 kHz,0.61063826
+Independent,28,low + high,low,1.5-2.5 kHz,0.55946165
+Independent,28,low + high,low,2.5-4 kHz,0.8233064
+Independent,28,low + high,low,>4 kHz,0.58692795
+Independent,29,low,mid,<250 Hz,0.64137316
+Independent,29,low,mid,250-500 Hz,0.56966215
+Independent,29,low,mid,500-750 Hz,0.5736118
+Independent,29,low,mid,750-1000 Hz,0.69154626
+Independent,29,low,mid,1-1.5 kHz,0.557959
+Independent,29,low,mid,1.5-2.5 kHz,0.56011194
+Independent,29,low,mid,2.5-4 kHz,0.6364299
+Independent,29,low,mid,>4 kHz,0.6499869
+Independent,30,low + high,mid,<250 Hz,0.7986175
+Independent,30,low + high,mid,250-500 Hz,0.8376726
+Independent,30,low + high,mid,500-750 Hz,0.5661929
+Independent,30,low + high,mid,750-1000 Hz,0.65225446
+Independent,30,low + high,mid,1-1.5 kHz,0.5701139
+Independent,30,low + high,mid,1.5-2.5 kHz,0.5625255
+Independent,30,low + high,mid,2.5-4 kHz,0.7978681
+Independent,30,low + high,mid,>4 kHz,0.67937887
+Independent,31,low + high,low + high,<250 Hz,0.6410239
+Independent,31,low + high,low + high,250-500 Hz,0.65750384
+Independent,31,low + high,low + high,500-750 Hz,0.55533445
+Independent,31,low + high,low + high,750-1000 Hz,0.5565248
+Independent,31,low + high,low + high,1-1.5 kHz,0.77238697
+Independent,31,low + high,low + high,1.5-2.5 kHz,0.6618464
+Independent,31,low + high,low + high,2.5-4 kHz,0.61365414
+Independent,31,low + high,low + high,>4 kHz,0.64170766
+Independent,32,low + high,mid,<250 Hz,0.68912125
+Independent,32,low + high,mid,250-500 Hz,0.6560565
+Independent,32,low + high,mid,500-750 Hz,0.56385195
+Independent,32,low + high,mid,750-1000 Hz,0.5857827
+Independent,32,low + high,mid,1-1.5 kHz,0.6429343
+Independent,32,low + high,mid,1.5-2.5 kHz,0.68491876
+Independent,32,low + high,mid,2.5-4 kHz,0.6483215
+Independent,32,low + high,mid,>4 kHz,0.8326892
+Independent,33,mid,high,<250 Hz,0.5729567
+Independent,33,mid,high,250-500 Hz,0.5589135
+Independent,33,mid,high,500-750 Hz,0.665857
+Independent,33,mid,high,750-1000 Hz,0.5723154
+Independent,33,mid,high,1-1.5 kHz,0.6402708
+Independent,33,mid,high,1.5-2.5 kHz,0.63770676
+Independent,33,mid,high,2.5-4 kHz,0.5627137
+Independent,33,mid,high,>4 kHz,0.77298707
+Independent,34,mid,mid,<250 Hz,0.73588157
+Independent,34,mid,mid,250-500 Hz,0.7961315
+Independent,34,mid,mid,500-750 Hz,0.56449604
+Independent,34,mid,mid,750-1000 Hz,0.6680689
+Independent,34,mid,mid,1-1.5 kHz,0.5806641
+Independent,34,mid,mid,1.5-2.5 kHz,0.5706722
+Independent,34,mid,mid,2.5-4 kHz,0.7543842
+Independent,34,mid,mid,>4 kHz,0.66099083
+Independent,35,mid,mid,<250 Hz,0.7082517
+Independent,35,mid,mid,250-500 Hz,0.6958535
+Independent,35,mid,mid,500-750 Hz,0.56280243
+Independent,35,mid,mid,750-1000 Hz,0.64817315
+Independent,35,mid,mid,1-1.5 kHz,0.5822539
+Independent,35,mid,mid,1.5-2.5 kHz,0.5933446
+Independent,35,mid,mid,2.5-4 kHz,0.68464094
+Independent,35,mid,mid,>4 kHz,0.7190388
+Independent,36,low + high,mid,<250 Hz,0.6788604
+Independent,36,low + high,mid,250-500 Hz,0.6706379
+Independent,36,low + high,mid,500-750 Hz,0.55783176
+Independent,36,low + high,mid,750-1000 Hz,0.60328937
+Independent,36,low + high,mid,1-1.5 kHz,0.61214775
+Independent,36,low + high,mid,1.5-2.5 kHz,0.636853
+Independent,36,low + high,mid,2.5-4 kHz,0.65459394
+Independent,36,low + high,mid,>4 kHz,0.77039486
+Independent,37,high,high,<250 Hz,0.57612276
+Independent,37,high,high,250-500 Hz,0.6022459
+Independent,37,high,high,500-750 Hz,0.8009516
+Independent,37,high,high,750-1000 Hz,0.5579611
+Independent,37,high,high,1-1.5 kHz,0.69430304
+Independent,37,high,high,1.5-2.5 kHz,0.713545
+Independent,37,high,high,2.5-4 kHz,0.5748353
+Independent,37,high,high,>4 kHz,0.5793904
+Independent,38,mid,mid,<250 Hz,0.6684484
+Independent,38,mid,mid,250-500 Hz,0.6450785
+Independent,38,mid,mid,500-750 Hz,0.5923661
+Independent,38,mid,mid,750-1000 Hz,0.56487936
+Independent,38,mid,mid,1-1.5 kHz,0.63792783
+Independent,38,mid,mid,1.5-2.5 kHz,0.60072833
+Independent,38,mid,mid,2.5-4 kHz,0.62039965
+Independent,38,mid,mid,>4 kHz,0.7749467
+Independent,39,low,low,<250 Hz,0.66632277
+Independent,39,low,low,250-500 Hz,0.6704669
+Independent,39,low,low,500-750 Hz,0.77167594
+Independent,39,low,low,750-1000 Hz,0.6046836
+Independent,39,low,low,1-1.5 kHz,0.5388705
+Independent,39,low,low,1.5-2.5 kHz,0.5633024
+Independent,39,low,low,2.5-4 kHz,0.6493609
+Independent,39,low,low,>4 kHz,0.6868459
+Independent,40,low,low,<250 Hz,0.598511
+Independent,40,low,low,250-500 Hz,0.80929375
+Independent,40,low,low,500-750 Hz,0.8270135
+Independent,40,low,low,750-1000 Hz,0.556312
+Independent,40,low,low,1-1.5 kHz,0.57398003
+Independent,40,low,low,1.5-2.5 kHz,0.5951354
+Independent,40,low,low,2.5-4 kHz,0.6930438
+Independent,40,low,low,>4 kHz,0.5769745
+Independent,41,high,high,<250 Hz,0.5847835
+Independent,41,high,high,250-500 Hz,0.5626191
+Independent,41,high,high,500-750 Hz,0.8468579
+Independent,41,high,high,750-1000 Hz,0.58300954
+Independent,41,high,high,1-1.5 kHz,0.65858096
+Independent,41,high,high,1.5-2.5 kHz,0.6976348
+Independent,41,high,high,2.5-4 kHz,0.5732787
+Independent,41,high,high,>4 kHz,0.79283845
+Independent,42,low,low,<250 Hz,0.8085412
+Independent,42,low,low,250-500 Hz,0.91220105
+Independent,42,low,low,500-750 Hz,0.56227297
+Independent,42,low,low,750-1000 Hz,0.6334755
+Independent,42,low,low,1-1.5 kHz,0.612407
+Independent,42,low,low,1.5-2.5 kHz,0.5564598
+Independent,42,low,low,2.5-4 kHz,0.86334455
+Independent,42,low,low,>4 kHz,0.61605257
+Independent,43,mid,mid,<250 Hz,0.61019826
+Independent,43,mid,mid,250-500 Hz,0.567157
+Independent,43,mid,mid,500-750 Hz,0.61742496
+Independent,43,mid,mid,750-1000 Hz,0.5578415
+Independent,43,mid,mid,1-1.5 kHz,0.6176128
+Independent,43,mid,mid,1.5-2.5 kHz,0.66020167
+Independent,43,mid,mid,2.5-4 kHz,0.5791582
+Independent,43,mid,mid,>4 kHz,0.8298634
+Independent,44,mid,high,<250 Hz,0.5609607
+Independent,44,mid,high,250-500 Hz,0.5576305
+Independent,44,mid,high,500-750 Hz,0.57106954
+Independent,44,mid,high,750-1000 Hz,0.5367137
+Independent,44,mid,high,1-1.5 kHz,0.5661591
+Independent,44,mid,high,1.5-2.5 kHz,0.7199176
+Independent,44,mid,high,2.5-4 kHz,0.578738
+Independent,44,mid,high,>4 kHz,0.55921125
+Independent,45,high,high,<250 Hz,0.58643425
+Independent,45,high,high,250-500 Hz,0.5622093
+Independent,45,high,high,500-750 Hz,0.9039271
+Independent,45,high,high,750-1000 Hz,0.5726286
+Independent,45,high,high,1-1.5 kHz,0.61205375
+Independent,45,high,high,1.5-2.5 kHz,0.657198
+Independent,45,high,high,2.5-4 kHz,0.57955015
+Independent,45,high,high,>4 kHz,0.6162158
+Independent,46,low + high,low + high,<250 Hz,0.6949816
+Independent,46,low + high,low + high,250-500 Hz,0.6961233
+Independent,46,low + high,low + high,500-750 Hz,0.5686427
+Independent,46,low + high,low + high,750-1000 Hz,0.58817565
+Independent,46,low + high,low + high,1-1.5 kHz,0.6561797
+Independent,46,low + high,low + high,1.5-2.5 kHz,0.6934339
+Independent,46,low + high,low + high,2.5-4 kHz,0.6751474
+Independent,46,low + high,low + high,>4 kHz,0.83153516
+Independent,47,low + high,mid,<250 Hz,0.6987299
+Independent,47,low + high,mid,250-500 Hz,0.68384266
+Independent,47,low + high,mid,500-750 Hz,0.59829116
+Independent,47,low + high,mid,750-1000 Hz,0.592445
+Independent,47,low + high,mid,1-1.5 kHz,0.6213075
+Independent,47,low + high,mid,1.5-2.5 kHz,0.65633404
+Independent,47,low + high,mid,2.5-4 kHz,0.6675737
+Independent,47,low + high,mid,>4 kHz,0.79870075
+Independent,48,high,high,<250 Hz,0.58115476
+Independent,48,high,high,250-500 Hz,0.5587694
+Independent,48,high,high,500-750 Hz,0.8010264
+Independent,48,high,high,750-1000 Hz,0.57291716
+Independent,48,high,high,1-1.5 kHz,0.6640058
+Independent,48,high,high,1.5-2.5 kHz,0.6862537
+Independent,48,high,high,2.5-4 kHz,0.56982994
+Independent,48,high,high,>4 kHz,0.78486913
+Independent,49,low + high,low + high,<250 Hz,0.7134908
+Independent,49,low + high,low + high,250-500 Hz,0.80472445
+Independent,49,low + high,low + high,500-750 Hz,0.58886874
+Independent,49,low + high,low + high,750-1000 Hz,0.59043866
+Independent,49,low + high,low + high,1-1.5 kHz,0.63255185
+Independent,49,low + high,low + high,1.5-2.5 kHz,0.64812833
+Independent,49,low + high,low + high,2.5-4 kHz,0.74960214
+Independent,49,low + high,low + high,>4 kHz,0.76969635
+Independent,50,low + high,low + high,<250 Hz,0.6896256
+Independent,50,low + high,low + high,250-500 Hz,0.6705626
+Independent,50,low + high,low + high,500-750 Hz,0.5657081
+Independent,50,low + high,low + high,750-1000 Hz,0.58578897
+Independent,50,low + high,low + high,1-1.5 kHz,0.6591115
+Independent,50,low + high,low + high,1.5-2.5 kHz,0.7000917
+Independent,50,low + high,low + high,2.5-4 kHz,0.6547649
+Independent,50,low + high,low + high,>4 kHz,0.84214973
+Independent,51,high,high,<250 Hz,0.5807553
+Independent,51,high,high,250-500 Hz,0.5661354
+Independent,51,high,high,500-750 Hz,0.85495526
+Independent,51,high,high,750-1000 Hz,0.5889389
+Independent,51,high,high,1-1.5 kHz,0.6085034
+Independent,51,high,high,1.5-2.5 kHz,0.65329915
+Independent,51,high,high,2.5-4 kHz,0.5756253
+Independent,51,high,high,>4 kHz,0.72421753
+Independent,52,low,low,<250 Hz,0.69619894
+Independent,52,low,low,250-500 Hz,0.7020941
+Independent,52,low,low,500-750 Hz,0.60515237
+Independent,52,low,low,750-1000 Hz,0.7527139
+Independent,52,low,low,1-1.5 kHz,0.5680883
+Independent,52,low,low,1.5-2.5 kHz,0.55720204
+Independent,52,low,low,2.5-4 kHz,0.6854055
+Independent,52,low,low,>4 kHz,0.6213249
+Independent,53,high,high,<250 Hz,0.60668695
+Independent,53,high,high,250-500 Hz,0.5860642
+Independent,53,high,high,500-750 Hz,0.9114781
+Independent,53,high,high,750-1000 Hz,0.59573436
+Independent,53,high,high,1-1.5 kHz,0.58078337
+Independent,53,high,high,1.5-2.5 kHz,0.64221424
+Independent,53,high,high,2.5-4 kHz,0.59990656
+Independent,53,high,high,>4 kHz,0.6249884
+Independent,54,high,high,<250 Hz,0.5852519
+Independent,54,high,high,250-500 Hz,0.56156707
+Independent,54,high,high,500-750 Hz,0.8407103
+Independent,54,high,high,750-1000 Hz,0.5734348
+Independent,54,high,high,1-1.5 kHz,0.62731135
+Independent,54,high,high,1.5-2.5 kHz,0.6781411
+Independent,54,high,high,2.5-4 kHz,0.5801821
+Independent,54,high,high,>4 kHz,0.76444364
+Independent,55,low,low,<250 Hz,0.6714713
+Independent,55,low,low,250-500 Hz,0.7808729
+Independent,55,low,low,500-750 Hz,0.754595
+Independent,55,low,low,750-1000 Hz,0.63165015
+Independent,55,low,low,1-1.5 kHz,0.57401884
+Independent,55,low,low,1.5-2.5 kHz,0.57156545
+Independent,55,low,low,2.5-4 kHz,0.7195165
+Independent,55,low,low,>4 kHz,0.60220003
+Independent,56,low,low,<250 Hz,0.71679884
+Independent,56,low,low,250-500 Hz,0.7870421
+Independent,56,low,low,500-750 Hz,0.81348914
+Independent,56,low,low,750-1000 Hz,0.6215762
+Independent,56,low,low,1-1.5 kHz,0.5606521
+Independent,56,low,low,1.5-2.5 kHz,0.57462806
+Independent,56,low,low,2.5-4 kHz,0.7381751
+Independent,56,low,low,>4 kHz,0.62813497
+Independent,57,low,high,<250 Hz,0.58766866
+Independent,57,low,high,250-500 Hz,0.5942899
+Independent,57,low,high,500-750 Hz,0.89763564
+Independent,57,low,high,750-1000 Hz,0.6520713
+Independent,57,low,high,1-1.5 kHz,0.54119307
+Independent,57,low,high,1.5-2.5 kHz,0.58366925
+Independent,57,low,high,2.5-4 kHz,0.5818646
+Independent,57,low,high,>4 kHz,0.74144185
+Independent,58,low,low,<250 Hz,0.58282053
+Independent,58,low,low,250-500 Hz,0.6217786
+Independent,58,low,low,500-750 Hz,0.8896043
+Independent,58,low,low,750-1000 Hz,0.6449264
+Independent,58,low,low,1-1.5 kHz,0.53774166
+Independent,58,low,low,1.5-2.5 kHz,0.5747525
+Independent,58,low,low,2.5-4 kHz,0.5843315
+Independent,58,low,low,>4 kHz,0.739612
+Independent,59,low + high,low + high,<250 Hz,0.678791
+Independent,59,low + high,low + high,250-500 Hz,0.8333916
+Independent,59,low + high,low + high,500-750 Hz,0.5514384
+Independent,59,low + high,low + high,750-1000 Hz,0.56670576
+Independent,59,low + high,low + high,1-1.5 kHz,0.72649384
+Independent,59,low + high,low + high,1.5-2.5 kHz,0.65880704
+Independent,59,low + high,low + high,2.5-4 kHz,0.75262034
+Independent,59,low + high,low + high,>4 kHz,0.58177507
+Independent,60,high,high,<250 Hz,0.5838944
+Independent,60,high,high,250-500 Hz,0.5883926
+Independent,60,high,high,500-750 Hz,0.88715327
+Independent,60,high,high,750-1000 Hz,0.6389598
+Independent,60,high,high,1-1.5 kHz,0.53821
+Independent,60,high,high,1.5-2.5 kHz,0.5798807
+Independent,60,high,high,2.5-4 kHz,0.5798102
+Independent,60,high,high,>4 kHz,0.71970737
+Independent,61,low + high,mid,<250 Hz,0.6456518
+Independent,61,low + high,mid,250-500 Hz,0.6175883
+Independent,61,low + high,mid,500-750 Hz,0.5813523
+Independent,61,low + high,mid,750-1000 Hz,0.57066554
+Independent,61,low + high,mid,1-1.5 kHz,0.63729846
+Independent,61,low + high,mid,1.5-2.5 kHz,0.6705754
+Independent,61,low + high,mid,2.5-4 kHz,0.6106833
+Independent,61,low + high,mid,>4 kHz,0.81374806
+Independent,62,low + high,low + high,<250 Hz,0.6651951
+Independent,62,low + high,low + high,250-500 Hz,0.67402065
+Independent,62,low + high,low + high,500-750 Hz,0.5529409
+Independent,62,low + high,low + high,750-1000 Hz,0.57304436
+Independent,62,low + high,low + high,1-1.5 kHz,0.74099106
+Independent,62,low + high,low + high,1.5-2.5 kHz,0.69169194
+Independent,62,low + high,low + high,2.5-4 kHz,0.6401419
+Independent,62,low + high,low + high,>4 kHz,0.64658815
+Independent,63,high,high,<250 Hz,0.5782429
+Independent,63,high,high,250-500 Hz,0.5785375
+Independent,63,high,high,500-750 Hz,0.8562064
+Independent,63,high,high,750-1000 Hz,0.5742126
+Independent,63,high,high,1-1.5 kHz,0.64732605
+Independent,63,high,high,1.5-2.5 kHz,0.6771439
+Independent,63,high,high,2.5-4 kHz,0.57163095
+Independent,63,high,high,>4 kHz,0.58159053
+Independent,64,mid,mid,<250 Hz,0.7688557
+Independent,64,mid,mid,250-500 Hz,0.8120811
+Independent,64,mid,mid,500-750 Hz,0.5701619
+Independent,64,mid,mid,750-1000 Hz,0.6460013
+Independent,64,mid,mid,1-1.5 kHz,0.5588767
+Independent,64,mid,mid,1.5-2.5 kHz,0.5633463
+Independent,64,mid,mid,2.5-4 kHz,0.7600189
+Independent,64,mid,mid,>4 kHz,0.70210403
+Independent,65,low,low,<250 Hz,0.7089465
+Independent,65,low,low,250-500 Hz,0.7801623
+Independent,65,low,low,500-750 Hz,0.8291722
+Independent,65,low,low,750-1000 Hz,0.59253037
+Independent,65,low,low,1-1.5 kHz,0.5702428
+Independent,65,low,low,1.5-2.5 kHz,0.5975161
+Independent,65,low,low,2.5-4 kHz,0.73370904
+Independent,65,low,low,>4 kHz,0.5956934
+Independent,66,mid,mid,<250 Hz,0.6952623
+Independent,66,mid,mid,250-500 Hz,0.693771
+Independent,66,mid,mid,500-750 Hz,0.6213632
+Independent,66,mid,mid,750-1000 Hz,0.7055889
+Independent,66,mid,mid,1-1.5 kHz,0.55186987
+Independent,66,mid,mid,1.5-2.5 kHz,0.56158155
+Independent,66,mid,mid,2.5-4 kHz,0.6718297
+Independent,66,mid,mid,>4 kHz,0.66351545
+Independent,67,low,low,<250 Hz,0.67412126
+Independent,67,low,low,250-500 Hz,0.83981985
+Independent,67,low,low,500-750 Hz,0.58376706
+Independent,67,low,low,750-1000 Hz,0.67487484
+Independent,67,low,low,1-1.5 kHz,0.57494897
+Independent,67,low,low,1.5-2.5 kHz,0.5564554
+Independent,67,low,low,2.5-4 kHz,0.7585357
+Independent,67,low,low,>4 kHz,0.5801225
+Independent,68,high,high,<250 Hz,0.5677463
+Independent,68,high,high,250-500 Hz,0.5788905
+Independent,68,high,high,500-750 Hz,0.5762073
+Independent,68,high,high,750-1000 Hz,0.53792125
+Independent,68,high,high,1-1.5 kHz,0.70135754
+Independent,68,high,high,1.5-2.5 kHz,0.8543656
+Independent,68,high,high,2.5-4 kHz,0.5731388
+Independent,68,high,high,>4 kHz,0.58840984
+Independent,69,low,low,<250 Hz,0.6358284
+Independent,69,low,low,250-500 Hz,0.89452296
+Independent,69,low,low,500-750 Hz,0.56531334
+Independent,69,low,low,750-1000 Hz,0.55134374
+Independent,69,low,low,1-1.5 kHz,0.5917653
+Independent,69,low,low,1.5-2.5 kHz,0.56697863
+Independent,69,low,low,2.5-4 kHz,0.7814442
+Independent,69,low,low,>4 kHz,0.5756011
+Independent,70,low,low,<250 Hz,0.63337106
+Independent,70,low,low,250-500 Hz,0.7743215
+Independent,70,low,low,500-750 Hz,0.5971662
+Independent,70,low,low,750-1000 Hz,0.717011
+Independent,70,low,low,1-1.5 kHz,0.5656889
+Independent,70,low,low,1.5-2.5 kHz,0.56403095
+Independent,70,low,low,2.5-4 kHz,0.6967926
+Independent,70,low,low,>4 kHz,0.60677433
+Independent,71,low + high,mid,<250 Hz,0.6757397
+Independent,71,low + high,mid,250-500 Hz,0.56906676
+Independent,71,low + high,mid,500-750 Hz,0.57800066
+Independent,71,low + high,mid,750-1000 Hz,0.631734
+Independent,71,low + high,mid,1-1.5 kHz,0.7019031
+Independent,71,low + high,mid,1.5-2.5 kHz,0.73953044
+Independent,71,low + high,mid,2.5-4 kHz,0.62428
+Independent,71,low + high,mid,>4 kHz,0.87732613
+Independent,72,low,low,<250 Hz,0.5738569
+Independent,72,low,low,250-500 Hz,0.5699383
+Independent,72,low,low,500-750 Hz,0.5602597
+Independent,72,low,low,750-1000 Hz,0.538639
+Independent,72,low,low,1-1.5 kHz,0.53418523
+Independent,72,low,low,1.5-2.5 kHz,0.5516708
+Independent,72,low,low,2.5-4 kHz,0.68383336
+Independent,72,low,low,>4 kHz,0.5600138
+Independent,73,high,high,<250 Hz,0.5638134
+Independent,73,high,high,250-500 Hz,0.5716795
+Independent,73,high,high,500-750 Hz,0.67111295
+Independent,73,high,high,750-1000 Hz,0.6298296
+Independent,73,high,high,1-1.5 kHz,0.62506545
+Independent,73,high,high,1.5-2.5 kHz,0.8009022
+Independent,73,high,high,2.5-4 kHz,0.56201017
+Independent,73,high,high,>4 kHz,0.59375155
+Independent,74,mid,mid,<250 Hz,0.5673127
+Independent,74,mid,mid,250-500 Hz,0.557199
+Independent,74,mid,mid,500-750 Hz,0.7754521
+Independent,74,mid,mid,750-1000 Hz,0.6792543
+Independent,74,mid,mid,1-1.5 kHz,0.5558651
+Independent,74,mid,mid,1.5-2.5 kHz,0.5700958
+Independent,74,mid,mid,2.5-4 kHz,0.5621227
+Independent,74,mid,mid,>4 kHz,0.726299
+Independent,75,low,low,<250 Hz,0.67606986
+Independent,75,low,low,250-500 Hz,0.75036824
+Independent,75,low,low,500-750 Hz,0.86930114
+Independent,75,low,low,750-1000 Hz,0.62398845
+Independent,75,low,low,1-1.5 kHz,0.558259
+Independent,75,low,low,1.5-2.5 kHz,0.5920829
+Independent,75,low,low,2.5-4 kHz,0.70126015
+Independent,75,low,low,>4 kHz,0.62309265
+Independent,76,low,low,<250 Hz,0.6632377
+Independent,76,low,low,250-500 Hz,0.7550573
+Independent,76,low,low,500-750 Hz,0.81507045
+Independent,76,low,low,750-1000 Hz,0.6037374
+Independent,76,low,low,1-1.5 kHz,0.57310814
+Independent,76,low,low,1.5-2.5 kHz,0.58692527
+Independent,76,low,low,2.5-4 kHz,0.7023529
+Independent,76,low,low,>4 kHz,0.60008854
+Independent,77,high,high,<250 Hz,0.5829756
+Independent,77,high,high,250-500 Hz,0.58391464
+Independent,77,high,high,500-750 Hz,0.8530951
+Independent,77,high,high,750-1000 Hz,0.62234366
+Independent,77,high,high,1-1.5 kHz,0.63161975
+Independent,77,high,high,1.5-2.5 kHz,0.6310756
+Independent,77,high,high,2.5-4 kHz,0.5743333
+Independent,77,high,high,>4 kHz,0.7118586
+Independent,78,high,low + high,<250 Hz,0.5695704
+Independent,78,high,low + high,250-500 Hz,0.620203
+Independent,78,high,low + high,500-750 Hz,0.5580822
+Independent,78,high,low + high,750-1000 Hz,0.53584754
+Independent,78,high,low + high,1-1.5 kHz,0.8230724
+Independent,78,high,low + high,1.5-2.5 kHz,0.725087
+Independent,78,high,low + high,2.5-4 kHz,0.5641616
+Independent,78,high,low + high,>4 kHz,0.5683899
+Independent,79,low + high,low + high,<250 Hz,0.60378134
+Independent,79,low + high,low + high,250-500 Hz,0.7797397
+Independent,79,low + high,low + high,500-750 Hz,0.5569062
+Independent,79,low + high,low + high,750-1000 Hz,0.5709223
+Independent,79,low + high,low + high,1-1.5 kHz,0.68596226
+Independent,79,low + high,low + high,1.5-2.5 kHz,0.65709347
+Independent,79,low + high,low + high,2.5-4 kHz,0.67246777
+Independent,79,low + high,low + high,>4 kHz,0.7486667
+Independent,80,high,high,<250 Hz,0.5683461
+Independent,80,high,high,250-500 Hz,0.6054023
+Independent,80,high,high,500-750 Hz,0.71053
+Independent,80,high,high,750-1000 Hz,0.5628466
+Independent,80,high,high,1-1.5 kHz,0.76470715
+Independent,80,high,high,1.5-2.5 kHz,0.65607977
+Independent,80,high,high,2.5-4 kHz,0.5697605
+Independent,80,high,high,>4 kHz,0.6342095
+Independent,81,low,low,<250 Hz,0.67725974
+Independent,81,low,low,250-500 Hz,0.6858048
+Independent,81,low,low,500-750 Hz,0.70545197
+Independent,81,low,low,750-1000 Hz,0.7057838
+Independent,81,low,low,1-1.5 kHz,0.5553354
+Independent,81,low,low,1.5-2.5 kHz,0.5615355
+Independent,81,low,low,2.5-4 kHz,0.6625329
+Independent,81,low,low,>4 kHz,0.6452963
+Independent,82,mid,low,<250 Hz,0.7772617
+Independent,82,mid,low,250-500 Hz,0.81919354
+Independent,82,mid,low,500-750 Hz,0.5623739
+Independent,82,mid,low,750-1000 Hz,0.622343
+Independent,82,mid,low,1-1.5 kHz,0.5623489
+Independent,82,mid,low,1.5-2.5 kHz,0.55766326
+Independent,82,mid,low,2.5-4 kHz,0.77986324
+Independent,82,mid,low,>4 kHz,0.6571233
+Independent,83,low,low,<250 Hz,0.6792086
+Independent,83,low,low,250-500 Hz,0.7460808
+Independent,83,low,low,500-750 Hz,0.7935346
+Independent,83,low,low,750-1000 Hz,0.58107996
+Independent,83,low,low,1-1.5 kHz,0.5746298
+Independent,83,low,low,1.5-2.5 kHz,0.60218185
+Independent,83,low,low,2.5-4 kHz,0.7021869
+Independent,83,low,low,>4 kHz,0.5910642
+Independent,84,low,low,<250 Hz,0.5764437
+Independent,84,low,low,250-500 Hz,0.5848177
+Independent,84,low,low,500-750 Hz,0.87144065
+Independent,84,low,low,750-1000 Hz,0.62833315
+Independent,84,low,low,1-1.5 kHz,0.5365035
+Independent,84,low,low,1.5-2.5 kHz,0.57261974
+Independent,84,low,low,2.5-4 kHz,0.58366156
+Independent,84,low,low,>4 kHz,0.7076137
+Independent,85,low,high,<250 Hz,0.59369594
+Independent,85,low,high,250-500 Hz,0.5896562
+Independent,85,low,high,500-750 Hz,0.91804385
+Independent,85,low,high,750-1000 Hz,0.6459996
+Independent,85,low,high,1-1.5 kHz,0.54961646
+Independent,85,low,high,1.5-2.5 kHz,0.68532574
+Independent,85,low,high,2.5-4 kHz,0.58355343
+Independent,85,low,high,>4 kHz,0.6550152
+Independent,86,high,high,<250 Hz,0.57386774
+Independent,86,high,high,250-500 Hz,0.57517046
+Independent,86,high,high,500-750 Hz,0.75368524
+Independent,86,high,high,750-1000 Hz,0.58687747
+Independent,86,high,high,1-1.5 kHz,0.6726306
+Independent,86,high,high,1.5-2.5 kHz,0.65162027
+Independent,86,high,high,2.5-4 kHz,0.5665347
+Independent,86,high,high,>4 kHz,0.71941286
+Independent,87,low + high,low + high,<250 Hz,0.57130724
+Independent,87,low + high,low + high,250-500 Hz,0.59155506
+Independent,87,low + high,low + high,500-750 Hz,0.5649307
+Independent,87,low + high,low + high,750-1000 Hz,0.5361784
+Independent,87,low + high,low + high,1-1.5 kHz,0.7469377
+Independent,87,low + high,low + high,1.5-2.5 kHz,0.8180308
+Independent,87,low + high,low + high,2.5-4 kHz,0.5659991
+Independent,87,low + high,low + high,>4 kHz,0.5889858
+Independent,88,high,mid,<250 Hz,0.5682016
+Independent,88,high,mid,250-500 Hz,0.5769248
+Independent,88,high,mid,500-750 Hz,0.83070207
+Independent,88,high,mid,750-1000 Hz,0.6064079
+Independent,88,high,mid,1-1.5 kHz,0.53656334
+Independent,88,high,mid,1.5-2.5 kHz,0.5710381
+Independent,88,high,mid,2.5-4 kHz,0.5757181
+Independent,88,high,mid,>4 kHz,0.79908186
+Independent,89,high,high,<250 Hz,0.58737296
+Independent,89,high,high,250-500 Hz,0.5716844
+Independent,89,high,high,500-750 Hz,0.82033044
+Independent,89,high,high,750-1000 Hz,0.6017685
+Independent,89,high,high,1-1.5 kHz,0.63601696
+Independent,89,high,high,1.5-2.5 kHz,0.6796778
+Independent,89,high,high,2.5-4 kHz,0.57674944
+Independent,89,high,high,>4 kHz,0.80655277
+Independent,90,high,high,<250 Hz,0.5824674
+Independent,90,high,high,250-500 Hz,0.5561467
+Independent,90,high,high,500-750 Hz,0.7837654
+Independent,90,high,high,750-1000 Hz,0.6013814
+Independent,90,high,high,1-1.5 kHz,0.68723434
+Independent,90,high,high,1.5-2.5 kHz,0.6791261
+Independent,90,high,high,2.5-4 kHz,0.5691655
+Independent,90,high,high,>4 kHz,0.77321047
+Independent,91,mid,low + high,<250 Hz,0.5939902
+Independent,91,mid,low + high,250-500 Hz,0.5645534
+Independent,91,mid,low + high,500-750 Hz,0.5557029
+Independent,91,mid,low + high,750-1000 Hz,0.5832055
+Independent,91,mid,low + high,1-1.5 kHz,0.7500291
+Independent,91,mid,low + high,1.5-2.5 kHz,0.7532875
+Independent,91,mid,low + high,2.5-4 kHz,0.57402664
+Independent,91,mid,low + high,>4 kHz,0.76078343
+Independent,92,low + high,low + high,<250 Hz,0.7094203
+Independent,92,low + high,low + high,250-500 Hz,0.9124017
+Independent,92,low + high,low + high,500-750 Hz,0.558199
+Independent,92,low + high,low + high,750-1000 Hz,0.5739839
+Independent,92,low + high,low + high,1-1.5 kHz,0.6090376
+Independent,92,low + high,low + high,1.5-2.5 kHz,0.55951935
+Independent,92,low + high,low + high,2.5-4 kHz,0.8301217
+Independent,92,low + high,low + high,>4 kHz,0.5996435
+Independent,93,low + high,low,<250 Hz,0.77422035
+Independent,93,low + high,low,250-500 Hz,0.8874759
+Independent,93,low + high,low,500-750 Hz,0.557424
+Independent,93,low + high,low,750-1000 Hz,0.6101965
+Independent,93,low + high,low,1-1.5 kHz,0.5947593
+Independent,93,low + high,low,1.5-2.5 kHz,0.5576507
+Independent,93,low + high,low,2.5-4 kHz,0.8311689
+Independent,93,low + high,low,>4 kHz,0.5997703
+Independent,94,low,low,<250 Hz,0.5849144
+Independent,94,low,low,250-500 Hz,0.77067417
+Independent,94,low,low,500-750 Hz,0.61333495
+Independent,94,low,low,750-1000 Hz,0.69294935
+Independent,94,low,low,1-1.5 kHz,0.5710435
+Independent,94,low,low,1.5-2.5 kHz,0.5643505
+Independent,94,low,low,2.5-4 kHz,0.65598255
+Independent,94,low,low,>4 kHz,0.5743881
+Independent,95,mid,mid,<250 Hz,0.633412
+Independent,95,mid,mid,250-500 Hz,0.5628732
+Independent,95,mid,mid,500-750 Hz,0.6389383
+Independent,95,mid,mid,750-1000 Hz,0.6860394
+Independent,95,mid,mid,1-1.5 kHz,0.5582199
+Independent,95,mid,mid,1.5-2.5 kHz,0.573478
+Independent,95,mid,mid,2.5-4 kHz,0.6034537
+Independent,95,mid,mid,>4 kHz,0.7440245
+Independent,96,mid,mid,<250 Hz,0.70554215
+Independent,96,mid,mid,250-500 Hz,0.7585155
+Independent,96,mid,mid,500-750 Hz,0.5618698
+Independent,96,mid,mid,750-1000 Hz,0.60352135
+Independent,96,mid,mid,1-1.5 kHz,0.6100177
+Independent,96,mid,mid,1.5-2.5 kHz,0.6249469
+Independent,96,mid,mid,2.5-4 kHz,0.7215781
+Independent,96,mid,mid,>4 kHz,0.7457604
+Independent,97,low,low,<250 Hz,0.66556436
+Independent,97,low,low,250-500 Hz,0.837199
+Independent,97,low,low,500-750 Hz,0.61713713
+Independent,97,low,low,750-1000 Hz,0.70949334
+Independent,97,low,low,1-1.5 kHz,0.5865674
+Independent,97,low,low,1.5-2.5 kHz,0.57300615
+Independent,97,low,low,2.5-4 kHz,0.7526649
+Independent,97,low,low,>4 kHz,0.58502245
+Independent,98,mid,high,<250 Hz,0.56989086
+Independent,98,mid,high,250-500 Hz,0.562891
+Independent,98,mid,high,500-750 Hz,0.72187585
+Independent,98,mid,high,750-1000 Hz,0.5781359
+Independent,98,mid,high,1-1.5 kHz,0.6229078
+Independent,98,mid,high,1.5-2.5 kHz,0.6480677
+Independent,98,mid,high,2.5-4 kHz,0.56631297
+Independent,98,mid,high,>4 kHz,0.79901195
+Independent,99,low + high,mid,<250 Hz,0.6464328
+Independent,99,low + high,mid,250-500 Hz,0.6504916
+Independent,99,low + high,mid,500-750 Hz,0.5733895
+Independent,99,low + high,mid,750-1000 Hz,0.6518029
+Independent,99,low + high,mid,1-1.5 kHz,0.6547873
+Independent,99,low + high,mid,1.5-2.5 kHz,0.68886644
+Independent,99,low + high,mid,2.5-4 kHz,0.63077265
+Independent,99,low + high,mid,>4 kHz,0.8266047
+Independent,100,low,low,<250 Hz,0.63826275
+Independent,100,low,low,250-500 Hz,0.7921025
+Independent,100,low,low,500-750 Hz,0.75945026
+Independent,100,low,low,750-1000 Hz,0.5584632
+Independent,100,low,low,1-1.5 kHz,0.56578857
+Independent,100,low,low,1.5-2.5 kHz,0.5765324
+Independent,100,low,low,2.5-4 kHz,0.7072795
+Independent,100,low,low,>4 kHz,0.57735914
+Independent,101,mid,mid,<250 Hz,0.6610377
+Independent,101,mid,mid,250-500 Hz,0.62034327
+Independent,101,mid,mid,500-750 Hz,0.60112566
+Independent,101,mid,mid,750-1000 Hz,0.76092947
+Independent,101,mid,mid,1-1.5 kHz,0.54151815
+Independent,101,mid,mid,1.5-2.5 kHz,0.55826753
+Independent,101,mid,mid,2.5-4 kHz,0.63439935
+Independent,101,mid,mid,>4 kHz,0.64150625
+Independent,102,mid,low + high,<250 Hz,0.5953845
+Independent,102,mid,low + high,250-500 Hz,0.5661482
+Independent,102,mid,low + high,500-750 Hz,0.5537739
+Independent,102,mid,low + high,750-1000 Hz,0.58368886
+Independent,102,mid,low + high,1-1.5 kHz,0.75179404
+Independent,102,mid,low + high,1.5-2.5 kHz,0.70946544
+Independent,102,mid,low + high,2.5-4 kHz,0.5875599
+Independent,102,mid,low + high,>4 kHz,0.7584624
+Independent,103,low,low,<250 Hz,0.74656016
+Independent,103,low,low,250-500 Hz,0.8911874
+Independent,103,low,low,500-750 Hz,0.55431235
+Independent,103,low,low,750-1000 Hz,0.59181726
+Independent,103,low,low,1-1.5 kHz,0.59794706
+Independent,103,low,low,1.5-2.5 kHz,0.559955
+Independent,103,low,low,2.5-4 kHz,0.8249958
+Independent,103,low,low,>4 kHz,0.593525
+Independent,104,low + high,mid,<250 Hz,0.6555742
+Independent,104,low + high,mid,250-500 Hz,0.62421656
+Independent,104,low + high,mid,500-750 Hz,0.5574365
+Independent,104,low + high,mid,750-1000 Hz,0.5806268
+Independent,104,low + high,mid,1-1.5 kHz,0.64553535
+Independent,104,low + high,mid,1.5-2.5 kHz,0.6376392
+Independent,104,low + high,mid,2.5-4 kHz,0.6161673
+Independent,104,low + high,mid,>4 kHz,0.7762078
+Independent,105,mid,mid,<250 Hz,0.622093
+Independent,105,mid,mid,250-500 Hz,0.5579566
+Independent,105,mid,mid,500-750 Hz,0.71670115
+Independent,105,mid,mid,750-1000 Hz,0.8699096
+Independent,105,mid,mid,1-1.5 kHz,0.5519549
+Independent,105,mid,mid,1.5-2.5 kHz,0.5589855
+Independent,105,mid,mid,2.5-4 kHz,0.6173595
+Independent,105,mid,mid,>4 kHz,0.6006314
+Independent,106,low,low,<250 Hz,0.63063306
+Independent,106,low,low,250-500 Hz,0.5589421
+Independent,106,low,low,500-750 Hz,0.7066675
+Independent,106,low,low,750-1000 Hz,0.8478575
+Independent,106,low,low,1-1.5 kHz,0.5603738
+Independent,106,low,low,1.5-2.5 kHz,0.56646574
+Independent,106,low,low,2.5-4 kHz,0.6172788
+Independent,106,low,low,>4 kHz,0.596479
+Independent,107,high,high,<250 Hz,0.5599338
+Independent,107,high,high,250-500 Hz,0.59287184
+Independent,107,high,high,500-750 Hz,0.5730967
+Independent,107,high,high,750-1000 Hz,0.5370808
+Independent,107,high,high,1-1.5 kHz,0.7767928
+Independent,107,high,high,1.5-2.5 kHz,0.7763226
+Independent,107,high,high,2.5-4 kHz,0.56152296
+Independent,107,high,high,>4 kHz,0.56901866
+Independent,108,mid,low,<250 Hz,0.839074
+Independent,108,mid,low,250-500 Hz,0.8915787
+Independent,108,mid,low,500-750 Hz,0.57583785
+Independent,108,mid,low,750-1000 Hz,0.6704267
+Independent,108,mid,low,1-1.5 kHz,0.5975352
+Independent,108,mid,low,1.5-2.5 kHz,0.56406826
+Independent,108,mid,low,2.5-4 kHz,0.8525649
+Independent,108,mid,low,>4 kHz,0.6838688
+Independent,109,high,high,<250 Hz,0.5799096
+Independent,109,high,high,250-500 Hz,0.5629326
+Independent,109,high,high,500-750 Hz,0.7963242
+Independent,109,high,high,750-1000 Hz,0.5834247
+Independent,109,high,high,1-1.5 kHz,0.643677
+Independent,109,high,high,1.5-2.5 kHz,0.6582152
+Independent,109,high,high,2.5-4 kHz,0.5662969
+Independent,109,high,high,>4 kHz,0.6971452
+Independent,110,low,low,<250 Hz,0.6774674
+Independent,110,low,low,250-500 Hz,0.7755506
+Independent,110,low,low,500-750 Hz,0.7923429
+Independent,110,low,low,750-1000 Hz,0.595933
+Independent,110,low,low,1-1.5 kHz,0.55991185
+Independent,110,low,low,1.5-2.5 kHz,0.5744316
+Independent,110,low,low,2.5-4 kHz,0.7158004
+Independent,110,low,low,>4 kHz,0.60019773
+Independent,111,low + high,low + high,<250 Hz,0.67542684
+Independent,111,low + high,low + high,250-500 Hz,0.66893786
+Independent,111,low + high,low + high,500-750 Hz,0.5517876
+Independent,111,low + high,low + high,750-1000 Hz,0.580852
+Independent,111,low + high,low + high,1-1.5 kHz,0.7021713
+Independent,111,low + high,low + high,1.5-2.5 kHz,0.67464113
+Independent,111,low + high,low + high,2.5-4 kHz,0.6429462
+Independent,111,low + high,low + high,>4 kHz,0.6846195
+Independent,112,high,low + high,<250 Hz,0.59978193
+Independent,112,high,low + high,250-500 Hz,0.56379694
+Independent,112,high,low + high,500-750 Hz,0.55550486
+Independent,112,high,low + high,750-1000 Hz,0.59764653
+Independent,112,high,low + high,1-1.5 kHz,0.77115697
+Independent,112,high,low + high,1.5-2.5 kHz,0.731591
+Independent,112,high,low + high,2.5-4 kHz,0.5716306
+Independent,112,high,low + high,>4 kHz,0.8141944
+Independent,113,low,mid,<250 Hz,0.6104153
+Independent,113,low,mid,250-500 Hz,0.56075746
+Independent,113,low,mid,500-750 Hz,0.6873134
+Independent,113,low,mid,750-1000 Hz,0.8021469
+Independent,113,low,mid,1-1.5 kHz,0.58646023
+Independent,113,low,mid,1.5-2.5 kHz,0.5692921
+Independent,113,low,mid,2.5-4 kHz,0.59900767
+Independent,113,low,mid,>4 kHz,0.59110624
+Independent,114,low + high,low + high,<250 Hz,0.6474935
+Independent,114,low + high,low + high,250-500 Hz,0.6261928
+Independent,114,low + high,low + high,500-750 Hz,0.55222625
+Independent,114,low + high,low + high,750-1000 Hz,0.5733351
+Independent,114,low + high,low + high,1-1.5 kHz,0.6867568
+Independent,114,low + high,low + high,1.5-2.5 kHz,0.66193664
+Independent,114,low + high,low + high,2.5-4 kHz,0.6105892
+Independent,114,low + high,low + high,>4 kHz,0.70234454
+Independent,115,mid,low + high,<250 Hz,0.7174365
+Independent,115,mid,low + high,250-500 Hz,0.7607231
+Independent,115,mid,low + high,500-750 Hz,0.5653881
+Independent,115,mid,low + high,750-1000 Hz,0.61751205
+Independent,115,mid,low + high,1-1.5 kHz,0.62428063
+Independent,115,mid,low + high,1.5-2.5 kHz,0.6399812
+Independent,115,mid,low + high,2.5-4 kHz,0.7251492
+Independent,115,mid,low + high,>4 kHz,0.77294695
+Independent,116,high,high,<250 Hz,0.5664546
+Independent,116,high,high,250-500 Hz,0.5560633
+Independent,116,high,high,500-750 Hz,0.8055538
+Independent,116,high,high,750-1000 Hz,0.5720035
+Independent,116,high,high,1-1.5 kHz,0.5725784
+Independent,116,high,high,1.5-2.5 kHz,0.741545
+Independent,116,high,high,2.5-4 kHz,0.5666037
+Independent,116,high,high,>4 kHz,0.5903126
+Independent,117,mid,mid,<250 Hz,0.5768073
+Independent,117,mid,mid,250-500 Hz,0.5593852
+Independent,117,mid,mid,500-750 Hz,0.69232255
+Independent,117,mid,mid,750-1000 Hz,0.57425874
+Independent,117,mid,mid,1-1.5 kHz,0.62286174
+Independent,117,mid,mid,1.5-2.5 kHz,0.6353718
+Independent,117,mid,mid,2.5-4 kHz,0.56521237
+Independent,117,mid,mid,>4 kHz,0.808802
+Independent,118,high,high,<250 Hz,0.5675641
+Independent,118,high,high,250-500 Hz,0.5730115
+Independent,118,high,high,500-750 Hz,0.77743137
+Independent,118,high,high,750-1000 Hz,0.61840063
+Independent,118,high,high,1-1.5 kHz,0.63712114
+Independent,118,high,high,1.5-2.5 kHz,0.7483023
+Independent,118,high,high,2.5-4 kHz,0.5673594
+Independent,118,high,high,>4 kHz,0.6024131
+Independent,119,low,low,<250 Hz,0.6377708
+Independent,119,low,low,250-500 Hz,0.8157569
+Independent,119,low,low,500-750 Hz,0.8273431
+Independent,119,low,low,750-1000 Hz,0.56729645
+Independent,119,low,low,1-1.5 kHz,0.5754896
+Independent,119,low,low,1.5-2.5 kHz,0.61155516
+Independent,119,low,low,2.5-4 kHz,0.7234162
+Independent,119,low,low,>4 kHz,0.57787824
+Independent,120,low + high,mid,<250 Hz,0.67417324
+Independent,120,low + high,mid,250-500 Hz,0.6221483
+Independent,120,low + high,mid,500-750 Hz,0.5619401
+Independent,120,low + high,mid,750-1000 Hz,0.59868824
+Independent,120,low + high,mid,1-1.5 kHz,0.5973889
+Independent,120,low + high,mid,1.5-2.5 kHz,0.62789464
+Independent,120,low + high,mid,2.5-4 kHz,0.6286914
+Independent,120,low + high,mid,>4 kHz,0.78504
+Independent,121,low + high,low + high,<250 Hz,0.6473912
+Independent,121,low + high,low + high,250-500 Hz,0.7957851
+Independent,121,low + high,low + high,500-750 Hz,0.5524165
+Independent,121,low + high,low + high,750-1000 Hz,0.5672698
+Independent,121,low + high,low + high,1-1.5 kHz,0.75457436
+Independent,121,low + high,low + high,1.5-2.5 kHz,0.64877987
+Independent,121,low + high,low + high,2.5-4 kHz,0.71062624
+Independent,121,low + high,low + high,>4 kHz,0.5773877
+Independent,122,high,high,<250 Hz,0.59219134
+Independent,122,high,high,250-500 Hz,0.5589675
+Independent,122,high,high,500-750 Hz,0.627175
+Independent,122,high,high,750-1000 Hz,0.5774634
+Independent,122,high,high,1-1.5 kHz,0.72228837
+Independent,122,high,high,1.5-2.5 kHz,0.7560741
+Independent,122,high,high,2.5-4 kHz,0.58426094
+Independent,122,high,high,>4 kHz,0.87792146
+Independent,123,low,low,<250 Hz,0.80948365
+Independent,123,low,low,250-500 Hz,0.8915994
+Independent,123,low,low,500-750 Hz,0.5727504
+Independent,123,low,low,750-1000 Hz,0.6441739
+Independent,123,low,low,1-1.5 kHz,0.5959834
+Independent,123,low,low,1.5-2.5 kHz,0.5558289
+Independent,123,low,low,2.5-4 kHz,0.8453291
+Independent,123,low,low,>4 kHz,0.6272671
+Independent,124,high,high,<250 Hz,0.57640046
+Independent,124,high,high,250-500 Hz,0.5570849
+Independent,124,high,high,500-750 Hz,0.8050388
+Independent,124,high,high,750-1000 Hz,0.56299806
+Independent,124,high,high,1-1.5 kHz,0.6270997
+Independent,124,high,high,1.5-2.5 kHz,0.63481164
+Independent,124,high,high,2.5-4 kHz,0.5741945
+Independent,124,high,high,>4 kHz,0.64747095
+Independent,125,high,low + high,<250 Hz,0.57485116
+Independent,125,high,low + high,250-500 Hz,0.6304372
+Independent,125,high,low + high,500-750 Hz,0.5584526
+Independent,125,high,low + high,750-1000 Hz,0.5365003
+Independent,125,high,low + high,1-1.5 kHz,0.8357223
+Independent,125,high,low + high,1.5-2.5 kHz,0.72489065
+Independent,125,high,low + high,2.5-4 kHz,0.5725095
+Independent,125,high,low + high,>4 kHz,0.5792278
+Independent,126,low + high,mid,<250 Hz,0.78164136
+Independent,126,low + high,mid,250-500 Hz,0.77183014
+Independent,126,low + high,mid,500-750 Hz,0.5827773
+Independent,126,low + high,mid,750-1000 Hz,0.6263547
+Independent,126,low + high,mid,1-1.5 kHz,0.5490342
+Independent,126,low + high,mid,1.5-2.5 kHz,0.57526463
+Independent,126,low + high,mid,2.5-4 kHz,0.73935187
+Independent,126,low + high,mid,>4 kHz,0.7853842
+Independent,127,mid,mid,<250 Hz,0.6504811
+Independent,127,mid,mid,250-500 Hz,0.58214295
+Independent,127,mid,mid,500-750 Hz,0.58923155
+Independent,127,mid,mid,750-1000 Hz,0.70302075
+Independent,127,mid,mid,1-1.5 kHz,0.54659796
+Independent,127,mid,mid,1.5-2.5 kHz,0.569053
+Independent,127,mid,mid,2.5-4 kHz,0.61030394
+Independent,127,mid,mid,>4 kHz,0.71969163
+Contextual,0,low,low,<250 Hz,0.73152924
+Contextual,0,low,low,250-500 Hz,0.7787133
+Contextual,0,low,low,500-750 Hz,0.75070596
+Contextual,0,low,low,750-1000 Hz,0.7707009
+Contextual,0,low,low,1-1.5 kHz,0.58706415
+Contextual,0,low,low,1.5-2.5 kHz,0.7457414
+Contextual,0,low,low,2.5-4 kHz,0.6426621
+Contextual,0,low,low,>4 kHz,0.595668
+Contextual,1,mid,mid,<250 Hz,0.7324798
+Contextual,1,mid,mid,250-500 Hz,0.7835194
+Contextual,1,mid,mid,500-750 Hz,0.71349126
+Contextual,1,mid,mid,750-1000 Hz,0.74269074
+Contextual,1,mid,mid,1-1.5 kHz,0.5808462
+Contextual,1,mid,mid,1.5-2.5 kHz,0.6812081
+Contextual,1,mid,mid,2.5-4 kHz,0.68274254
+Contextual,1,mid,mid,>4 kHz,0.6194545
+Contextual,2,low + high,low + high,<250 Hz,0.7847341
+Contextual,2,low + high,low + high,250-500 Hz,0.81966275
+Contextual,2,low + high,low + high,500-750 Hz,0.7545215
+Contextual,2,low + high,low + high,750-1000 Hz,0.8307757
+Contextual,2,low + high,low + high,1-1.5 kHz,0.6734893
+Contextual,2,low + high,low + high,1.5-2.5 kHz,0.6785732
+Contextual,2,low + high,low + high,2.5-4 kHz,0.6966052
+Contextual,2,low + high,low + high,>4 kHz,0.59101605
+Contextual,3,high,low + high,<250 Hz,0.83342654
+Contextual,3,high,low + high,250-500 Hz,0.83543134
+Contextual,3,high,low + high,500-750 Hz,0.812405
+Contextual,3,high,low + high,750-1000 Hz,0.891936
+Contextual,3,high,low + high,1-1.5 kHz,0.7438177
+Contextual,3,high,low + high,1.5-2.5 kHz,0.7228588
+Contextual,3,high,low + high,2.5-4 kHz,0.6789374
+Contextual,3,high,low + high,>4 kHz,0.5160507
+Contextual,4,low,low,<250 Hz,0.74448663
+Contextual,4,low,low,250-500 Hz,0.8081264
+Contextual,4,low,low,500-750 Hz,0.71488655
+Contextual,4,low,low,750-1000 Hz,0.75701
+Contextual,4,low,low,1-1.5 kHz,0.59666926
+Contextual,4,low,low,1.5-2.5 kHz,0.6627531
+Contextual,4,low,low,2.5-4 kHz,0.6956346
+Contextual,4,low,low,>4 kHz,0.6530203
+Contextual,5,low + high,low + high,<250 Hz,0.78730094
+Contextual,5,low + high,low + high,250-500 Hz,0.81196344
+Contextual,5,low + high,low + high,500-750 Hz,0.75583696
+Contextual,5,low + high,low + high,750-1000 Hz,0.8290013
+Contextual,5,low + high,low + high,1-1.5 kHz,0.67590934
+Contextual,5,low + high,low + high,1.5-2.5 kHz,0.68384814
+Contextual,5,low + high,low + high,2.5-4 kHz,0.69146746
+Contextual,5,low + high,low + high,>4 kHz,0.575963
+Contextual,6,low,low,<250 Hz,0.7627154
+Contextual,6,low,low,250-500 Hz,0.80903256
+Contextual,6,low,low,500-750 Hz,0.72332954
+Contextual,6,low,low,750-1000 Hz,0.7668384
+Contextual,6,low,low,1-1.5 kHz,0.58163553
+Contextual,6,low,low,1.5-2.5 kHz,0.674885
+Contextual,6,low,low,2.5-4 kHz,0.6877752
+Contextual,6,low,low,>4 kHz,0.62186205
+Contextual,7,high,mid,<250 Hz,0.74099034
+Contextual,7,high,mid,250-500 Hz,0.7889823
+Contextual,7,high,mid,500-750 Hz,0.73663133
+Contextual,7,high,mid,750-1000 Hz,0.78602594
+Contextual,7,high,mid,1-1.5 kHz,0.6316451
+Contextual,7,high,mid,1.5-2.5 kHz,0.6781409
+Contextual,7,high,mid,2.5-4 kHz,0.6822484
+Contextual,7,high,mid,>4 kHz,0.5872391
+Contextual,8,mid,mid,<250 Hz,0.74114263
+Contextual,8,mid,mid,250-500 Hz,0.79662216
+Contextual,8,mid,mid,500-750 Hz,0.7199414
+Contextual,8,mid,mid,750-1000 Hz,0.7677504
+Contextual,8,mid,mid,1-1.5 kHz,0.57134825
+Contextual,8,mid,mid,1.5-2.5 kHz,0.7107506
+Contextual,8,mid,mid,2.5-4 kHz,0.6824939
+Contextual,8,mid,mid,>4 kHz,0.6331208
+Contextual,9,mid,mid,<250 Hz,0.7422969
+Contextual,9,mid,mid,250-500 Hz,0.79382247
+Contextual,9,mid,mid,500-750 Hz,0.7258766
+Contextual,9,mid,mid,750-1000 Hz,0.781144
+Contextual,9,mid,mid,1-1.5 kHz,0.61123484
+Contextual,9,mid,mid,1.5-2.5 kHz,0.6841652
+Contextual,9,mid,mid,2.5-4 kHz,0.68504244
+Contextual,9,mid,mid,>4 kHz,0.6064893
+Contextual,10,mid,mid,<250 Hz,0.7430075
+Contextual,10,mid,mid,250-500 Hz,0.7947784
+Contextual,10,mid,mid,500-750 Hz,0.7144167
+Contextual,10,mid,mid,750-1000 Hz,0.77023536
+Contextual,10,mid,mid,1-1.5 kHz,0.6030081
+Contextual,10,mid,mid,1.5-2.5 kHz,0.67342335
+Contextual,10,mid,mid,2.5-4 kHz,0.6904803
+Contextual,10,mid,mid,>4 kHz,0.62057817
+Contextual,11,low + high,low,<250 Hz,0.7500673
+Contextual,11,low + high,low,250-500 Hz,0.817515
+Contextual,11,low + high,low,500-750 Hz,0.68834776
+Contextual,11,low + high,low,750-1000 Hz,0.7520535
+Contextual,11,low + high,low,1-1.5 kHz,0.5776778
+Contextual,11,low + high,low,1.5-2.5 kHz,0.63322437
+Contextual,11,low + high,low,2.5-4 kHz,0.7116789
+Contextual,11,low + high,low,>4 kHz,0.67666507
+Contextual,12,high,low + high,<250 Hz,0.8110009
+Contextual,12,high,low + high,250-500 Hz,0.81806475
+Contextual,12,high,low + high,500-750 Hz,0.78845006
+Contextual,12,high,low + high,750-1000 Hz,0.8634629
+Contextual,12,high,low + high,1-1.5 kHz,0.71375805
+Contextual,12,high,low + high,1.5-2.5 kHz,0.7045774
+Contextual,12,high,low + high,2.5-4 kHz,0.6787818
+Contextual,12,high,low + high,>4 kHz,0.53088665
+Contextual,13,high,high,<250 Hz,0.7777375
+Contextual,13,high,high,250-500 Hz,0.8224419
+Contextual,13,high,high,500-750 Hz,0.762925
+Contextual,13,high,high,750-1000 Hz,0.8175267
+Contextual,13,high,high,1-1.5 kHz,0.60753495
+Contextual,13,high,high,1.5-2.5 kHz,0.7219082
+Contextual,13,high,high,2.5-4 kHz,0.6694405
+Contextual,13,high,high,>4 kHz,0.5921428
+Contextual,14,mid,mid,<250 Hz,0.7298691
+Contextual,14,mid,mid,250-500 Hz,0.78905046
+Contextual,14,mid,mid,500-750 Hz,0.7129748
+Contextual,14,mid,mid,750-1000 Hz,0.75911075
+Contextual,14,mid,mid,1-1.5 kHz,0.5803894
+Contextual,14,mid,mid,1.5-2.5 kHz,0.6995593
+Contextual,14,mid,mid,2.5-4 kHz,0.6858068
+Contextual,14,mid,mid,>4 kHz,0.6351448
+Contextual,15,mid,mid,<250 Hz,0.7434601
+Contextual,15,mid,mid,250-500 Hz,0.8010616
+Contextual,15,mid,mid,500-750 Hz,0.71797025
+Contextual,15,mid,mid,750-1000 Hz,0.7642074
+Contextual,15,mid,mid,1-1.5 kHz,0.55990267
+Contextual,15,mid,mid,1.5-2.5 kHz,0.7148431
+Contextual,15,mid,mid,2.5-4 kHz,0.68290466
+Contextual,15,mid,mid,>4 kHz,0.6449181
+Contextual,16,mid,mid,<250 Hz,0.72133154
+Contextual,16,mid,mid,250-500 Hz,0.78798777
+Contextual,16,mid,mid,500-750 Hz,0.72199845
+Contextual,16,mid,mid,750-1000 Hz,0.75636005
+Contextual,16,mid,mid,1-1.5 kHz,0.5531873
+Contextual,16,mid,mid,1.5-2.5 kHz,0.7419597
+Contextual,16,mid,mid,2.5-4 kHz,0.67010003
+Contextual,16,mid,mid,>4 kHz,0.64636564
+Contextual,17,mid,mid,<250 Hz,0.7189978
+Contextual,17,mid,mid,250-500 Hz,0.78095543
+Contextual,17,mid,mid,500-750 Hz,0.713783
+Contextual,17,mid,mid,750-1000 Hz,0.74303246
+Contextual,17,mid,mid,1-1.5 kHz,0.55283713
+Contextual,17,mid,mid,1.5-2.5 kHz,0.72050315
+Contextual,17,mid,mid,2.5-4 kHz,0.6775971
+Contextual,17,mid,mid,>4 kHz,0.6369032
+Contextual,18,low,low,<250 Hz,0.7524981
+Contextual,18,low,low,250-500 Hz,0.80072004
+Contextual,18,low,low,500-750 Hz,0.7189028
+Contextual,18,low,low,750-1000 Hz,0.75896376
+Contextual,18,low,low,1-1.5 kHz,0.5896396
+Contextual,18,low,low,1.5-2.5 kHz,0.6650892
+Contextual,18,low,low,2.5-4 kHz,0.6886884
+Contextual,18,low,low,>4 kHz,0.6188666
+Contextual,19,low,low,<250 Hz,0.7332516
+Contextual,19,low,low,250-500 Hz,0.7954676
+Contextual,19,low,low,500-750 Hz,0.70314753
+Contextual,19,low,low,750-1000 Hz,0.74055666
+Contextual,19,low,low,1-1.5 kHz,0.58028704
+Contextual,19,low,low,1.5-2.5 kHz,0.6662599
+Contextual,19,low,low,2.5-4 kHz,0.6966799
+Contextual,19,low,low,>4 kHz,0.64731044
+Contextual,20,low + high,low,<250 Hz,0.73937744
+Contextual,20,low + high,low,250-500 Hz,0.80444956
+Contextual,20,low + high,low,500-750 Hz,0.6863351
+Contextual,20,low + high,low,750-1000 Hz,0.7407019
+Contextual,20,low + high,low,1-1.5 kHz,0.57555234
+Contextual,20,low + high,low,1.5-2.5 kHz,0.63506913
+Contextual,20,low + high,low,2.5-4 kHz,0.706217
+Contextual,20,low + high,low,>4 kHz,0.65808785
+Contextual,21,high,mid,<250 Hz,0.7580068
+Contextual,21,high,mid,250-500 Hz,0.8082362
+Contextual,21,high,mid,500-750 Hz,0.7236759
+Contextual,21,high,mid,750-1000 Hz,0.7765884
+Contextual,21,high,mid,1-1.5 kHz,0.5432193
+Contextual,21,high,mid,1.5-2.5 kHz,0.7321896
+Contextual,21,high,mid,2.5-4 kHz,0.6757469
+Contextual,21,high,mid,>4 kHz,0.6425261
+Contextual,22,low + high,high,<250 Hz,0.7996088
+Contextual,22,low + high,high,250-500 Hz,0.81899476
+Contextual,22,low + high,high,500-750 Hz,0.7850238
+Contextual,22,low + high,high,750-1000 Hz,0.857029
+Contextual,22,low + high,high,1-1.5 kHz,0.6975383
+Contextual,22,low + high,high,1.5-2.5 kHz,0.7007425
+Contextual,22,low + high,high,2.5-4 kHz,0.6780786
+Contextual,22,low + high,high,>4 kHz,0.53839046
+Contextual,23,low + high,low + high,<250 Hz,0.76521707
+Contextual,23,low + high,low + high,250-500 Hz,0.816571
+Contextual,23,low + high,low + high,500-750 Hz,0.7183583
+Contextual,23,low + high,low + high,750-1000 Hz,0.79243666
+Contextual,23,low + high,low + high,1-1.5 kHz,0.6336054
+Contextual,23,low + high,low + high,1.5-2.5 kHz,0.65279424
+Contextual,23,low + high,low + high,2.5-4 kHz,0.7086097
+Contextual,23,low + high,low + high,>4 kHz,0.6376402
+Contextual,24,mid,low + high,<250 Hz,0.74056494
+Contextual,24,mid,low + high,250-500 Hz,0.80489534
+Contextual,24,mid,low + high,500-750 Hz,0.6991323
+Contextual,24,mid,low + high,750-1000 Hz,0.75922096
+Contextual,24,mid,low + high,1-1.5 kHz,0.5992384
+Contextual,24,mid,low + high,1.5-2.5 kHz,0.6426976
+Contextual,24,mid,low + high,2.5-4 kHz,0.70418406
+Contextual,24,mid,low + high,>4 kHz,0.6475347
+Contextual,25,low,low,<250 Hz,0.74048716
+Contextual,25,low,low,250-500 Hz,0.80879676
+Contextual,25,low,low,500-750 Hz,0.6865945
+Contextual,25,low,low,750-1000 Hz,0.7461326
+Contextual,25,low,low,1-1.5 kHz,0.5823412
+Contextual,25,low,low,1.5-2.5 kHz,0.6313855
+Contextual,25,low,low,2.5-4 kHz,0.7100644
+Contextual,25,low,low,>4 kHz,0.6648021
+Contextual,26,low + high,low,<250 Hz,0.74050313
+Contextual,26,low + high,low,250-500 Hz,0.7970465
+Contextual,26,low + high,low,500-750 Hz,0.6957534
+Contextual,26,low + high,low,750-1000 Hz,0.74834436
+Contextual,26,low + high,low,1-1.5 kHz,0.59741044
+Contextual,26,low + high,low,1.5-2.5 kHz,0.6360456
+Contextual,26,low + high,low,2.5-4 kHz,0.70227385
+Contextual,26,low + high,low,>4 kHz,0.6362837
+Contextual,27,low,low,<250 Hz,0.7542739
+Contextual,27,low,low,250-500 Hz,0.8024733
+Contextual,27,low,low,500-750 Hz,0.72583604
+Contextual,27,low,low,750-1000 Hz,0.7659916
+Contextual,27,low,low,1-1.5 kHz,0.5993539
+Contextual,27,low,low,1.5-2.5 kHz,0.6682544
+Contextual,27,low,low,2.5-4 kHz,0.68614125
+Contextual,27,low,low,>4 kHz,0.6176759
+Contextual,28,low + high,low,<250 Hz,0.75038004
+Contextual,28,low + high,low,250-500 Hz,0.81230634
+Contextual,28,low + high,low,500-750 Hz,0.6990527
+Contextual,28,low + high,low,750-1000 Hz,0.7649541
+Contextual,28,low + high,low,1-1.5 kHz,0.6064076
+Contextual,28,low + high,low,1.5-2.5 kHz,0.6331463
+Contextual,28,low + high,low,2.5-4 kHz,0.71019554
+Contextual,28,low + high,low,>4 kHz,0.6570118
+Contextual,29,low,mid,<250 Hz,0.707448
+Contextual,29,low,mid,250-500 Hz,0.76104736
+Contextual,29,low,mid,500-750 Hz,0.704071
+Contextual,29,low,mid,750-1000 Hz,0.7197828
+Contextual,29,low,mid,1-1.5 kHz,0.5646375
+Contextual,29,low,mid,1.5-2.5 kHz,0.6853659
+Contextual,29,low,mid,2.5-4 kHz,0.6780801
+Contextual,29,low,mid,>4 kHz,0.6122383
+Contextual,30,low + high,low,<250 Hz,0.7464338
+Contextual,30,low + high,low,250-500 Hz,0.81309676
+Contextual,30,low + high,low,500-750 Hz,0.68788
+Contextual,30,low + high,low,750-1000 Hz,0.74728054
+Contextual,30,low + high,low,1-1.5 kHz,0.5746129
+Contextual,30,low + high,low,1.5-2.5 kHz,0.63744247
+Contextual,30,low + high,low,2.5-4 kHz,0.70862955
+Contextual,30,low + high,low,>4 kHz,0.6721515
+Contextual,31,low + high,low + high,<250 Hz,0.79886717
+Contextual,31,low + high,low + high,250-500 Hz,0.8186389
+Contextual,31,low + high,low + high,500-750 Hz,0.7655307
+Contextual,31,low + high,low + high,750-1000 Hz,0.8422697
+Contextual,31,low + high,low + high,1-1.5 kHz,0.68486065
+Contextual,31,low + high,low + high,1.5-2.5 kHz,0.69631314
+Contextual,31,low + high,low + high,2.5-4 kHz,0.69136804
+Contextual,31,low + high,low + high,>4 kHz,0.5723881
+Contextual,32,low + high,low + high,<250 Hz,0.74438035
+Contextual,32,low + high,low + high,250-500 Hz,0.8030426
+Contextual,32,low + high,low + high,500-750 Hz,0.7126752
+Contextual,32,low + high,low + high,750-1000 Hz,0.7760654
+Contextual,32,low + high,low + high,1-1.5 kHz,0.61325
+Contextual,32,low + high,low + high,1.5-2.5 kHz,0.6609793
+Contextual,32,low + high,low + high,2.5-4 kHz,0.6966533
+Contextual,32,low + high,low + high,>4 kHz,0.6316431
+Contextual,33,mid,high,<250 Hz,0.7493368
+Contextual,33,mid,high,250-500 Hz,0.79369795
+Contextual,33,mid,high,500-750 Hz,0.7311529
+Contextual,33,mid,high,750-1000 Hz,0.7780731
+Contextual,33,mid,high,1-1.5 kHz,0.5965778
+Contextual,33,mid,high,1.5-2.5 kHz,0.70024264
+Contextual,33,mid,high,2.5-4 kHz,0.681938
+Contextual,33,mid,high,>4 kHz,0.60349405
+Contextual,34,mid,mid,<250 Hz,0.74057364
+Contextual,34,mid,mid,250-500 Hz,0.8067673
+Contextual,34,mid,mid,500-750 Hz,0.69795954
+Contextual,34,mid,mid,750-1000 Hz,0.7494897
+Contextual,34,mid,mid,1-1.5 kHz,0.58771676
+Contextual,34,mid,mid,1.5-2.5 kHz,0.64866614
+Contextual,34,mid,mid,2.5-4 kHz,0.7052286
+Contextual,34,mid,mid,>4 kHz,0.6599206
+Contextual,35,mid,mid,<250 Hz,0.73502284
+Contextual,35,mid,mid,250-500 Hz,0.7947567
+Contextual,35,mid,mid,500-750 Hz,0.7010275
+Contextual,35,mid,mid,750-1000 Hz,0.74729294
+Contextual,35,mid,mid,1-1.5 kHz,0.5868639
+Contextual,35,mid,mid,1.5-2.5 kHz,0.65832263
+Contextual,35,mid,mid,2.5-4 kHz,0.6971222
+Contextual,35,mid,mid,>4 kHz,0.6396359
+Contextual,36,low + high,mid,<250 Hz,0.7362858
+Contextual,36,low + high,mid,250-500 Hz,0.7941316
+Contextual,36,low + high,mid,500-750 Hz,0.7066621
+Contextual,36,low + high,mid,750-1000 Hz,0.75780314
+Contextual,36,low + high,mid,1-1.5 kHz,0.6004372
+Contextual,36,low + high,mid,1.5-2.5 kHz,0.65741825
+Contextual,36,low + high,mid,2.5-4 kHz,0.69553244
+Contextual,36,low + high,mid,>4 kHz,0.6283887
+Contextual,37,high,high,<250 Hz,0.8031381
+Contextual,37,high,high,250-500 Hz,0.82539856
+Contextual,37,high,high,500-750 Hz,0.78458124
+Contextual,37,high,high,750-1000 Hz,0.84758
+Contextual,37,high,high,1-1.5 kHz,0.6640707
+Contextual,37,high,high,1.5-2.5 kHz,0.71383184
+Contextual,37,high,high,2.5-4 kHz,0.6773998
+Contextual,37,high,high,>4 kHz,0.54827595
+Contextual,38,mid,mid,<250 Hz,0.7748318
+Contextual,38,mid,mid,250-500 Hz,0.8132671
+Contextual,38,mid,mid,500-750 Hz,0.72894925
+Contextual,38,mid,mid,750-1000 Hz,0.798544
+Contextual,38,mid,mid,1-1.5 kHz,0.61801994
+Contextual,38,mid,mid,1.5-2.5 kHz,0.68648976
+Contextual,38,mid,mid,2.5-4 kHz,0.6943539
+Contextual,38,mid,mid,>4 kHz,0.622424
+Contextual,39,low,low,<250 Hz,0.76730233
+Contextual,39,low,low,250-500 Hz,0.8168388
+Contextual,39,low,low,500-750 Hz,0.72027725
+Contextual,39,low,low,750-1000 Hz,0.76681703
+Contextual,39,low,low,1-1.5 kHz,0.55871195
+Contextual,39,low,low,1.5-2.5 kHz,0.6913272
+Contextual,39,low,low,2.5-4 kHz,0.6886748
+Contextual,39,low,low,>4 kHz,0.6427735
+Contextual,40,low,low,<250 Hz,0.7737154
+Contextual,40,low,low,250-500 Hz,0.8188125
+Contextual,40,low,low,500-750 Hz,0.7380482
+Contextual,40,low,low,750-1000 Hz,0.78615636
+Contextual,40,low,low,1-1.5 kHz,0.5996113
+Contextual,40,low,low,1.5-2.5 kHz,0.67638624
+Contextual,40,low,low,2.5-4 kHz,0.6855993
+Contextual,40,low,low,>4 kHz,0.61693525
+Contextual,41,high,high,<250 Hz,0.7797784
+Contextual,41,high,high,250-500 Hz,0.8241849
+Contextual,41,high,high,500-750 Hz,0.7703036
+Contextual,41,high,high,750-1000 Hz,0.83112544
+Contextual,41,high,high,1-1.5 kHz,0.63002664
+Contextual,41,high,high,1.5-2.5 kHz,0.7188406
+Contextual,41,high,high,2.5-4 kHz,0.66853976
+Contextual,41,high,high,>4 kHz,0.5806634
+Contextual,42,low,low,<250 Hz,0.7456839
+Contextual,42,low,low,250-500 Hz,0.81729275
+Contextual,42,low,low,500-750 Hz,0.688524
+Contextual,42,low,low,750-1000 Hz,0.7573268
+Contextual,42,low,low,1-1.5 kHz,0.5917289
+Contextual,42,low,low,1.5-2.5 kHz,0.6278615
+Contextual,42,low,low,2.5-4 kHz,0.71520394
+Contextual,42,low,low,>4 kHz,0.67679036
+Contextual,43,mid,mid,<250 Hz,0.74341094
+Contextual,43,mid,mid,250-500 Hz,0.79395485
+Contextual,43,mid,mid,500-750 Hz,0.7206371
+Contextual,43,mid,mid,750-1000 Hz,0.7754477
+Contextual,43,mid,mid,1-1.5 kHz,0.59890985
+Contextual,43,mid,mid,1.5-2.5 kHz,0.68759036
+Contextual,43,mid,mid,2.5-4 kHz,0.68547237
+Contextual,43,mid,mid,>4 kHz,0.61475223
+Contextual,44,mid,high,<250 Hz,0.7298265
+Contextual,44,mid,high,250-500 Hz,0.7551416
+Contextual,44,mid,high,500-750 Hz,0.7160749
+Contextual,44,mid,high,750-1000 Hz,0.7344529
+Contextual,44,mid,high,1-1.5 kHz,0.58685917
+Contextual,44,mid,high,1.5-2.5 kHz,0.66042244
+Contextual,44,mid,high,2.5-4 kHz,0.6634964
+Contextual,44,mid,high,>4 kHz,0.5580885
+Contextual,45,high,high,<250 Hz,0.7931641
+Contextual,45,high,high,250-500 Hz,0.82301223
+Contextual,45,high,high,500-750 Hz,0.7827206
+Contextual,45,high,high,750-1000 Hz,0.82950574
+Contextual,45,high,high,1-1.5 kHz,0.6135362
+Contextual,45,high,high,1.5-2.5 kHz,0.74293286
+Contextual,45,high,high,2.5-4 kHz,0.65164626
+Contextual,45,high,high,>4 kHz,0.5642515
+Contextual,46,low + high,low + high,<250 Hz,0.7454357
+Contextual,46,low + high,low + high,250-500 Hz,0.8083237
+Contextual,46,low + high,low + high,500-750 Hz,0.7140513
+Contextual,46,low + high,low + high,750-1000 Hz,0.7807403
+Contextual,46,low + high,low + high,1-1.5 kHz,0.61940765
+Contextual,46,low + high,low + high,1.5-2.5 kHz,0.65559345
+Contextual,46,low + high,low + high,2.5-4 kHz,0.7000876
+Contextual,46,low + high,low + high,>4 kHz,0.6368092
+Contextual,47,low + high,mid,<250 Hz,0.7437758
+Contextual,47,low + high,mid,250-500 Hz,0.801224
+Contextual,47,low + high,mid,500-750 Hz,0.709731
+Contextual,47,low + high,mid,750-1000 Hz,0.76954305
+Contextual,47,low + high,mid,1-1.5 kHz,0.60730386
+Contextual,47,low + high,mid,1.5-2.5 kHz,0.65704244
+Contextual,47,low + high,mid,2.5-4 kHz,0.6967889
+Contextual,47,low + high,mid,>4 kHz,0.6310553
+Contextual,48,high,high,<250 Hz,0.7659754
+Contextual,48,high,high,250-500 Hz,0.8082888
+Contextual,48,high,high,500-750 Hz,0.759504
+Contextual,48,high,high,750-1000 Hz,0.8129576
+Contextual,48,high,high,1-1.5 kHz,0.6290669
+Contextual,48,high,high,1.5-2.5 kHz,0.70397574
+Contextual,48,high,high,2.5-4 kHz,0.6728519
+Contextual,48,high,high,>4 kHz,0.5737908
+Contextual,49,low + high,low + high,<250 Hz,0.74497336
+Contextual,49,low + high,low + high,250-500 Hz,0.8121714
+Contextual,49,low + high,low + high,500-750 Hz,0.706528
+Contextual,49,low + high,low + high,750-1000 Hz,0.7737074
+Contextual,49,low + high,low + high,1-1.5 kHz,0.61255586
+Contextual,49,low + high,low + high,1.5-2.5 kHz,0.6431587
+Contextual,49,low + high,low + high,2.5-4 kHz,0.70621806
+Contextual,49,low + high,low + high,>4 kHz,0.64961994
+Contextual,50,low + high,low + high,<250 Hz,0.7463257
+Contextual,50,low + high,low + high,250-500 Hz,0.80734867
+Contextual,50,low + high,low + high,500-750 Hz,0.71561253
+Contextual,50,low + high,low + high,750-1000 Hz,0.78238285
+Contextual,50,low + high,low + high,1-1.5 kHz,0.61991453
+Contextual,50,low + high,low + high,1.5-2.5 kHz,0.65986323
+Contextual,50,low + high,low + high,2.5-4 kHz,0.69832367
+Contextual,50,low + high,low + high,>4 kHz,0.6342025
+Contextual,51,high,high,<250 Hz,0.77645206
+Contextual,51,high,high,250-500 Hz,0.81917185
+Contextual,51,high,high,500-750 Hz,0.76266277
+Contextual,51,high,high,750-1000 Hz,0.8121772
+Contextual,51,high,high,1-1.5 kHz,0.6017529
+Contextual,51,high,high,1.5-2.5 kHz,0.7216556
+Contextual,51,high,high,2.5-4 kHz,0.6674153
+Contextual,51,high,high,>4 kHz,0.58722943
+Contextual,52,low,low,<250 Hz,0.7351566
+Contextual,52,low,low,250-500 Hz,0.8021088
+Contextual,52,low,low,500-750 Hz,0.70957005
+Contextual,52,low,low,750-1000 Hz,0.74959403
+Contextual,52,low,low,1-1.5 kHz,0.58349824
+Contextual,52,low,low,1.5-2.5 kHz,0.68210834
+Contextual,52,low,low,2.5-4 kHz,0.6950677
+Contextual,52,low,low,>4 kHz,0.6611709
+Contextual,53,high,high,<250 Hz,0.78408015
+Contextual,53,high,high,250-500 Hz,0.818066
+Contextual,53,high,high,500-750 Hz,0.7713546
+Contextual,53,high,high,750-1000 Hz,0.81399274
+Contextual,53,high,high,1-1.5 kHz,0.59573364
+Contextual,53,high,high,1.5-2.5 kHz,0.7440064
+Contextual,53,high,high,2.5-4 kHz,0.64641786
+Contextual,53,high,high,>4 kHz,0.5848898
+Contextual,54,high,high,<250 Hz,0.7739489
+Contextual,54,high,high,250-500 Hz,0.81635845
+Contextual,54,high,high,500-750 Hz,0.7638941
+Contextual,54,high,high,750-1000 Hz,0.8181463
+Contextual,54,high,high,1-1.5 kHz,0.61878335
+Contextual,54,high,high,1.5-2.5 kHz,0.7137696
+Contextual,54,high,high,2.5-4 kHz,0.66859406
+Contextual,54,high,high,>4 kHz,0.5777854
+Contextual,55,low,low,<250 Hz,0.74817216
+Contextual,55,low,low,250-500 Hz,0.8013721
+Contextual,55,low,low,500-750 Hz,0.7165975
+Contextual,55,low,low,750-1000 Hz,0.7573594
+Contextual,55,low,low,1-1.5 kHz,0.59475917
+Contextual,55,low,low,1.5-2.5 kHz,0.6612244
+Contextual,55,low,low,2.5-4 kHz,0.69069
+Contextual,55,low,low,>4 kHz,0.6293233
+Contextual,56,low,low,<250 Hz,0.78123236
+Contextual,56,low,low,250-500 Hz,0.83465105
+Contextual,56,low,low,500-750 Hz,0.7242848
+Contextual,56,low,low,750-1000 Hz,0.78042305
+Contextual,56,low,low,1-1.5 kHz,0.5709671
+Contextual,56,low,low,1.5-2.5 kHz,0.6771553
+Contextual,56,low,low,2.5-4 kHz,0.69489694
+Contextual,56,low,low,>4 kHz,0.65936565
+Contextual,57,low,low,<250 Hz,0.78959364
+Contextual,57,low,low,250-500 Hz,0.83854336
+Contextual,57,low,low,500-750 Hz,0.7480511
+Contextual,57,low,low,750-1000 Hz,0.80384254
+Contextual,57,low,low,1-1.5 kHz,0.5234213
+Contextual,57,low,low,1.5-2.5 kHz,0.76454663
+Contextual,57,low,low,2.5-4 kHz,0.6568553
+Contextual,57,low,low,>4 kHz,0.6589195
+Contextual,58,low,low,<250 Hz,0.789308
+Contextual,58,low,low,250-500 Hz,0.83790416
+Contextual,58,low,low,500-750 Hz,0.746414
+Contextual,58,low,low,750-1000 Hz,0.80183
+Contextual,58,low,low,1-1.5 kHz,0.5267809
+Contextual,58,low,low,1.5-2.5 kHz,0.75878364
+Contextual,58,low,low,2.5-4 kHz,0.65993965
+Contextual,58,low,low,>4 kHz,0.65839666
+Contextual,59,low + high,low + high,<250 Hz,0.77731806
+Contextual,59,low + high,low + high,250-500 Hz,0.8236182
+Contextual,59,low + high,low + high,500-750 Hz,0.73838687
+Contextual,59,low + high,low + high,750-1000 Hz,0.8209913
+Contextual,59,low + high,low + high,1-1.5 kHz,0.6662375
+Contextual,59,low + high,low + high,1.5-2.5 kHz,0.66129357
+Contextual,59,low + high,low + high,2.5-4 kHz,0.70699453
+Contextual,59,low + high,low + high,>4 kHz,0.6222534
+Contextual,60,high,low,<250 Hz,0.78516227
+Contextual,60,high,low,250-500 Hz,0.8326482
+Contextual,60,high,low,500-750 Hz,0.7471253
+Contextual,60,high,low,750-1000 Hz,0.79797924
+Contextual,60,high,low,1-1.5 kHz,0.53090763
+Contextual,60,high,low,1.5-2.5 kHz,0.7561444
+Contextual,60,high,low,2.5-4 kHz,0.6604989
+Contextual,60,high,low,>4 kHz,0.6474814
+Contextual,61,low + high,mid,<250 Hz,0.73978937
+Contextual,61,low + high,mid,250-500 Hz,0.7933748
+Contextual,61,low + high,mid,500-750 Hz,0.71560305
+Contextual,61,low + high,mid,750-1000 Hz,0.7696474
+Contextual,61,low + high,mid,1-1.5 kHz,0.60936874
+Contextual,61,low + high,mid,1.5-2.5 kHz,0.66617507
+Contextual,61,low + high,mid,2.5-4 kHz,0.690902
+Contextual,61,low + high,mid,>4 kHz,0.6152484
+Contextual,62,low + high,low + high,<250 Hz,0.7894752
+Contextual,62,low + high,low + high,250-500 Hz,0.821266
+Contextual,62,low + high,low + high,500-750 Hz,0.7555499
+Contextual,62,low + high,low + high,750-1000 Hz,0.8339395
+Contextual,62,low + high,low + high,1-1.5 kHz,0.67389596
+Contextual,62,low + high,low + high,1.5-2.5 kHz,0.6870179
+Contextual,62,low + high,low + high,2.5-4 kHz,0.69638187
+Contextual,62,low + high,low + high,>4 kHz,0.59411675
+Contextual,63,high,high,<250 Hz,0.8023363
+Contextual,63,high,high,250-500 Hz,0.8286136
+Contextual,63,high,high,500-750 Hz,0.7836776
+Contextual,63,high,high,750-1000 Hz,0.8399276
+Contextual,63,high,high,1-1.5 kHz,0.6360597
+Contextual,63,high,high,1.5-2.5 kHz,0.7271612
+Contextual,63,high,high,2.5-4 kHz,0.6701102
+Contextual,63,high,high,>4 kHz,0.5590084
+Contextual,64,mid,low,<250 Hz,0.7479488
+Contextual,64,mid,low,250-500 Hz,0.81091034
+Contextual,64,mid,low,500-750 Hz,0.6920652
+Contextual,64,mid,low,750-1000 Hz,0.74899113
+Contextual,64,mid,low,1-1.5 kHz,0.5764888
+Contextual,64,mid,low,1.5-2.5 kHz,0.64417845
+Contextual,64,mid,low,2.5-4 kHz,0.7054997
+Contextual,64,mid,low,>4 kHz,0.6671174
+Contextual,65,low,low,<250 Hz,0.7744097
+Contextual,65,low,low,250-500 Hz,0.82357097
+Contextual,65,low,low,500-750 Hz,0.7293986
+Contextual,65,low,low,750-1000 Hz,0.78185046
+Contextual,65,low,low,1-1.5 kHz,0.58923346
+Contextual,65,low,low,1.5-2.5 kHz,0.67297196
+Contextual,65,low,low,2.5-4 kHz,0.689982
+Contextual,65,low,low,>4 kHz,0.63430285
+Contextual,66,mid,mid,<250 Hz,0.73388094
+Contextual,66,mid,mid,250-500 Hz,0.79579484
+Contextual,66,mid,mid,500-750 Hz,0.7042737
+Contextual,66,mid,mid,750-1000 Hz,0.74189734
+Contextual,66,mid,mid,1-1.5 kHz,0.577866
+Contextual,66,mid,mid,1.5-2.5 kHz,0.6728764
+Contextual,66,mid,mid,2.5-4 kHz,0.69369406
+Contextual,66,mid,mid,>4 kHz,0.65038186
+Contextual,67,low,low,<250 Hz,0.74033135
+Contextual,67,low,low,250-500 Hz,0.80717903
+Contextual,67,low,low,500-750 Hz,0.7037573
+Contextual,67,low,low,750-1000 Hz,0.750341
+Contextual,67,low,low,1-1.5 kHz,0.5936656
+Contextual,67,low,low,1.5-2.5 kHz,0.64883155
+Contextual,67,low,low,2.5-4 kHz,0.70424575
+Contextual,67,low,low,>4 kHz,0.6575186
+Contextual,68,high,high,<250 Hz,0.78587085
+Contextual,68,high,high,250-500 Hz,0.8113666
+Contextual,68,high,high,500-750 Hz,0.77345604
+Contextual,68,high,high,750-1000 Hz,0.8407096
+Contextual,68,high,high,1-1.5 kHz,0.6786405
+Contextual,68,high,high,1.5-2.5 kHz,0.692409
+Contextual,68,high,high,2.5-4 kHz,0.6770894
+Contextual,68,high,high,>4 kHz,0.54628587
+Contextual,69,low,low,<250 Hz,0.74427724
+Contextual,69,low,low,250-500 Hz,0.8024185
+Contextual,69,low,low,500-750 Hz,0.69787633
+Contextual,69,low,low,750-1000 Hz,0.7551471
+Contextual,69,low,low,1-1.5 kHz,0.6015226
+Contextual,69,low,low,1.5-2.5 kHz,0.6358483
+Contextual,69,low,low,2.5-4 kHz,0.7048976
+Contextual,69,low,low,>4 kHz,0.64229727
+Contextual,70,low,low,<250 Hz,0.73471934
+Contextual,70,low,low,250-500 Hz,0.80156577
+Contextual,70,low,low,500-750 Hz,0.70982784
+Contextual,70,low,low,750-1000 Hz,0.7488984
+Contextual,70,low,low,1-1.5 kHz,0.59076333
+Contextual,70,low,low,1.5-2.5 kHz,0.6660334
+Contextual,70,low,low,2.5-4 kHz,0.69692856
+Contextual,70,low,low,>4 kHz,0.6518537
+Contextual,71,low + high,mid,<250 Hz,0.74727094
+Contextual,71,low + high,mid,250-500 Hz,0.80658764
+Contextual,71,low + high,mid,500-750 Hz,0.731841
+Contextual,71,low + high,mid,750-1000 Hz,0.799457
+Contextual,71,low + high,mid,1-1.5 kHz,0.63210356
+Contextual,71,low + high,mid,1.5-2.5 kHz,0.684596
+Contextual,71,low + high,mid,2.5-4 kHz,0.69002265
+Contextual,71,low + high,mid,>4 kHz,0.6195874
+Contextual,72,low,low,<250 Hz,0.7152145
+Contextual,72,low,low,250-500 Hz,0.7276432
+Contextual,72,low,low,500-750 Hz,0.6962317
+Contextual,72,low,low,750-1000 Hz,0.6948396
+Contextual,72,low,low,1-1.5 kHz,0.570152
+Contextual,72,low,low,1.5-2.5 kHz,0.64868724
+Contextual,72,low,low,2.5-4 kHz,0.6518595
+Contextual,72,low,low,>4 kHz,0.5493179
+Contextual,73,high,high,<250 Hz,0.75938404
+Contextual,73,high,high,250-500 Hz,0.80154717
+Contextual,73,high,high,500-750 Hz,0.75660056
+Contextual,73,high,high,750-1000 Hz,0.8102632
+Contextual,73,high,high,1-1.5 kHz,0.64247566
+Contextual,73,high,high,1.5-2.5 kHz,0.69489276
+Contextual,73,high,high,2.5-4 kHz,0.6775142
+Contextual,73,high,high,>4 kHz,0.5724382
+Contextual,74,mid,mid,<250 Hz,0.73306745
+Contextual,74,mid,mid,250-500 Hz,0.78651863
+Contextual,74,mid,mid,500-750 Hz,0.7283592
+Contextual,74,mid,mid,750-1000 Hz,0.76270556
+Contextual,74,mid,mid,1-1.5 kHz,0.5671734
+Contextual,74,mid,mid,1.5-2.5 kHz,0.73167115
+Contextual,74,mid,mid,2.5-4 kHz,0.66787297
+Contextual,74,mid,mid,>4 kHz,0.6224444
+Contextual,75,low,low,<250 Hz,0.7941989
+Contextual,75,low,low,250-500 Hz,0.8423652
+Contextual,75,low,low,500-750 Hz,0.74164766
+Contextual,75,low,low,750-1000 Hz,0.7970065
+Contextual,75,low,low,1-1.5 kHz,0.56801695
+Contextual,75,low,low,1.5-2.5 kHz,0.702037
+Contextual,75,low,low,2.5-4 kHz,0.6816979
+Contextual,75,low,low,>4 kHz,0.6502692
+Contextual,76,low,low,<250 Hz,0.76041275
+Contextual,76,low,low,250-500 Hz,0.80767447
+Contextual,76,low,low,500-750 Hz,0.7286764
+Contextual,76,low,low,750-1000 Hz,0.7715083
+Contextual,76,low,low,1-1.5 kHz,0.59641236
+Contextual,76,low,low,1.5-2.5 kHz,0.67384887
+Contextual,76,low,low,2.5-4 kHz,0.6842357
+Contextual,76,low,low,>4 kHz,0.6193798
+Contextual,77,high,high,<250 Hz,0.7991771
+Contextual,77,high,high,250-500 Hz,0.83841175
+Contextual,77,high,high,500-750 Hz,0.7651735
+Contextual,77,high,high,750-1000 Hz,0.8308414
+Contextual,77,high,high,1-1.5 kHz,0.59560823
+Contextual,77,high,high,1.5-2.5 kHz,0.74583185
+Contextual,77,high,high,2.5-4 kHz,0.67232364
+Contextual,77,high,high,>4 kHz,0.6189045
+Contextual,78,high,low + high,<250 Hz,0.8168489
+Contextual,78,high,low + high,250-500 Hz,0.8208453
+Contextual,78,high,low + high,500-750 Hz,0.79555404
+Contextual,78,high,low + high,750-1000 Hz,0.8708028
+Contextual,78,high,low + high,1-1.5 kHz,0.7211741
+Contextual,78,high,low + high,1.5-2.5 kHz,0.71019787
+Contextual,78,high,low + high,2.5-4 kHz,0.67693746
+Contextual,78,high,low + high,>4 kHz,0.5227447
+Contextual,79,low + high,low + high,<250 Hz,0.7497458
+Contextual,79,low + high,low + high,250-500 Hz,0.80328685
+Contextual,79,low + high,low + high,500-750 Hz,0.72097015
+Contextual,79,low + high,low + high,750-1000 Hz,0.78044343
+Contextual,79,low + high,low + high,1-1.5 kHz,0.62801635
+Contextual,79,low + high,low + high,1.5-2.5 kHz,0.655449
+Contextual,79,low + high,low + high,2.5-4 kHz,0.6987855
+Contextual,79,low + high,low + high,>4 kHz,0.6202785
+Contextual,80,high,high,<250 Hz,0.81875175
+Contextual,80,high,high,250-500 Hz,0.8359676
+Contextual,80,high,high,500-750 Hz,0.7933759
+Contextual,80,high,high,750-1000 Hz,0.8677043
+Contextual,80,high,high,1-1.5 kHz,0.69078714
+Contextual,80,high,high,1.5-2.5 kHz,0.7251179
+Contextual,80,high,high,2.5-4 kHz,0.68512374
+Contextual,80,high,high,>4 kHz,0.55441797
+Contextual,81,low,low,<250 Hz,0.7364372
+Contextual,81,low,low,250-500 Hz,0.7932209
+Contextual,81,low,low,500-750 Hz,0.7121248
+Contextual,81,low,low,750-1000 Hz,0.7457296
+Contextual,81,low,low,1-1.5 kHz,0.5822147
+Contextual,81,low,low,1.5-2.5 kHz,0.67882955
+Contextual,81,low,low,2.5-4 kHz,0.68646145
+Contextual,81,low,low,>4 kHz,0.6381013
+Contextual,82,mid,low,<250 Hz,0.73952115
+Contextual,82,mid,low,250-500 Hz,0.8026479
+Contextual,82,mid,low,500-750 Hz,0.6864268
+Contextual,82,mid,low,750-1000 Hz,0.73922825
+Contextual,82,mid,low,1-1.5 kHz,0.5729703
+Contextual,82,mid,low,1.5-2.5 kHz,0.63709056
+Contextual,82,mid,low,2.5-4 kHz,0.7043295
+Contextual,82,mid,low,>4 kHz,0.6554104
+Contextual,83,low,low,<250 Hz,0.76131576
+Contextual,83,low,low,250-500 Hz,0.80805653
+Contextual,83,low,low,500-750 Hz,0.72602737
+Contextual,83,low,low,750-1000 Hz,0.7716958
+Contextual,83,low,low,1-1.5 kHz,0.5955207
+Contextual,83,low,low,1.5-2.5 kHz,0.668785
+Contextual,83,low,low,2.5-4 kHz,0.6891089
+Contextual,83,low,low,>4 kHz,0.6165342
+Contextual,84,low,low,<250 Hz,0.7787522
+Contextual,84,low,low,250-500 Hz,0.8261975
+Contextual,84,low,low,500-750 Hz,0.7442006
+Contextual,84,low,low,750-1000 Hz,0.7905969
+Contextual,84,low,low,1-1.5 kHz,0.5348139
+Contextual,84,low,low,1.5-2.5 kHz,0.7490155
+Contextual,84,low,low,2.5-4 kHz,0.664504
+Contextual,84,low,low,>4 kHz,0.64032733
+Contextual,85,low,high,<250 Hz,0.8021833
+Contextual,85,low,high,250-500 Hz,0.8460281
+Contextual,85,low,high,500-750 Hz,0.77031314
+Contextual,85,low,high,750-1000 Hz,0.82659775
+Contextual,85,low,high,1-1.5 kHz,0.5590648
+Contextual,85,low,high,1.5-2.5 kHz,0.76028985
+Contextual,85,low,high,2.5-4 kHz,0.6510795
+Contextual,85,low,high,>4 kHz,0.62861246
+Contextual,86,high,high,<250 Hz,0.79213357
+Contextual,86,high,high,250-500 Hz,0.82709265
+Contextual,86,high,high,500-750 Hz,0.7627226
+Contextual,86,high,high,750-1000 Hz,0.8312355
+Contextual,86,high,high,1-1.5 kHz,0.6284057
+Contextual,86,high,high,1.5-2.5 kHz,0.7272598
+Contextual,86,high,high,2.5-4 kHz,0.683348
+Contextual,86,high,high,>4 kHz,0.6006885
+Contextual,87,low + high,low + high,<250 Hz,0.7886457
+Contextual,87,low + high,low + high,250-500 Hz,0.80465555
+Contextual,87,low + high,low + high,500-750 Hz,0.7715774
+Contextual,87,low + high,low + high,750-1000 Hz,0.8383901
+Contextual,87,low + high,low + high,1-1.5 kHz,0.6850045
+Contextual,87,low + high,low + high,1.5-2.5 kHz,0.6914536
+Contextual,87,low + high,low + high,2.5-4 kHz,0.6756718
+Contextual,87,low + high,low + high,>4 kHz,0.5393985
+Contextual,88,high,high,<250 Hz,0.77294344
+Contextual,88,high,high,250-500 Hz,0.8240843
+Contextual,88,high,high,500-750 Hz,0.73297185
+Contextual,88,high,high,750-1000 Hz,0.79454327
+Contextual,88,high,high,1-1.5 kHz,0.53661835
+Contextual,88,high,high,1.5-2.5 kHz,0.75009996
+Contextual,88,high,high,2.5-4 kHz,0.669742
+Contextual,88,high,high,>4 kHz,0.6556712
+Contextual,89,high,high,<250 Hz,0.7768797
+Contextual,89,high,high,250-500 Hz,0.8277298
+Contextual,89,high,high,500-750 Hz,0.7574008
+Contextual,89,high,high,750-1000 Hz,0.8233309
+Contextual,89,high,high,1-1.5 kHz,0.6119601
+Contextual,89,high,high,1.5-2.5 kHz,0.7208553
+Contextual,89,high,high,2.5-4 kHz,0.6751154
+Contextual,89,high,high,>4 kHz,0.61004764
+Contextual,90,high,high,<250 Hz,0.7628497
+Contextual,90,high,high,250-500 Hz,0.800041
+Contextual,90,high,high,500-750 Hz,0.75895166
+Contextual,90,high,high,750-1000 Hz,0.8098122
+Contextual,90,high,high,1-1.5 kHz,0.6360562
+Contextual,90,high,high,1.5-2.5 kHz,0.7052809
+Contextual,90,high,high,2.5-4 kHz,0.67154264
+Contextual,90,high,high,>4 kHz,0.56787366
+Contextual,91,mid,low + high,<250 Hz,0.76602614
+Contextual,91,mid,low + high,250-500 Hz,0.80011326
+Contextual,91,mid,low + high,500-750 Hz,0.7541309
+Contextual,91,mid,low + high,750-1000 Hz,0.81303287
+Contextual,91,mid,low + high,1-1.5 kHz,0.65610373
+Contextual,91,mid,low + high,1.5-2.5 kHz,0.68956786
+Contextual,91,mid,low + high,2.5-4 kHz,0.68290174
+Contextual,91,mid,low + high,>4 kHz,0.57309866
+Contextual,92,low + high,low,<250 Hz,0.746971
+Contextual,92,low + high,low,250-500 Hz,0.8114448
+Contextual,92,low + high,low,500-750 Hz,0.6954195
+Contextual,92,low + high,low,750-1000 Hz,0.76140535
+Contextual,92,low + high,low,1-1.5 kHz,0.6025793
+Contextual,92,low + high,low,1.5-2.5 kHz,0.6316524
+Contextual,92,low + high,low,2.5-4 kHz,0.7108937
+Contextual,92,low + high,low,>4 kHz,0.65988123
+Contextual,93,low + high,low,<250 Hz,0.7384287
+Contextual,93,low + high,low,250-500 Hz,0.8066583
+Contextual,93,low + high,low,500-750 Hz,0.6875838
+Contextual,93,low + high,low,750-1000 Hz,0.7474688
+Contextual,93,low + high,low,1-1.5 kHz,0.5885614
+Contextual,93,low + high,low,1.5-2.5 kHz,0.6303973
+Contextual,93,low + high,low,2.5-4 kHz,0.7099385
+Contextual,93,low + high,low,>4 kHz,0.66088516
+Contextual,94,low,low,<250 Hz,0.7360342
+Contextual,94,low,low,250-500 Hz,0.7957996
+Contextual,94,low,low,500-750 Hz,0.71465194
+Contextual,94,low,low,750-1000 Hz,0.7484049
+Contextual,94,low,low,1-1.5 kHz,0.5918676
+Contextual,94,low,low,1.5-2.5 kHz,0.66893756
+Contextual,94,low,low,2.5-4 kHz,0.6927339
+Contextual,94,low,low,>4 kHz,0.63518715
+Contextual,95,mid,mid,<250 Hz,0.7222516
+Contextual,95,mid,mid,250-500 Hz,0.783758
+Contextual,95,mid,mid,500-750 Hz,0.71144396
+Contextual,95,mid,mid,750-1000 Hz,0.7477617
+Contextual,95,mid,mid,1-1.5 kHz,0.5624736
+Contextual,95,mid,mid,1.5-2.5 kHz,0.7111356
+Contextual,95,mid,mid,2.5-4 kHz,0.68201727
+Contextual,95,mid,mid,>4 kHz,0.6388236
+Contextual,96,mid,low + high,<250 Hz,0.73818773
+Contextual,96,mid,low + high,250-500 Hz,0.8002257
+Contextual,96,mid,low + high,500-750 Hz,0.70221645
+Contextual,96,mid,low + high,750-1000 Hz,0.75866586
+Contextual,96,mid,low + high,1-1.5 kHz,0.6020715
+Contextual,96,mid,low + high,1.5-2.5 kHz,0.64616823
+Contextual,96,mid,low + high,2.5-4 kHz,0.70108217
+Contextual,96,mid,low + high,>4 kHz,0.63845754
+Contextual,97,low,low,<250 Hz,0.74687135
+Contextual,97,low,low,250-500 Hz,0.81429654
+Contextual,97,low,low,500-750 Hz,0.7119276
+Contextual,97,low,low,750-1000 Hz,0.76275146
+Contextual,97,low,low,1-1.5 kHz,0.60214037
+Contextual,97,low,low,1.5-2.5 kHz,0.6566998
+Contextual,97,low,low,2.5-4 kHz,0.70263517
+Contextual,97,low,low,>4 kHz,0.6633906
+Contextual,98,mid,high,<250 Hz,0.7541008
+Contextual,98,mid,high,250-500 Hz,0.8050936
+Contextual,98,mid,high,500-750 Hz,0.7363889
+Contextual,98,mid,high,750-1000 Hz,0.7903791
+Contextual,98,mid,high,1-1.5 kHz,0.5981715
+Contextual,98,mid,high,1.5-2.5 kHz,0.70499355
+Contextual,98,mid,high,2.5-4 kHz,0.6816416
+Contextual,98,mid,high,>4 kHz,0.6110824
+Contextual,99,low + high,mid,<250 Hz,0.74214697
+Contextual,99,low + high,mid,250-500 Hz,0.80408144
+Contextual,99,low + high,mid,500-750 Hz,0.7240154
+Contextual,99,low + high,mid,750-1000 Hz,0.78451824
+Contextual,99,low + high,mid,1-1.5 kHz,0.6206626
+Contextual,99,low + high,mid,1.5-2.5 kHz,0.6755678
+Contextual,99,low + high,mid,2.5-4 kHz,0.6932234
+Contextual,99,low + high,mid,>4 kHz,0.62827384
+Contextual,100,low,low,<250 Hz,0.75318605
+Contextual,100,low,low,250-500 Hz,0.8021413
+Contextual,100,low,low,500-750 Hz,0.71874195
+Contextual,100,low,low,750-1000 Hz,0.7599841
+Contextual,100,low,low,1-1.5 kHz,0.5914101
+Contextual,100,low,low,1.5-2.5 kHz,0.6589116
+Contextual,100,low,low,2.5-4 kHz,0.6915818
+Contextual,100,low,low,>4 kHz,0.61636996
+Contextual,101,mid,mid,<250 Hz,0.71379906
+Contextual,101,mid,mid,250-500 Hz,0.78362405
+Contextual,101,mid,mid,500-750 Hz,0.70583117
+Contextual,101,mid,mid,750-1000 Hz,0.7327505
+Contextual,101,mid,mid,1-1.5 kHz,0.56609094
+Contextual,101,mid,mid,1.5-2.5 kHz,0.6988893
+Contextual,101,mid,mid,2.5-4 kHz,0.68609965
+Contextual,101,mid,mid,>4 kHz,0.6526452
+Contextual,102,mid,low + high,<250 Hz,0.7638742
+Contextual,102,mid,low + high,250-500 Hz,0.7944723
+Contextual,102,mid,low + high,500-750 Hz,0.75064135
+Contextual,102,mid,low + high,750-1000 Hz,0.80599374
+Contextual,102,mid,low + high,1-1.5 kHz,0.65171915
+Contextual,102,mid,low + high,1.5-2.5 kHz,0.6883937
+Contextual,102,mid,low + high,2.5-4 kHz,0.68166655
+Contextual,102,mid,low + high,>4 kHz,0.57076555
+Contextual,103,low,low,<250 Hz,0.7377288
+Contextual,103,low,low,250-500 Hz,0.80405873
+Contextual,103,low,low,500-750 Hz,0.68866706
+Contextual,103,low,low,750-1000 Hz,0.7483534
+Contextual,103,low,low,1-1.5 kHz,0.5928576
+Contextual,103,low,low,1.5-2.5 kHz,0.63028777
+Contextual,103,low,low,2.5-4 kHz,0.70875424
+Contextual,103,low,low,>4 kHz,0.6555244
+Contextual,104,low + high,mid,<250 Hz,0.74250364
+Contextual,104,low + high,mid,250-500 Hz,0.79017407
+Contextual,104,low + high,mid,500-750 Hz,0.7132961
+Contextual,104,low + high,mid,750-1000 Hz,0.7632729
+Contextual,104,low + high,mid,1-1.5 kHz,0.60283506
+Contextual,104,low + high,mid,1.5-2.5 kHz,0.66968155
+Contextual,104,low + high,mid,2.5-4 kHz,0.690801
+Contextual,104,low + high,mid,>4 kHz,0.6152375
+Contextual,105,mid,low,<250 Hz,0.67780125
+Contextual,105,mid,low,250-500 Hz,0.7686914
+Contextual,105,mid,low,500-750 Hz,0.71901196
+Contextual,105,mid,low,750-1000 Hz,0.7310715
+Contextual,105,mid,low,1-1.5 kHz,0.54611546
+Contextual,105,mid,low,1.5-2.5 kHz,0.76232433
+Contextual,105,mid,low,2.5-4 kHz,0.657146
+Contextual,105,mid,low,>4 kHz,0.6666577
+Contextual,106,low,low,<250 Hz,0.69027525
+Contextual,106,low,low,250-500 Hz,0.77405435
+Contextual,106,low,low,500-750 Hz,0.7203917
+Contextual,106,low,low,750-1000 Hz,0.7393076
+Contextual,106,low,low,1-1.5 kHz,0.5560238
+Contextual,106,low,low,1.5-2.5 kHz,0.7518365
+Contextual,106,low,low,2.5-4 kHz,0.6639257
+Contextual,106,low,low,>4 kHz,0.65862256
+Contextual,107,high,high,<250 Hz,0.81010455
+Contextual,107,high,high,250-500 Hz,0.8263142
+Contextual,107,high,high,500-750 Hz,0.79379565
+Contextual,107,high,high,750-1000 Hz,0.8687126
+Contextual,107,high,high,1-1.5 kHz,0.70902336
+Contextual,107,high,high,1.5-2.5 kHz,0.7085951
+Contextual,107,high,high,2.5-4 kHz,0.6794852
+Contextual,107,high,high,>4 kHz,0.5345696
+Contextual,108,mid,low,<250 Hz,0.7550744
+Contextual,108,mid,low,250-500 Hz,0.8257031
+Contextual,108,mid,low,500-750 Hz,0.68679696
+Contextual,108,mid,low,750-1000 Hz,0.75860983
+Contextual,108,mid,low,1-1.5 kHz,0.5780162
+Contextual,108,mid,low,1.5-2.5 kHz,0.6302281
+Contextual,108,mid,low,2.5-4 kHz,0.71498483
+Contextual,108,mid,low,>4 kHz,0.69063246
+Contextual,109,high,high,<250 Hz,0.7691885
+Contextual,109,high,high,250-500 Hz,0.80719644
+Contextual,109,high,high,500-750 Hz,0.75562656
+Contextual,109,high,high,750-1000 Hz,0.80122274
+Contextual,109,high,high,1-1.5 kHz,0.61019593
+Contextual,109,high,high,1.5-2.5 kHz,0.70895517
+Contextual,109,high,high,2.5-4 kHz,0.67462873
+Contextual,109,high,high,>4 kHz,0.579756
+Contextual,110,low,low,<250 Hz,0.7700083
+Contextual,110,low,low,250-500 Hz,0.82241756
+Contextual,110,low,low,500-750 Hz,0.7237798
+Contextual,110,low,low,750-1000 Hz,0.7719121
+Contextual,110,low,low,1-1.5 kHz,0.5771281
+Contextual,110,low,low,1.5-2.5 kHz,0.67233557
+Contextual,110,low,low,2.5-4 kHz,0.6941951
+Contextual,110,low,low,>4 kHz,0.64038825
+Contextual,111,low + high,low + high,<250 Hz,0.7696281
+Contextual,111,low + high,low + high,250-500 Hz,0.8083371
+Contextual,111,low + high,low + high,500-750 Hz,0.73436886
+Contextual,111,low + high,low + high,750-1000 Hz,0.8024731
+Contextual,111,low + high,low + high,1-1.5 kHz,0.6429402
+Contextual,111,low + high,low + high,1.5-2.5 kHz,0.6751223
+Contextual,111,low + high,low + high,2.5-4 kHz,0.69617647
+Contextual,111,low + high,low + high,>4 kHz,0.60673827
+Contextual,112,high,low + high,<250 Hz,0.76342577
+Contextual,112,high,low + high,250-500 Hz,0.80200875
+Contextual,112,high,low + high,500-750 Hz,0.7534436
+Contextual,112,high,low + high,750-1000 Hz,0.81300426
+Contextual,112,high,low + high,1-1.5 kHz,0.65591735
+Contextual,112,high,low + high,1.5-2.5 kHz,0.6908172
+Contextual,112,high,low + high,2.5-4 kHz,0.6847778
+Contextual,112,high,low + high,>4 kHz,0.5804887
+Contextual,113,low,low,<250 Hz,0.7097714
+Contextual,113,low,low,250-500 Hz,0.77642995
+Contextual,113,low,low,500-750 Hz,0.72736543
+Contextual,113,low,low,750-1000 Hz,0.74985856
+Contextual,113,low,low,1-1.5 kHz,0.57751536
+Contextual,113,low,low,1.5-2.5 kHz,0.7304374
+Contextual,113,low,low,2.5-4 kHz,0.67043054
+Contextual,113,low,low,>4 kHz,0.6298491
+Contextual,114,low + high,low + high,<250 Hz,0.759738
+Contextual,114,low + high,low + high,250-500 Hz,0.79613155
+Contextual,114,low + high,low + high,500-750 Hz,0.7293
+Contextual,114,low + high,low + high,750-1000 Hz,0.7874888
+Contextual,114,low + high,low + high,1-1.5 kHz,0.62984014
+Contextual,114,low + high,low + high,1.5-2.5 kHz,0.6758432
+Contextual,114,low + high,low + high,2.5-4 kHz,0.6903372
+Contextual,114,low + high,low + high,>4 kHz,0.5975301
+Contextual,115,mid,low + high,<250 Hz,0.7427558
+Contextual,115,mid,low + high,250-500 Hz,0.8071171
+Contextual,115,mid,low + high,500-750 Hz,0.7050014
+Contextual,115,mid,low + high,750-1000 Hz,0.76741326
+Contextual,115,mid,low + high,1-1.5 kHz,0.6071501
+Contextual,115,mid,low + high,1.5-2.5 kHz,0.6483239
+Contextual,115,mid,low + high,2.5-4 kHz,0.7033926
+Contextual,115,mid,low + high,>4 kHz,0.6466762
+Contextual,116,high,high,<250 Hz,0.75782806
+Contextual,116,high,high,250-500 Hz,0.79359186
+Contextual,116,high,high,500-750 Hz,0.75369954
+Contextual,116,high,high,750-1000 Hz,0.79371583
+Contextual,116,high,high,1-1.5 kHz,0.6137387
+Contextual,116,high,high,1.5-2.5 kHz,0.7025376
+Contextual,116,high,high,2.5-4 kHz,0.66690665
+Contextual,116,high,high,>4 kHz,0.5621819
+Contextual,117,mid,mid,<250 Hz,0.7514297
+Contextual,117,mid,mid,250-500 Hz,0.8014985
+Contextual,117,mid,mid,500-750 Hz,0.7302947
+Contextual,117,mid,mid,750-1000 Hz,0.7846382
+Contextual,117,mid,mid,1-1.5 kHz,0.59118605
+Contextual,117,mid,mid,1.5-2.5 kHz,0.7082647
+Contextual,117,mid,mid,2.5-4 kHz,0.6824704
+Contextual,117,mid,mid,>4 kHz,0.6178999
+Contextual,118,high,high,<250 Hz,0.7698066
+Contextual,118,high,high,250-500 Hz,0.8025112
+Contextual,118,high,high,500-750 Hz,0.7654051
+Contextual,118,high,high,750-1000 Hz,0.81753045
+Contextual,118,high,high,1-1.5 kHz,0.6450342
+Contextual,118,high,high,1.5-2.5 kHz,0.70598
+Contextual,118,high,high,2.5-4 kHz,0.67107564
+Contextual,118,high,high,>4 kHz,0.55922306
+Contextual,119,low,low,<250 Hz,0.77610874
+Contextual,119,low,low,250-500 Hz,0.8253004
+Contextual,119,low,low,500-750 Hz,0.7360248
+Contextual,119,low,low,750-1000 Hz,0.7893878
+Contextual,119,low,low,1-1.5 kHz,0.5984783
+Contextual,119,low,low,1.5-2.5 kHz,0.67323893
+Contextual,119,low,low,2.5-4 kHz,0.6895554
+Contextual,119,low,low,>4 kHz,0.6278849
+Contextual,120,low + high,mid,<250 Hz,0.73452413
+Contextual,120,low + high,mid,250-500 Hz,0.7875399
+Contextual,120,low + high,mid,500-750 Hz,0.70556194
+Contextual,120,low + high,mid,750-1000 Hz,0.7536051
+Contextual,120,low + high,mid,1-1.5 kHz,0.5919673
+Contextual,120,low + high,mid,1.5-2.5 kHz,0.6651747
+Contextual,120,low + high,mid,2.5-4 kHz,0.690461
+Contextual,120,low + high,mid,>4 kHz,0.6218311
+Contextual,121,low + high,low + high,<250 Hz,0.78738594
+Contextual,121,low + high,low + high,250-500 Hz,0.82407653
+Contextual,121,low + high,low + high,500-750 Hz,0.7521179
+Contextual,121,low + high,low + high,750-1000 Hz,0.833151
+Contextual,121,low + high,low + high,1-1.5 kHz,0.6794013
+Contextual,121,low + high,low + high,1.5-2.5 kHz,0.6737655
+Contextual,121,low + high,low + high,2.5-4 kHz,0.70231575
+Contextual,121,low + high,low + high,>4 kHz,0.6028317
+Contextual,122,high,high,<250 Hz,0.75239575
+Contextual,122,high,high,250-500 Hz,0.80874306
+Contextual,122,high,high,500-750 Hz,0.7485805
+Contextual,122,high,high,750-1000 Hz,0.81253594
+Contextual,122,high,high,1-1.5 kHz,0.64464945
+Contextual,122,high,high,1.5-2.5 kHz,0.6852943
+Contextual,122,high,high,2.5-4 kHz,0.6843866
+Contextual,122,high,high,>4 kHz,0.59450054
+Contextual,123,low,low,<250 Hz,0.7454937
+Contextual,123,low,low,250-500 Hz,0.81621253
+Contextual,123,low,low,500-750 Hz,0.68784523
+Contextual,123,low,low,750-1000 Hz,0.75257826
+Contextual,123,low,low,1-1.5 kHz,0.58423054
+Contextual,123,low,low,1.5-2.5 kHz,0.6306184
+Contextual,123,low,low,2.5-4 kHz,0.7133044
+Contextual,123,low,low,>4 kHz,0.67608744
+Contextual,124,high,high,<250 Hz,0.7623019
+Contextual,124,high,high,250-500 Hz,0.7914151
+Contextual,124,high,high,500-750 Hz,0.7535958
+Contextual,124,high,high,750-1000 Hz,0.7902394
+Contextual,124,high,high,1-1.5 kHz,0.61282074
+Contextual,124,high,high,1.5-2.5 kHz,0.7027455
+Contextual,124,high,high,2.5-4 kHz,0.66881937
+Contextual,124,high,high,>4 kHz,0.5586758
+Contextual,125,high,low + high,<250 Hz,0.8198579
+Contextual,125,high,low + high,250-500 Hz,0.8211968
+Contextual,125,high,low + high,500-750 Hz,0.7971703
+Contextual,125,high,low + high,750-1000 Hz,0.87313575
+Contextual,125,high,low + high,1-1.5 kHz,0.7253326
+Contextual,125,high,low + high,1.5-2.5 kHz,0.711973
+Contextual,125,high,low + high,2.5-4 kHz,0.676808
+Contextual,125,high,low + high,>4 kHz,0.52039325
+Contextual,126,low + high,mid,<250 Hz,0.755554
+Contextual,126,low + high,mid,250-500 Hz,0.8154678
+Contextual,126,low + high,mid,500-750 Hz,0.6911613
+Contextual,126,low + high,mid,750-1000 Hz,0.75558853
+Contextual,126,low + high,mid,1-1.5 kHz,0.5698369
+Contextual,126,low + high,mid,1.5-2.5 kHz,0.6469812
+Contextual,126,low + high,mid,2.5-4 kHz,0.7028566
+Contextual,126,low + high,mid,>4 kHz,0.67093116
+Contextual,127,mid,mid,<250 Hz,0.71705765
+Contextual,127,mid,mid,250-500 Hz,0.7798857
+Contextual,127,mid,mid,500-750 Hz,0.70478654
+Contextual,127,mid,mid,750-1000 Hz,0.7369222
+Contextual,127,mid,mid,1-1.5 kHz,0.5637367
+Contextual,127,mid,mid,1.5-2.5 kHz,0.6991381
+Contextual,127,mid,mid,2.5-4 kHz,0.6850542
+Contextual,127,mid,mid,>4 kHz,0.64159584
+Sparse ($\lambda=0.05$),0,low,low,<250 Hz,0.5460497
+Sparse ($\lambda=0.05$),0,low,low,250-500 Hz,0.5320055
+Sparse ($\lambda=0.05$),0,low,low,500-750 Hz,0.8163389
+Sparse ($\lambda=0.05$),0,low,low,750-1000 Hz,0.78665966
+Sparse ($\lambda=0.05$),0,low,low,1-1.5 kHz,0.59476227
+Sparse ($\lambda=0.05$),0,low,low,1.5-2.5 kHz,0.5941014
+Sparse ($\lambda=0.05$),0,low,low,2.5-4 kHz,0.53080994
+Sparse ($\lambda=0.05$),0,low,low,>4 kHz,0.605026
+Sparse ($\lambda=0.05$),1,mid,mid,<250 Hz,0.61591035
+Sparse ($\lambda=0.05$),1,mid,mid,250-500 Hz,0.61342734
+Sparse ($\lambda=0.05$),1,mid,mid,500-750 Hz,0.65274787
+Sparse ($\lambda=0.05$),1,mid,mid,750-1000 Hz,0.6586056
+Sparse ($\lambda=0.05$),1,mid,mid,1-1.5 kHz,0.5383506
+Sparse ($\lambda=0.05$),1,mid,mid,1.5-2.5 kHz,0.5556512
+Sparse ($\lambda=0.05$),1,mid,mid,2.5-4 kHz,0.5760291
+Sparse ($\lambda=0.05$),1,mid,mid,>4 kHz,0.6206821
+Sparse ($\lambda=0.05$),2,low + high,low + high,<250 Hz,0.61653817
+Sparse ($\lambda=0.05$),2,low + high,low + high,250-500 Hz,0.6944754
+Sparse ($\lambda=0.05$),2,low + high,low + high,500-750 Hz,0.5810044
+Sparse ($\lambda=0.05$),2,low + high,low + high,750-1000 Hz,0.52962995
+Sparse ($\lambda=0.05$),2,low + high,low + high,1-1.5 kHz,0.70800173
+Sparse ($\lambda=0.05$),2,low + high,low + high,1.5-2.5 kHz,0.6766038
+Sparse ($\lambda=0.05$),2,low + high,low + high,2.5-4 kHz,0.60449284
+Sparse ($\lambda=0.05$),2,low + high,low + high,>4 kHz,0.57324576
+Sparse ($\lambda=0.05$),3,high,low + high,<250 Hz,0.5637929
+Sparse ($\lambda=0.05$),3,high,low + high,250-500 Hz,0.6334791
+Sparse ($\lambda=0.05$),3,high,low + high,500-750 Hz,0.5576525
+Sparse ($\lambda=0.05$),3,high,low + high,750-1000 Hz,0.50948757
+Sparse ($\lambda=0.05$),3,high,low + high,1-1.5 kHz,0.83412075
+Sparse ($\lambda=0.05$),3,high,low + high,1.5-2.5 kHz,0.71419543
+Sparse ($\lambda=0.05$),3,high,low + high,2.5-4 kHz,0.5320489
+Sparse ($\lambda=0.05$),3,high,low + high,>4 kHz,0.5697116
+Sparse ($\lambda=0.05$),4,low,low,<250 Hz,0.56374055
+Sparse ($\lambda=0.05$),4,low,low,250-500 Hz,0.79559755
+Sparse ($\lambda=0.05$),4,low,low,500-750 Hz,0.6192733
+Sparse ($\lambda=0.05$),4,low,low,750-1000 Hz,0.6925583
+Sparse ($\lambda=0.05$),4,low,low,1-1.5 kHz,0.5680168
+Sparse ($\lambda=0.05$),4,low,low,1.5-2.5 kHz,0.5437017
+Sparse ($\lambda=0.05$),4,low,low,2.5-4 kHz,0.65033805
+Sparse ($\lambda=0.05$),4,low,low,>4 kHz,0.57075286
+Sparse ($\lambda=0.05$),5,low + high,low + high,<250 Hz,0.6109817
+Sparse ($\lambda=0.05$),5,low + high,low + high,250-500 Hz,0.6590642
+Sparse ($\lambda=0.05$),5,low + high,low + high,500-750 Hz,0.54112184
+Sparse ($\lambda=0.05$),5,low + high,low + high,750-1000 Hz,0.51216686
+Sparse ($\lambda=0.05$),5,low + high,low + high,1-1.5 kHz,0.7222109
+Sparse ($\lambda=0.05$),5,low + high,low + high,1.5-2.5 kHz,0.64080775
+Sparse ($\lambda=0.05$),5,low + high,low + high,2.5-4 kHz,0.5813263
+Sparse ($\lambda=0.05$),5,low + high,low + high,>4 kHz,0.5724122
+Sparse ($\lambda=0.05$),6,low,low,<250 Hz,0.64748967
+Sparse ($\lambda=0.05$),6,low,low,250-500 Hz,0.6848871
+Sparse ($\lambda=0.05$),6,low,low,500-750 Hz,0.7532128
+Sparse ($\lambda=0.05$),6,low,low,750-1000 Hz,0.53629917
+Sparse ($\lambda=0.05$),6,low,low,1-1.5 kHz,0.539908
+Sparse ($\lambda=0.05$),6,low,low,1.5-2.5 kHz,0.5742762
+Sparse ($\lambda=0.05$),6,low,low,2.5-4 kHz,0.61869705
+Sparse ($\lambda=0.05$),6,low,low,>4 kHz,0.58842015
+Sparse ($\lambda=0.05$),7,high,mid,<250 Hz,0.57733214
+Sparse ($\lambda=0.05$),7,high,mid,250-500 Hz,0.53618574
+Sparse ($\lambda=0.05$),7,high,mid,500-750 Hz,0.54516333
+Sparse ($\lambda=0.05$),7,high,mid,750-1000 Hz,0.5815515
+Sparse ($\lambda=0.05$),7,high,mid,1-1.5 kHz,0.7078135
+Sparse ($\lambda=0.05$),7,high,mid,1.5-2.5 kHz,0.68832403
+Sparse ($\lambda=0.05$),7,high,mid,2.5-4 kHz,0.5433143
+Sparse ($\lambda=0.05$),7,high,mid,>4 kHz,0.8171125
+Sparse ($\lambda=0.05$),8,mid,mid,<250 Hz,0.60834634
+Sparse ($\lambda=0.05$),8,mid,mid,250-500 Hz,0.5484043
+Sparse ($\lambda=0.05$),8,mid,mid,500-750 Hz,0.6657936
+Sparse ($\lambda=0.05$),8,mid,mid,750-1000 Hz,0.59377515
+Sparse ($\lambda=0.05$),8,mid,mid,1-1.5 kHz,0.5555766
+Sparse ($\lambda=0.05$),8,mid,mid,1.5-2.5 kHz,0.58283484
+Sparse ($\lambda=0.05$),8,mid,mid,2.5-4 kHz,0.57538825
+Sparse ($\lambda=0.05$),8,mid,mid,>4 kHz,0.75455844
+Sparse ($\lambda=0.05$),9,mid,mid,<250 Hz,0.5796623
+Sparse ($\lambda=0.05$),9,mid,mid,250-500 Hz,0.5396606
+Sparse ($\lambda=0.05$),9,mid,mid,500-750 Hz,0.5936745
+Sparse ($\lambda=0.05$),9,mid,mid,750-1000 Hz,0.5363751
+Sparse ($\lambda=0.05$),9,mid,mid,1-1.5 kHz,0.6378697
+Sparse ($\lambda=0.05$),9,mid,mid,1.5-2.5 kHz,0.67844325
+Sparse ($\lambda=0.05$),9,mid,mid,2.5-4 kHz,0.56419885
+Sparse ($\lambda=0.05$),9,mid,mid,>4 kHz,0.8225919
+Sparse ($\lambda=0.05$),10,mid,mid,<250 Hz,0.62370974
+Sparse ($\lambda=0.05$),10,mid,mid,250-500 Hz,0.5844804
+Sparse ($\lambda=0.05$),10,mid,mid,500-750 Hz,0.55738825
+Sparse ($\lambda=0.05$),10,mid,mid,750-1000 Hz,0.5318746
+Sparse ($\lambda=0.05$),10,mid,mid,1-1.5 kHz,0.6118897
+Sparse ($\lambda=0.05$),10,mid,mid,1.5-2.5 kHz,0.652035
+Sparse ($\lambda=0.05$),10,mid,mid,2.5-4 kHz,0.5673837
+Sparse ($\lambda=0.05$),10,mid,mid,>4 kHz,0.79440767
+Sparse ($\lambda=0.05$),11,low + high,low,<250 Hz,0.7683898
+Sparse ($\lambda=0.05$),11,low + high,low,250-500 Hz,0.85150695
+Sparse ($\lambda=0.05$),11,low + high,low,500-750 Hz,0.573914
+Sparse ($\lambda=0.05$),11,low + high,low,750-1000 Hz,0.5699853
+Sparse ($\lambda=0.05$),11,low + high,low,1-1.5 kHz,0.55950445
+Sparse ($\lambda=0.05$),11,low + high,low,1.5-2.5 kHz,0.54303885
+Sparse ($\lambda=0.05$),11,low + high,low,2.5-4 kHz,0.7679607
+Sparse ($\lambda=0.05$),11,low + high,low,>4 kHz,0.632783
+Sparse ($\lambda=0.05$),12,high,low + high,<250 Hz,0.56195045
+Sparse ($\lambda=0.05$),12,high,low + high,250-500 Hz,0.6202924
+Sparse ($\lambda=0.05$),12,high,low + high,500-750 Hz,0.56128126
+Sparse ($\lambda=0.05$),12,high,low + high,750-1000 Hz,0.5092384
+Sparse ($\lambda=0.05$),12,high,low + high,1-1.5 kHz,0.7796817
+Sparse ($\lambda=0.05$),12,high,low + high,1.5-2.5 kHz,0.73876154
+Sparse ($\lambda=0.05$),12,high,low + high,2.5-4 kHz,0.55424386
+Sparse ($\lambda=0.05$),12,high,low + high,>4 kHz,0.5932708
+Sparse ($\lambda=0.05$),13,high,high,<250 Hz,0.5466455
+Sparse ($\lambda=0.05$),13,high,high,250-500 Hz,0.54710716
+Sparse ($\lambda=0.05$),13,high,high,500-750 Hz,0.8148114
+Sparse ($\lambda=0.05$),13,high,high,750-1000 Hz,0.54699373
+Sparse ($\lambda=0.05$),13,high,high,1-1.5 kHz,0.6171805
+Sparse ($\lambda=0.05$),13,high,high,1.5-2.5 kHz,0.6461345
+Sparse ($\lambda=0.05$),13,high,high,2.5-4 kHz,0.54048085
+Sparse ($\lambda=0.05$),13,high,high,>4 kHz,0.7379568
+Sparse ($\lambda=0.05$),14,mid,mid,<250 Hz,0.645918
+Sparse ($\lambda=0.05$),14,mid,mid,250-500 Hz,0.5503244
+Sparse ($\lambda=0.05$),14,mid,mid,500-750 Hz,0.59096426
+Sparse ($\lambda=0.05$),14,mid,mid,750-1000 Hz,0.61497414
+Sparse ($\lambda=0.05$),14,mid,mid,1-1.5 kHz,0.57046765
+Sparse ($\lambda=0.05$),14,mid,mid,1.5-2.5 kHz,0.59585184
+Sparse ($\lambda=0.05$),14,mid,mid,2.5-4 kHz,0.59767854
+Sparse ($\lambda=0.05$),14,mid,mid,>4 kHz,0.7624581
+Sparse ($\lambda=0.05$),15,mid,mid,<250 Hz,0.60063004
+Sparse ($\lambda=0.05$),15,mid,mid,250-500 Hz,0.57051325
+Sparse ($\lambda=0.05$),15,mid,mid,500-750 Hz,0.68528146
+Sparse ($\lambda=0.05$),15,mid,mid,750-1000 Hz,0.61041456
+Sparse ($\lambda=0.05$),15,mid,mid,1-1.5 kHz,0.53177065
+Sparse ($\lambda=0.05$),15,mid,mid,1.5-2.5 kHz,0.5583743
+Sparse ($\lambda=0.05$),15,mid,mid,2.5-4 kHz,0.578272
+Sparse ($\lambda=0.05$),15,mid,mid,>4 kHz,0.7276812
+Sparse ($\lambda=0.05$),16,mid,mid,<250 Hz,0.5522938
+Sparse ($\lambda=0.05$),16,mid,mid,250-500 Hz,0.53364486
+Sparse ($\lambda=0.05$),16,mid,mid,500-750 Hz,0.7058222
+Sparse ($\lambda=0.05$),16,mid,mid,750-1000 Hz,0.71732974
+Sparse ($\lambda=0.05$),16,mid,mid,1-1.5 kHz,0.5287463
+Sparse ($\lambda=0.05$),16,mid,mid,1.5-2.5 kHz,0.5609077
+Sparse ($\lambda=0.05$),16,mid,mid,2.5-4 kHz,0.5323598
+Sparse ($\lambda=0.05$),16,mid,mid,>4 kHz,0.68427336
+Sparse ($\lambda=0.05$),17,mid,mid,<250 Hz,0.56824225
+Sparse ($\lambda=0.05$),17,mid,mid,250-500 Hz,0.53367525
+Sparse ($\lambda=0.05$),17,mid,mid,500-750 Hz,0.6508282
+Sparse ($\lambda=0.05$),17,mid,mid,750-1000 Hz,0.66053
+Sparse ($\lambda=0.05$),17,mid,mid,1-1.5 kHz,0.5157561
+Sparse ($\lambda=0.05$),17,mid,mid,1.5-2.5 kHz,0.54962516
+Sparse ($\lambda=0.05$),17,mid,mid,2.5-4 kHz,0.5381187
+Sparse ($\lambda=0.05$),17,mid,mid,>4 kHz,0.67569166
+Sparse ($\lambda=0.05$),18,low,low,<250 Hz,0.638464
+Sparse ($\lambda=0.05$),18,low,low,250-500 Hz,0.7128773
+Sparse ($\lambda=0.05$),18,low,low,500-750 Hz,0.72692746
+Sparse ($\lambda=0.05$),18,low,low,750-1000 Hz,0.5753485
+Sparse ($\lambda=0.05$),18,low,low,1-1.5 kHz,0.55109745
+Sparse ($\lambda=0.05$),18,low,low,1.5-2.5 kHz,0.56988776
+Sparse ($\lambda=0.05$),18,low,low,2.5-4 kHz,0.6327609
+Sparse ($\lambda=0.05$),18,low,low,>4 kHz,0.5752125
+Sparse ($\lambda=0.05$),19,low,low,<250 Hz,0.6598835
+Sparse ($\lambda=0.05$),19,low,low,250-500 Hz,0.6816404
+Sparse ($\lambda=0.05$),19,low,low,500-750 Hz,0.557723
+Sparse ($\lambda=0.05$),19,low,low,750-1000 Hz,0.6489243
+Sparse ($\lambda=0.05$),19,low,low,1-1.5 kHz,0.5376547
+Sparse ($\lambda=0.05$),19,low,low,1.5-2.5 kHz,0.55084497
+Sparse ($\lambda=0.05$),19,low,low,2.5-4 kHz,0.62562126
+Sparse ($\lambda=0.05$),19,low,low,>4 kHz,0.5961935
+Sparse ($\lambda=0.05$),20,low + high,low,<250 Hz,0.7342578
+Sparse ($\lambda=0.05$),20,low + high,low,250-500 Hz,0.81405723
+Sparse ($\lambda=0.05$),20,low + high,low,500-750 Hz,0.5635006
+Sparse ($\lambda=0.05$),20,low + high,low,750-1000 Hz,0.551259
+Sparse ($\lambda=0.05$),20,low + high,low,1-1.5 kHz,0.54410267
+Sparse ($\lambda=0.05$),20,low + high,low,1.5-2.5 kHz,0.53913134
+Sparse ($\lambda=0.05$),20,low + high,low,2.5-4 kHz,0.7244292
+Sparse ($\lambda=0.05$),20,low + high,low,>4 kHz,0.6138284
+Sparse ($\lambda=0.05$),21,high,mid,<250 Hz,0.557811
+Sparse ($\lambda=0.05$),21,high,mid,250-500 Hz,0.5391597
+Sparse ($\lambda=0.05$),21,high,mid,500-750 Hz,0.7470821
+Sparse ($\lambda=0.05$),21,high,mid,750-1000 Hz,0.5772658
+Sparse ($\lambda=0.05$),21,high,mid,1-1.5 kHz,0.519721
+Sparse ($\lambda=0.05$),21,high,mid,1.5-2.5 kHz,0.55740684
+Sparse ($\lambda=0.05$),21,high,mid,2.5-4 kHz,0.527921
+Sparse ($\lambda=0.05$),21,high,mid,>4 kHz,0.759656
+Sparse ($\lambda=0.05$),22,low + high,high,<250 Hz,0.5497585
+Sparse ($\lambda=0.05$),22,low + high,high,250-500 Hz,0.57524186
+Sparse ($\lambda=0.05$),22,low + high,high,500-750 Hz,0.59724104
+Sparse ($\lambda=0.05$),22,low + high,high,750-1000 Hz,0.5111971
+Sparse ($\lambda=0.05$),22,low + high,high,1-1.5 kHz,0.71588844
+Sparse ($\lambda=0.05$),22,low + high,high,1.5-2.5 kHz,0.81399685
+Sparse ($\lambda=0.05$),22,low + high,high,2.5-4 kHz,0.5363929
+Sparse ($\lambda=0.05$),22,low + high,high,>4 kHz,0.61356884
+Sparse ($\lambda=0.05$),23,low + high,low + high,<250 Hz,0.70038325
+Sparse ($\lambda=0.05$),23,low + high,low + high,250-500 Hz,0.7995178
+Sparse ($\lambda=0.05$),23,low + high,low + high,500-750 Hz,0.55127573
+Sparse ($\lambda=0.05$),23,low + high,low + high,750-1000 Hz,0.5397524
+Sparse ($\lambda=0.05$),23,low + high,low + high,1-1.5 kHz,0.65597326
+Sparse ($\lambda=0.05$),23,low + high,low + high,1.5-2.5 kHz,0.5857589
+Sparse ($\lambda=0.05$),23,low + high,low + high,2.5-4 kHz,0.7023113
+Sparse ($\lambda=0.05$),23,low + high,low + high,>4 kHz,0.5923891
+Sparse ($\lambda=0.05$),24,mid,mid,<250 Hz,0.69024736
+Sparse ($\lambda=0.05$),24,mid,mid,250-500 Hz,0.75703543
+Sparse ($\lambda=0.05$),24,mid,mid,500-750 Hz,0.5550288
+Sparse ($\lambda=0.05$),24,mid,mid,750-1000 Hz,0.5431757
+Sparse ($\lambda=0.05$),24,mid,mid,1-1.5 kHz,0.5895739
+Sparse ($\lambda=0.05$),24,mid,mid,1.5-2.5 kHz,0.60303336
+Sparse ($\lambda=0.05$),24,mid,mid,2.5-4 kHz,0.6874467
+Sparse ($\lambda=0.05$),24,mid,mid,>4 kHz,0.7251405
+Sparse ($\lambda=0.05$),25,low,low,<250 Hz,0.73937345
+Sparse ($\lambda=0.05$),25,low,low,250-500 Hz,0.8520938
+Sparse ($\lambda=0.05$),25,low,low,500-750 Hz,0.5549699
+Sparse ($\lambda=0.05$),25,low,low,750-1000 Hz,0.5583266
+Sparse ($\lambda=0.05$),25,low,low,1-1.5 kHz,0.5661886
+Sparse ($\lambda=0.05$),25,low,low,1.5-2.5 kHz,0.5372883
+Sparse ($\lambda=0.05$),25,low,low,2.5-4 kHz,0.75697887
+Sparse ($\lambda=0.05$),25,low,low,>4 kHz,0.60516256
+Sparse ($\lambda=0.05$),26,low + high,low,<250 Hz,0.5637747
+Sparse ($\lambda=0.05$),26,low + high,low,250-500 Hz,0.8549415
+Sparse ($\lambda=0.05$),26,low + high,low,500-750 Hz,0.55346686
+Sparse ($\lambda=0.05$),26,low + high,low,750-1000 Hz,0.5156265
+Sparse ($\lambda=0.05$),26,low + high,low,1-1.5 kHz,0.5766491
+Sparse ($\lambda=0.05$),26,low + high,low,1.5-2.5 kHz,0.54235667
+Sparse ($\lambda=0.05$),26,low + high,low,2.5-4 kHz,0.6989764
+Sparse ($\lambda=0.05$),26,low + high,low,>4 kHz,0.5656566
+Sparse ($\lambda=0.05$),27,low,low,<250 Hz,0.5583407
+Sparse ($\lambda=0.05$),27,low,low,250-500 Hz,0.7561457
+Sparse ($\lambda=0.05$),27,low,low,500-750 Hz,0.72897846
+Sparse ($\lambda=0.05$),27,low,low,750-1000 Hz,0.6115257
+Sparse ($\lambda=0.05$),27,low,low,1-1.5 kHz,0.56854
+Sparse ($\lambda=0.05$),27,low,low,1.5-2.5 kHz,0.5683762
+Sparse ($\lambda=0.05$),27,low,low,2.5-4 kHz,0.6206834
+Sparse ($\lambda=0.05$),27,low,low,>4 kHz,0.56923264
+Sparse ($\lambda=0.05$),28,low + high,low,<250 Hz,0.6026521
+Sparse ($\lambda=0.05$),28,low + high,low,250-500 Hz,0.89654684
+Sparse ($\lambda=0.05$),28,low + high,low,500-750 Hz,0.5612636
+Sparse ($\lambda=0.05$),28,low + high,low,750-1000 Hz,0.52668804
+Sparse ($\lambda=0.05$),28,low + high,low,1-1.5 kHz,0.60855436
+Sparse ($\lambda=0.05$),28,low + high,low,1.5-2.5 kHz,0.5489586
+Sparse ($\lambda=0.05$),28,low + high,low,2.5-4 kHz,0.75257987
+Sparse ($\lambda=0.05$),28,low + high,low,>4 kHz,0.58549964
+Sparse ($\lambda=0.05$),29,low,mid,<250 Hz,0.6284644
+Sparse ($\lambda=0.05$),29,low,mid,250-500 Hz,0.54942834
+Sparse ($\lambda=0.05$),29,low,mid,500-750 Hz,0.57180023
+Sparse ($\lambda=0.05$),29,low,mid,750-1000 Hz,0.629886
+Sparse ($\lambda=0.05$),29,low,mid,1-1.5 kHz,0.532925
+Sparse ($\lambda=0.05$),29,low,mid,1.5-2.5 kHz,0.5406647
+Sparse ($\lambda=0.05$),29,low,mid,2.5-4 kHz,0.6221493
+Sparse ($\lambda=0.05$),29,low,mid,>4 kHz,0.6352999
+Sparse ($\lambda=0.05$),30,low + high,low,<250 Hz,0.7562694
+Sparse ($\lambda=0.05$),30,low + high,low,250-500 Hz,0.8132233
+Sparse ($\lambda=0.05$),30,low + high,low,500-750 Hz,0.5531116
+Sparse ($\lambda=0.05$),30,low + high,low,750-1000 Hz,0.5690904
+Sparse ($\lambda=0.05$),30,low + high,low,1-1.5 kHz,0.5438993
+Sparse ($\lambda=0.05$),30,low + high,low,1.5-2.5 kHz,0.55074584
+Sparse ($\lambda=0.05$),30,low + high,low,2.5-4 kHz,0.7283129
+Sparse ($\lambda=0.05$),30,low + high,low,>4 kHz,0.64870363
+Sparse ($\lambda=0.05$),31,low + high,low + high,<250 Hz,0.61624676
+Sparse ($\lambda=0.05$),31,low + high,low + high,250-500 Hz,0.6410474
+Sparse ($\lambda=0.05$),31,low + high,low + high,500-750 Hz,0.5453094
+Sparse ($\lambda=0.05$),31,low + high,low + high,750-1000 Hz,0.51051027
+Sparse ($\lambda=0.05$),31,low + high,low + high,1-1.5 kHz,0.7422214
+Sparse ($\lambda=0.05$),31,low + high,low + high,1.5-2.5 kHz,0.64861846
+Sparse ($\lambda=0.05$),31,low + high,low + high,2.5-4 kHz,0.56570077
+Sparse ($\lambda=0.05$),31,low + high,low + high,>4 kHz,0.61145175
+Sparse ($\lambda=0.05$),32,low + high,low + high,<250 Hz,0.6595279
+Sparse ($\lambda=0.05$),32,low + high,low + high,250-500 Hz,0.6345695
+Sparse ($\lambda=0.05$),32,low + high,low + high,500-750 Hz,0.55027914
+Sparse ($\lambda=0.05$),32,low + high,low + high,750-1000 Hz,0.53268564
+Sparse ($\lambda=0.05$),32,low + high,low + high,1-1.5 kHz,0.6334753
+Sparse ($\lambda=0.05$),32,low + high,low + high,1.5-2.5 kHz,0.67464733
+Sparse ($\lambda=0.05$),32,low + high,low + high,2.5-4 kHz,0.62010914
+Sparse ($\lambda=0.05$),32,low + high,low + high,>4 kHz,0.8150519
+Sparse ($\lambda=0.05$),33,mid,high,<250 Hz,0.55935544
+Sparse ($\lambda=0.05$),33,mid,high,250-500 Hz,0.53716004
+Sparse ($\lambda=0.05$),33,mid,high,500-750 Hz,0.64325297
+Sparse ($\lambda=0.05$),33,mid,high,750-1000 Hz,0.5608088
+Sparse ($\lambda=0.05$),33,mid,high,1-1.5 kHz,0.62548333
+Sparse ($\lambda=0.05$),33,mid,high,1.5-2.5 kHz,0.62209594
+Sparse ($\lambda=0.05$),33,mid,high,2.5-4 kHz,0.52822506
+Sparse ($\lambda=0.05$),33,mid,high,>4 kHz,0.74903697
+Sparse ($\lambda=0.05$),34,mid,mid,<250 Hz,0.694257
+Sparse ($\lambda=0.05$),34,mid,mid,250-500 Hz,0.76820624
+Sparse ($\lambda=0.05$),34,mid,mid,500-750 Hz,0.5493985
+Sparse ($\lambda=0.05$),34,mid,mid,750-1000 Hz,0.6042056
+Sparse ($\lambda=0.05$),34,mid,mid,1-1.5 kHz,0.5602088
+Sparse ($\lambda=0.05$),34,mid,mid,1.5-2.5 kHz,0.55166596
+Sparse ($\lambda=0.05$),34,mid,mid,2.5-4 kHz,0.6919464
+Sparse ($\lambda=0.05$),34,mid,mid,>4 kHz,0.64807755
+Sparse ($\lambda=0.05$),35,mid,mid,<250 Hz,0.677622
+Sparse ($\lambda=0.05$),35,mid,mid,250-500 Hz,0.67155355
+Sparse ($\lambda=0.05$),35,mid,mid,500-750 Hz,0.549807
+Sparse ($\lambda=0.05$),35,mid,mid,750-1000 Hz,0.5809086
+Sparse ($\lambda=0.05$),35,mid,mid,1-1.5 kHz,0.56117946
+Sparse ($\lambda=0.05$),35,mid,mid,1.5-2.5 kHz,0.576412
+Sparse ($\lambda=0.05$),35,mid,mid,2.5-4 kHz,0.64104164
+Sparse ($\lambda=0.05$),35,mid,mid,>4 kHz,0.6998058
+Sparse ($\lambda=0.05$),36,low + high,mid,<250 Hz,0.64611256
+Sparse ($\lambda=0.05$),36,low + high,mid,250-500 Hz,0.646833
+Sparse ($\lambda=0.05$),36,low + high,mid,500-750 Hz,0.5415521
+Sparse ($\lambda=0.05$),36,low + high,mid,750-1000 Hz,0.5538401
+Sparse ($\lambda=0.05$),36,low + high,mid,1-1.5 kHz,0.5972415
+Sparse ($\lambda=0.05$),36,low + high,mid,1.5-2.5 kHz,0.6245477
+Sparse ($\lambda=0.05$),36,low + high,mid,2.5-4 kHz,0.6086911
+Sparse ($\lambda=0.05$),36,low + high,mid,>4 kHz,0.74881333
+Sparse ($\lambda=0.05$),37,high,high,<250 Hz,0.54430187
+Sparse ($\lambda=0.05$),37,high,high,250-500 Hz,0.58054876
+Sparse ($\lambda=0.05$),37,high,high,500-750 Hz,0.76433134
+Sparse ($\lambda=0.05$),37,high,high,750-1000 Hz,0.5130424
+Sparse ($\lambda=0.05$),37,high,high,1-1.5 kHz,0.6622502
+Sparse ($\lambda=0.05$),37,high,high,1.5-2.5 kHz,0.68220365
+Sparse ($\lambda=0.05$),37,high,high,2.5-4 kHz,0.53424054
+Sparse ($\lambda=0.05$),37,high,high,>4 kHz,0.576266
+Sparse ($\lambda=0.05$),38,mid,mid,<250 Hz,0.6499971
+Sparse ($\lambda=0.05$),38,mid,mid,250-500 Hz,0.62482756
+Sparse ($\lambda=0.05$),38,mid,mid,500-750 Hz,0.5744985
+Sparse ($\lambda=0.05$),38,mid,mid,750-1000 Hz,0.5248674
+Sparse ($\lambda=0.05$),38,mid,mid,1-1.5 kHz,0.6089518
+Sparse ($\lambda=0.05$),38,mid,mid,1.5-2.5 kHz,0.60717165
+Sparse ($\lambda=0.05$),38,mid,mid,2.5-4 kHz,0.5704519
+Sparse ($\lambda=0.05$),38,mid,mid,>4 kHz,0.72741205
+Sparse ($\lambda=0.05$),39,low,low,<250 Hz,0.62621963
+Sparse ($\lambda=0.05$),39,low,low,250-500 Hz,0.64592093
+Sparse ($\lambda=0.05$),39,low,low,500-750 Hz,0.74277484
+Sparse ($\lambda=0.05$),39,low,low,750-1000 Hz,0.5523087
+Sparse ($\lambda=0.05$),39,low,low,1-1.5 kHz,0.5167947
+Sparse ($\lambda=0.05$),39,low,low,1.5-2.5 kHz,0.5466102
+Sparse ($\lambda=0.05$),39,low,low,2.5-4 kHz,0.5959502
+Sparse ($\lambda=0.05$),39,low,low,>4 kHz,0.6547952
+Sparse ($\lambda=0.05$),40,low,low,<250 Hz,0.55091053
+Sparse ($\lambda=0.05$),40,low,low,250-500 Hz,0.7771484
+Sparse ($\lambda=0.05$),40,low,low,500-750 Hz,0.7847803
+Sparse ($\lambda=0.05$),40,low,low,750-1000 Hz,0.5363872
+Sparse ($\lambda=0.05$),40,low,low,1-1.5 kHz,0.56934947
+Sparse ($\lambda=0.05$),40,low,low,1.5-2.5 kHz,0.5862806
+Sparse ($\lambda=0.05$),40,low,low,2.5-4 kHz,0.62647957
+Sparse ($\lambda=0.05$),40,low,low,>4 kHz,0.55801195
+Sparse ($\lambda=0.05$),41,high,high,<250 Hz,0.55351
+Sparse ($\lambda=0.05$),41,high,high,250-500 Hz,0.54146993
+Sparse ($\lambda=0.05$),41,high,high,500-750 Hz,0.80962884
+Sparse ($\lambda=0.05$),41,high,high,750-1000 Hz,0.54728055
+Sparse ($\lambda=0.05$),41,high,high,1-1.5 kHz,0.654607
+Sparse ($\lambda=0.05$),41,high,high,1.5-2.5 kHz,0.68387276
+Sparse ($\lambda=0.05$),41,high,high,2.5-4 kHz,0.54217404
+Sparse ($\lambda=0.05$),41,high,high,>4 kHz,0.7801717
+Sparse ($\lambda=0.05$),42,low,low,<250 Hz,0.75090533
+Sparse ($\lambda=0.05$),42,low,low,250-500 Hz,0.89043385
+Sparse ($\lambda=0.05$),42,low,low,500-750 Hz,0.5485278
+Sparse ($\lambda=0.05$),42,low,low,750-1000 Hz,0.5688142
+Sparse ($\lambda=0.05$),42,low,low,1-1.5 kHz,0.5975486
+Sparse ($\lambda=0.05$),42,low,low,1.5-2.5 kHz,0.54093367
+Sparse ($\lambda=0.05$),42,low,low,2.5-4 kHz,0.79646564
+Sparse ($\lambda=0.05$),42,low,low,>4 kHz,0.61450976
+Sparse ($\lambda=0.05$),43,mid,mid,<250 Hz,0.59403956
+Sparse ($\lambda=0.05$),43,mid,mid,250-500 Hz,0.545797
+Sparse ($\lambda=0.05$),43,mid,mid,500-750 Hz,0.60061854
+Sparse ($\lambda=0.05$),43,mid,mid,750-1000 Hz,0.53525513
+Sparse ($\lambda=0.05$),43,mid,mid,1-1.5 kHz,0.6064599
+Sparse ($\lambda=0.05$),43,mid,mid,1.5-2.5 kHz,0.65335506
+Sparse ($\lambda=0.05$),43,mid,mid,2.5-4 kHz,0.56281406
+Sparse ($\lambda=0.05$),43,mid,mid,>4 kHz,0.8073231
+Sparse ($\lambda=0.05$),44,mid,high,<250 Hz,0.5392935
+Sparse ($\lambda=0.05$),44,mid,high,250-500 Hz,0.53997344
+Sparse ($\lambda=0.05$),44,mid,high,500-750 Hz,0.56870675
+Sparse ($\lambda=0.05$),44,mid,high,750-1000 Hz,0.50348866
+Sparse ($\lambda=0.05$),44,mid,high,1-1.5 kHz,0.56725985
+Sparse ($\lambda=0.05$),44,mid,high,1.5-2.5 kHz,0.6958205
+Sparse ($\lambda=0.05$),44,mid,high,2.5-4 kHz,0.54163533
+Sparse ($\lambda=0.05$),44,mid,high,>4 kHz,0.5406776
+Sparse ($\lambda=0.05$),45,high,high,<250 Hz,0.5582038
+Sparse ($\lambda=0.05$),45,high,high,250-500 Hz,0.5400136
+Sparse ($\lambda=0.05$),45,high,high,500-750 Hz,0.86926204
+Sparse ($\lambda=0.05$),45,high,high,750-1000 Hz,0.56423444
+Sparse ($\lambda=0.05$),45,high,high,1-1.5 kHz,0.60747087
+Sparse ($\lambda=0.05$),45,high,high,1.5-2.5 kHz,0.65005213
+Sparse ($\lambda=0.05$),45,high,high,2.5-4 kHz,0.52597374
+Sparse ($\lambda=0.05$),45,high,high,>4 kHz,0.58775663
+Sparse ($\lambda=0.05$),46,low + high,low + high,<250 Hz,0.6587652
+Sparse ($\lambda=0.05$),46,low + high,low + high,250-500 Hz,0.6718197
+Sparse ($\lambda=0.05$),46,low + high,low + high,500-750 Hz,0.5555268
+Sparse ($\lambda=0.05$),46,low + high,low + high,750-1000 Hz,0.5387307
+Sparse ($\lambda=0.05$),46,low + high,low + high,1-1.5 kHz,0.64772874
+Sparse ($\lambda=0.05$),46,low + high,low + high,1.5-2.5 kHz,0.6811224
+Sparse ($\lambda=0.05$),46,low + high,low + high,2.5-4 kHz,0.63729626
+Sparse ($\lambda=0.05$),46,low + high,low + high,>4 kHz,0.8174266
+Sparse ($\lambda=0.05$),47,low + high,mid,<250 Hz,0.66536546
+Sparse ($\lambda=0.05$),47,low + high,mid,250-500 Hz,0.66046077
+Sparse ($\lambda=0.05$),47,low + high,mid,500-750 Hz,0.5745932
+Sparse ($\lambda=0.05$),47,low + high,mid,750-1000 Hz,0.5399165
+Sparse ($\lambda=0.05$),47,low + high,mid,1-1.5 kHz,0.60886776
+Sparse ($\lambda=0.05$),47,low + high,mid,1.5-2.5 kHz,0.64475834
+Sparse ($\lambda=0.05$),47,low + high,mid,2.5-4 kHz,0.6279777
+Sparse ($\lambda=0.05$),47,low + high,mid,>4 kHz,0.7796987
+Sparse ($\lambda=0.05$),48,high,high,<250 Hz,0.5570714
+Sparse ($\lambda=0.05$),48,high,high,250-500 Hz,0.5369773
+Sparse ($\lambda=0.05$),48,high,high,500-750 Hz,0.7588913
+Sparse ($\lambda=0.05$),48,high,high,750-1000 Hz,0.55132234
+Sparse ($\lambda=0.05$),48,high,high,1-1.5 kHz,0.6572122
+Sparse ($\lambda=0.05$),48,high,high,1.5-2.5 kHz,0.67178947
+Sparse ($\lambda=0.05$),48,high,high,2.5-4 kHz,0.535546
+Sparse ($\lambda=0.05$),48,high,high,>4 kHz,0.77079433
+Sparse ($\lambda=0.05$),49,low + high,low + high,<250 Hz,0.66361105
+Sparse ($\lambda=0.05$),49,low + high,low + high,250-500 Hz,0.7759267
+Sparse ($\lambda=0.05$),49,low + high,low + high,500-750 Hz,0.5719019
+Sparse ($\lambda=0.05$),49,low + high,low + high,750-1000 Hz,0.54177797
+Sparse ($\lambda=0.05$),49,low + high,low + high,1-1.5 kHz,0.6223433
+Sparse ($\lambda=0.05$),49,low + high,low + high,1.5-2.5 kHz,0.63335115
+Sparse ($\lambda=0.05$),49,low + high,low + high,2.5-4 kHz,0.6871554
+Sparse ($\lambda=0.05$),49,low + high,low + high,>4 kHz,0.7593112
+Sparse ($\lambda=0.05$),50,low + high,low + high,<250 Hz,0.6579051
+Sparse ($\lambda=0.05$),50,low + high,low + high,250-500 Hz,0.64816624
+Sparse ($\lambda=0.05$),50,low + high,low + high,500-750 Hz,0.55310994
+Sparse ($\lambda=0.05$),50,low + high,low + high,750-1000 Hz,0.5366695
+Sparse ($\lambda=0.05$),50,low + high,low + high,1-1.5 kHz,0.6512288
+Sparse ($\lambda=0.05$),50,low + high,low + high,1.5-2.5 kHz,0.68917567
+Sparse ($\lambda=0.05$),50,low + high,low + high,2.5-4 kHz,0.6237489
+Sparse ($\lambda=0.05$),50,low + high,low + high,>4 kHz,0.82655406
+Sparse ($\lambda=0.05$),51,high,high,<250 Hz,0.5426933
+Sparse ($\lambda=0.05$),51,high,high,250-500 Hz,0.5453147
+Sparse ($\lambda=0.05$),51,high,high,500-750 Hz,0.8208164
+Sparse ($\lambda=0.05$),51,high,high,750-1000 Hz,0.5392666
+Sparse ($\lambda=0.05$),51,high,high,1-1.5 kHz,0.60145545
+Sparse ($\lambda=0.05$),51,high,high,1.5-2.5 kHz,0.637167
+Sparse ($\lambda=0.05$),51,high,high,2.5-4 kHz,0.5408997
+Sparse ($\lambda=0.05$),51,high,high,>4 kHz,0.71156037
+Sparse ($\lambda=0.05$),52,low,low,<250 Hz,0.6613666
+Sparse ($\lambda=0.05$),52,low,low,250-500 Hz,0.6766278
+Sparse ($\lambda=0.05$),52,low,low,500-750 Hz,0.5734399
+Sparse ($\lambda=0.05$),52,low,low,750-1000 Hz,0.7116821
+Sparse ($\lambda=0.05$),52,low,low,1-1.5 kHz,0.5458781
+Sparse ($\lambda=0.05$),52,low,low,1.5-2.5 kHz,0.5402269
+Sparse ($\lambda=0.05$),52,low,low,2.5-4 kHz,0.6283732
+Sparse ($\lambda=0.05$),52,low,low,>4 kHz,0.59369564
+Sparse ($\lambda=0.05$),53,high,high,<250 Hz,0.5781107
+Sparse ($\lambda=0.05$),53,high,high,250-500 Hz,0.56163424
+Sparse ($\lambda=0.05$),53,high,high,500-750 Hz,0.87617564
+Sparse ($\lambda=0.05$),53,high,high,750-1000 Hz,0.6178646
+Sparse ($\lambda=0.05$),53,high,high,1-1.5 kHz,0.5837872
+Sparse ($\lambda=0.05$),53,high,high,1.5-2.5 kHz,0.64174825
+Sparse ($\lambda=0.05$),53,high,high,2.5-4 kHz,0.5414523
+Sparse ($\lambda=0.05$),53,high,high,>4 kHz,0.5842312
+Sparse ($\lambda=0.05$),54,high,high,<250 Hz,0.551817
+Sparse ($\lambda=0.05$),54,high,high,250-500 Hz,0.5403461
+Sparse ($\lambda=0.05$),54,high,high,500-750 Hz,0.8036668
+Sparse ($\lambda=0.05$),54,high,high,750-1000 Hz,0.5330845
+Sparse ($\lambda=0.05$),54,high,high,1-1.5 kHz,0.62248296
+Sparse ($\lambda=0.05$),54,high,high,1.5-2.5 kHz,0.6651593
+Sparse ($\lambda=0.05$),54,high,high,2.5-4 kHz,0.5549623
+Sparse ($\lambda=0.05$),54,high,high,>4 kHz,0.75158376
+Sparse ($\lambda=0.05$),55,low,low,<250 Hz,0.6235829
+Sparse ($\lambda=0.05$),55,low,low,250-500 Hz,0.7500418
+Sparse ($\lambda=0.05$),55,low,low,500-750 Hz,0.7012732
+Sparse ($\lambda=0.05$),55,low,low,750-1000 Hz,0.6287376
+Sparse ($\lambda=0.05$),55,low,low,1-1.5 kHz,0.5643363
+Sparse ($\lambda=0.05$),55,low,low,1.5-2.5 kHz,0.5616932
+Sparse ($\lambda=0.05$),55,low,low,2.5-4 kHz,0.64694065
+Sparse ($\lambda=0.05$),55,low,low,>4 kHz,0.58231616
+Sparse ($\lambda=0.05$),56,low,low,<250 Hz,0.6636286
+Sparse ($\lambda=0.05$),56,low,low,250-500 Hz,0.7590481
+Sparse ($\lambda=0.05$),56,low,low,500-750 Hz,0.7808563
+Sparse ($\lambda=0.05$),56,low,low,750-1000 Hz,0.5561244
+Sparse ($\lambda=0.05$),56,low,low,1-1.5 kHz,0.5445197
+Sparse ($\lambda=0.05$),56,low,low,1.5-2.5 kHz,0.5540897
+Sparse ($\lambda=0.05$),56,low,low,2.5-4 kHz,0.66705227
+Sparse ($\lambda=0.05$),56,low,low,>4 kHz,0.6130566
+Sparse ($\lambda=0.05$),57,low,low,<250 Hz,0.5413297
+Sparse ($\lambda=0.05$),57,low,low,250-500 Hz,0.572225
+Sparse ($\lambda=0.05$),57,low,low,500-750 Hz,0.87379843
+Sparse ($\lambda=0.05$),57,low,low,750-1000 Hz,0.6113386
+Sparse ($\lambda=0.05$),57,low,low,1-1.5 kHz,0.52803814
+Sparse ($\lambda=0.05$),57,low,low,1.5-2.5 kHz,0.5623829
+Sparse ($\lambda=0.05$),57,low,low,2.5-4 kHz,0.5449683
+Sparse ($\lambda=0.05$),57,low,low,>4 kHz,0.72045726
+Sparse ($\lambda=0.05$),58,low,low,<250 Hz,0.54027146
+Sparse ($\lambda=0.05$),58,low,low,250-500 Hz,0.59773713
+Sparse ($\lambda=0.05$),58,low,low,500-750 Hz,0.86574596
+Sparse ($\lambda=0.05$),58,low,low,750-1000 Hz,0.6072656
+Sparse ($\lambda=0.05$),58,low,low,1-1.5 kHz,0.5225014
+Sparse ($\lambda=0.05$),58,low,low,1.5-2.5 kHz,0.550981
+Sparse ($\lambda=0.05$),58,low,low,2.5-4 kHz,0.5519508
+Sparse ($\lambda=0.05$),58,low,low,>4 kHz,0.71666497
+Sparse ($\lambda=0.05$),59,low + high,low + high,<250 Hz,0.62476975
+Sparse ($\lambda=0.05$),59,low + high,low + high,250-500 Hz,0.80536044
+Sparse ($\lambda=0.05$),59,low + high,low + high,500-750 Hz,0.5376517
+Sparse ($\lambda=0.05$),59,low + high,low + high,750-1000 Hz,0.5279319
+Sparse ($\lambda=0.05$),59,low + high,low + high,1-1.5 kHz,0.70239174
+Sparse ($\lambda=0.05$),59,low + high,low + high,1.5-2.5 kHz,0.6491387
+Sparse ($\lambda=0.05$),59,low + high,low + high,2.5-4 kHz,0.6777761
+Sparse ($\lambda=0.05$),59,low + high,low + high,>4 kHz,0.5723185
+Sparse ($\lambda=0.05$),60,high,low,<250 Hz,0.5352343
+Sparse ($\lambda=0.05$),60,high,low,250-500 Hz,0.56586134
+Sparse ($\lambda=0.05$),60,high,low,500-750 Hz,0.8617168
+Sparse ($\lambda=0.05$),60,high,low,750-1000 Hz,0.5948858
+Sparse ($\lambda=0.05$),60,high,low,1-1.5 kHz,0.5239785
+Sparse ($\lambda=0.05$),60,high,low,1.5-2.5 kHz,0.55666524
+Sparse ($\lambda=0.05$),60,high,low,2.5-4 kHz,0.54251814
+Sparse ($\lambda=0.05$),60,high,low,>4 kHz,0.69621545
+Sparse ($\lambda=0.05$),61,low + high,mid,<250 Hz,0.6183575
+Sparse ($\lambda=0.05$),61,low + high,mid,250-500 Hz,0.5954993
+Sparse ($\lambda=0.05$),61,low + high,mid,500-750 Hz,0.56338334
+Sparse ($\lambda=0.05$),61,low + high,mid,750-1000 Hz,0.5331026
+Sparse ($\lambda=0.05$),61,low + high,mid,1-1.5 kHz,0.6267108
+Sparse ($\lambda=0.05$),61,low + high,mid,1.5-2.5 kHz,0.66016847
+Sparse ($\lambda=0.05$),61,low + high,mid,2.5-4 kHz,0.5769213
+Sparse ($\lambda=0.05$),61,low + high,mid,>4 kHz,0.79419917
+Sparse ($\lambda=0.05$),62,low + high,low + high,<250 Hz,0.6360832
+Sparse ($\lambda=0.05$),62,low + high,low + high,250-500 Hz,0.65557426
+Sparse ($\lambda=0.05$),62,low + high,low + high,500-750 Hz,0.5400425
+Sparse ($\lambda=0.05$),62,low + high,low + high,750-1000 Hz,0.5263181
+Sparse ($\lambda=0.05$),62,low + high,low + high,1-1.5 kHz,0.7125572
+Sparse ($\lambda=0.05$),62,low + high,low + high,1.5-2.5 kHz,0.6831695
+Sparse ($\lambda=0.05$),62,low + high,low + high,2.5-4 kHz,0.5863139
+Sparse ($\lambda=0.05$),62,low + high,low + high,>4 kHz,0.61236006
+Sparse ($\lambda=0.05$),63,high,high,<250 Hz,0.5412782
+Sparse ($\lambda=0.05$),63,high,high,250-500 Hz,0.55768883
+Sparse ($\lambda=0.05$),63,high,high,500-750 Hz,0.82154435
+Sparse ($\lambda=0.05$),63,high,high,750-1000 Hz,0.5198741
+Sparse ($\lambda=0.05$),63,high,high,1-1.5 kHz,0.62151533
+Sparse ($\lambda=0.05$),63,high,high,1.5-2.5 kHz,0.6502096
+Sparse ($\lambda=0.05$),63,high,high,2.5-4 kHz,0.53109545
+Sparse ($\lambda=0.05$),63,high,high,>4 kHz,0.5733801
+Sparse ($\lambda=0.05$),64,mid,low,<250 Hz,0.72807133
+Sparse ($\lambda=0.05$),64,mid,low,250-500 Hz,0.7863893
+Sparse ($\lambda=0.05$),64,mid,low,500-750 Hz,0.5519673
+Sparse ($\lambda=0.05$),64,mid,low,750-1000 Hz,0.57633317
+Sparse ($\lambda=0.05$),64,mid,low,1-1.5 kHz,0.53526205
+Sparse ($\lambda=0.05$),64,mid,low,1.5-2.5 kHz,0.5543478
+Sparse ($\lambda=0.05$),64,mid,low,2.5-4 kHz,0.69162124
+Sparse ($\lambda=0.05$),64,mid,low,>4 kHz,0.65983284
+Sparse ($\lambda=0.05$),65,low,low,<250 Hz,0.65937996
+Sparse ($\lambda=0.05$),65,low,low,250-500 Hz,0.751843
+Sparse ($\lambda=0.05$),65,low,low,500-750 Hz,0.78773713
+Sparse ($\lambda=0.05$),65,low,low,750-1000 Hz,0.5428238
+Sparse ($\lambda=0.05$),65,low,low,1-1.5 kHz,0.559494
+Sparse ($\lambda=0.05$),65,low,low,1.5-2.5 kHz,0.58724
+Sparse ($\lambda=0.05$),65,low,low,2.5-4 kHz,0.6606362
+Sparse ($\lambda=0.05$),65,low,low,>4 kHz,0.5761232
+Sparse ($\lambda=0.05$),66,mid,mid,<250 Hz,0.6599185
+Sparse ($\lambda=0.05$),66,mid,mid,250-500 Hz,0.66882104
+Sparse ($\lambda=0.05$),66,mid,mid,500-750 Hz,0.5835963
+Sparse ($\lambda=0.05$),66,mid,mid,750-1000 Hz,0.6708729
+Sparse ($\lambda=0.05$),66,mid,mid,1-1.5 kHz,0.53357583
+Sparse ($\lambda=0.05$),66,mid,mid,1.5-2.5 kHz,0.54872286
+Sparse ($\lambda=0.05$),66,mid,mid,2.5-4 kHz,0.61350167
+Sparse ($\lambda=0.05$),66,mid,mid,>4 kHz,0.62595594
+Sparse ($\lambda=0.05$),67,low,low,<250 Hz,0.6169193
+Sparse ($\lambda=0.05$),67,low,low,250-500 Hz,0.8100072
+Sparse ($\lambda=0.05$),67,low,low,500-750 Hz,0.5553991
+Sparse ($\lambda=0.05$),67,low,low,750-1000 Hz,0.6402092
+Sparse ($\lambda=0.05$),67,low,low,1-1.5 kHz,0.56394017
+Sparse ($\lambda=0.05$),67,low,low,1.5-2.5 kHz,0.54253167
+Sparse ($\lambda=0.05$),67,low,low,2.5-4 kHz,0.68610877
+Sparse ($\lambda=0.05$),67,low,low,>4 kHz,0.5695608
+Sparse ($\lambda=0.05$),68,high,high,<250 Hz,0.5441588
+Sparse ($\lambda=0.05$),68,high,high,250-500 Hz,0.55878377
+Sparse ($\lambda=0.05$),68,high,high,500-750 Hz,0.58644295
+Sparse ($\lambda=0.05$),68,high,high,750-1000 Hz,0.5116781
+Sparse ($\lambda=0.05$),68,high,high,1-1.5 kHz,0.6644907
+Sparse ($\lambda=0.05$),68,high,high,1.5-2.5 kHz,0.82589924
+Sparse ($\lambda=0.05$),68,high,high,2.5-4 kHz,0.5456548
+Sparse ($\lambda=0.05$),68,high,high,>4 kHz,0.6031439
+Sparse ($\lambda=0.05$),69,low,low,<250 Hz,0.5687563
+Sparse ($\lambda=0.05$),69,low,low,250-500 Hz,0.86882234
+Sparse ($\lambda=0.05$),69,low,low,500-750 Hz,0.55857843
+Sparse ($\lambda=0.05$),69,low,low,750-1000 Hz,0.5170262
+Sparse ($\lambda=0.05$),69,low,low,1-1.5 kHz,0.58989805
+Sparse ($\lambda=0.05$),69,low,low,1.5-2.5 kHz,0.560478
+Sparse ($\lambda=0.05$),69,low,low,2.5-4 kHz,0.7119516
+Sparse ($\lambda=0.05$),69,low,low,>4 kHz,0.56997883
+Sparse ($\lambda=0.05$),70,low,low,<250 Hz,0.58960646
+Sparse ($\lambda=0.05$),70,low,low,250-500 Hz,0.7420641
+Sparse ($\lambda=0.05$),70,low,low,500-750 Hz,0.5654472
+Sparse ($\lambda=0.05$),70,low,low,750-1000 Hz,0.6841013
+Sparse ($\lambda=0.05$),70,low,low,1-1.5 kHz,0.5528775
+Sparse ($\lambda=0.05$),70,low,low,1.5-2.5 kHz,0.5473402
+Sparse ($\lambda=0.05$),70,low,low,2.5-4 kHz,0.6351447
+Sparse ($\lambda=0.05$),70,low,low,>4 kHz,0.5929692
+Sparse ($\lambda=0.05$),71,low + high,low + high,<250 Hz,0.6595504
+Sparse ($\lambda=0.05$),71,low + high,low + high,250-500 Hz,0.5563557
+Sparse ($\lambda=0.05$),71,low + high,low + high,500-750 Hz,0.56878954
+Sparse ($\lambda=0.05$),71,low + high,low + high,750-1000 Hz,0.5730927
+Sparse ($\lambda=0.05$),71,low + high,low + high,1-1.5 kHz,0.6981307
+Sparse ($\lambda=0.05$),71,low + high,low + high,1.5-2.5 kHz,0.72485274
+Sparse ($\lambda=0.05$),71,low + high,low + high,2.5-4 kHz,0.64447707
+Sparse ($\lambda=0.05$),71,low + high,low + high,>4 kHz,0.8679251
+Sparse ($\lambda=0.05$),72,low,low,<250 Hz,0.5653237
+Sparse ($\lambda=0.05$),72,low,low,250-500 Hz,0.56374776
+Sparse ($\lambda=0.05$),72,low,low,500-750 Hz,0.5676625
+Sparse ($\lambda=0.05$),72,low,low,750-1000 Hz,0.49898842
+Sparse ($\lambda=0.05$),72,low,low,1-1.5 kHz,0.511532
+Sparse ($\lambda=0.05$),72,low,low,1.5-2.5 kHz,0.5322676
+Sparse ($\lambda=0.05$),72,low,low,2.5-4 kHz,0.71023864
+Sparse ($\lambda=0.05$),72,low,low,>4 kHz,0.5429274
+Sparse ($\lambda=0.05$),73,high,high,<250 Hz,0.5382059
+Sparse ($\lambda=0.05$),73,high,high,250-500 Hz,0.54781806
+Sparse ($\lambda=0.05$),73,high,high,500-750 Hz,0.63595974
+Sparse ($\lambda=0.05$),73,high,high,750-1000 Hz,0.6237145
+Sparse ($\lambda=0.05$),73,high,high,1-1.5 kHz,0.59804976
+Sparse ($\lambda=0.05$),73,high,high,1.5-2.5 kHz,0.77139264
+Sparse ($\lambda=0.05$),73,high,high,2.5-4 kHz,0.5273165
+Sparse ($\lambda=0.05$),73,high,high,>4 kHz,0.5908227
+Sparse ($\lambda=0.05$),74,mid,mid,<250 Hz,0.54827
+Sparse ($\lambda=0.05$),74,mid,mid,250-500 Hz,0.53185827
+Sparse ($\lambda=0.05$),74,mid,mid,500-750 Hz,0.72904086
+Sparse ($\lambda=0.05$),74,mid,mid,750-1000 Hz,0.688019
+Sparse ($\lambda=0.05$),74,mid,mid,1-1.5 kHz,0.54514015
+Sparse ($\lambda=0.05$),74,mid,mid,1.5-2.5 kHz,0.56390214
+Sparse ($\lambda=0.05$),74,mid,mid,2.5-4 kHz,0.5241931
+Sparse ($\lambda=0.05$),74,mid,mid,>4 kHz,0.688463
+Sparse ($\lambda=0.05$),75,low,low,<250 Hz,0.6196156
+Sparse ($\lambda=0.05$),75,low,low,250-500 Hz,0.72169495
+Sparse ($\lambda=0.05$),75,low,low,500-750 Hz,0.83859664
+Sparse ($\lambda=0.05$),75,low,low,750-1000 Hz,0.55718446
+Sparse ($\lambda=0.05$),75,low,low,1-1.5 kHz,0.54563475
+Sparse ($\lambda=0.05$),75,low,low,1.5-2.5 kHz,0.57126606
+Sparse ($\lambda=0.05$),75,low,low,2.5-4 kHz,0.6333731
+Sparse ($\lambda=0.05$),75,low,low,>4 kHz,0.61099035
+Sparse ($\lambda=0.05$),76,low,low,<250 Hz,0.6172953
+Sparse ($\lambda=0.05$),76,low,low,250-500 Hz,0.7242355
+Sparse ($\lambda=0.05$),76,low,low,500-750 Hz,0.76528835
+Sparse ($\lambda=0.05$),76,low,low,750-1000 Hz,0.603316
+Sparse ($\lambda=0.05$),76,low,low,1-1.5 kHz,0.5650016
+Sparse ($\lambda=0.05$),76,low,low,1.5-2.5 kHz,0.5785653
+Sparse ($\lambda=0.05$),76,low,low,2.5-4 kHz,0.6308305
+Sparse ($\lambda=0.05$),76,low,low,>4 kHz,0.57512283
+Sparse ($\lambda=0.05$),77,high,high,<250 Hz,0.546845
+Sparse ($\lambda=0.05$),77,high,high,250-500 Hz,0.563457
+Sparse ($\lambda=0.05$),77,high,high,500-750 Hz,0.8251531
+Sparse ($\lambda=0.05$),77,high,high,750-1000 Hz,0.5873116
+Sparse ($\lambda=0.05$),77,high,high,1-1.5 kHz,0.6109912
+Sparse ($\lambda=0.05$),77,high,high,1.5-2.5 kHz,0.6075824
+Sparse ($\lambda=0.05$),77,high,high,2.5-4 kHz,0.5360043
+Sparse ($\lambda=0.05$),77,high,high,>4 kHz,0.6906198
+Sparse ($\lambda=0.05$),78,high,low + high,<250 Hz,0.5520716
+Sparse ($\lambda=0.05$),78,high,low + high,250-500 Hz,0.60932887
+Sparse ($\lambda=0.05$),78,high,low + high,500-750 Hz,0.5513698
+Sparse ($\lambda=0.05$),78,high,low + high,750-1000 Hz,0.5037404
+Sparse ($\lambda=0.05$),78,high,low + high,1-1.5 kHz,0.79649913
+Sparse ($\lambda=0.05$),78,high,low + high,1.5-2.5 kHz,0.7070752
+Sparse ($\lambda=0.05$),78,high,low + high,2.5-4 kHz,0.52763236
+Sparse ($\lambda=0.05$),78,high,low + high,>4 kHz,0.5605894
+Sparse ($\lambda=0.05$),79,low + high,low + high,<250 Hz,0.5732671
+Sparse ($\lambda=0.05$),79,low + high,low + high,250-500 Hz,0.74782825
+Sparse ($\lambda=0.05$),79,low + high,low + high,500-750 Hz,0.5422113
+Sparse ($\lambda=0.05$),79,low + high,low + high,750-1000 Hz,0.5522015
+Sparse ($\lambda=0.05$),79,low + high,low + high,1-1.5 kHz,0.67366636
+Sparse ($\lambda=0.05$),79,low + high,low + high,1.5-2.5 kHz,0.6360121
+Sparse ($\lambda=0.05$),79,low + high,low + high,2.5-4 kHz,0.6117212
+Sparse ($\lambda=0.05$),79,low + high,low + high,>4 kHz,0.73536956
+Sparse ($\lambda=0.05$),80,high,high,<250 Hz,0.54427046
+Sparse ($\lambda=0.05$),80,high,high,250-500 Hz,0.5917246
+Sparse ($\lambda=0.05$),80,high,high,500-750 Hz,0.68584865
+Sparse ($\lambda=0.05$),80,high,high,750-1000 Hz,0.5323218
+Sparse ($\lambda=0.05$),80,high,high,1-1.5 kHz,0.7352474
+Sparse ($\lambda=0.05$),80,high,high,1.5-2.5 kHz,0.6410656
+Sparse ($\lambda=0.05$),80,high,high,2.5-4 kHz,0.5340279
+Sparse ($\lambda=0.05$),80,high,high,>4 kHz,0.614582
+Sparse ($\lambda=0.05$),81,low,low,<250 Hz,0.6402267
+Sparse ($\lambda=0.05$),81,low,low,250-500 Hz,0.66004205
+Sparse ($\lambda=0.05$),81,low,low,500-750 Hz,0.65224606
+Sparse ($\lambda=0.05$),81,low,low,750-1000 Hz,0.6911659
+Sparse ($\lambda=0.05$),81,low,low,1-1.5 kHz,0.5416838
+Sparse ($\lambda=0.05$),81,low,low,1.5-2.5 kHz,0.5496124
+Sparse ($\lambda=0.05$),81,low,low,2.5-4 kHz,0.60452867
+Sparse ($\lambda=0.05$),81,low,low,>4 kHz,0.60896534
+Sparse ($\lambda=0.05$),82,mid,low,<250 Hz,0.73272353
+Sparse ($\lambda=0.05$),82,mid,low,250-500 Hz,0.79393643
+Sparse ($\lambda=0.05$),82,mid,low,500-750 Hz,0.54894316
+Sparse ($\lambda=0.05$),82,mid,low,750-1000 Hz,0.5449427
+Sparse ($\lambda=0.05$),82,mid,low,1-1.5 kHz,0.5373297
+Sparse ($\lambda=0.05$),82,mid,low,1.5-2.5 kHz,0.5429503
+Sparse ($\lambda=0.05$),82,mid,low,2.5-4 kHz,0.7122611
+Sparse ($\lambda=0.05$),82,mid,low,>4 kHz,0.62517184
+Sparse ($\lambda=0.05$),83,low,low,<250 Hz,0.633159
+Sparse ($\lambda=0.05$),83,low,low,250-500 Hz,0.7167384
+Sparse ($\lambda=0.05$),83,low,low,500-750 Hz,0.7477877
+Sparse ($\lambda=0.05$),83,low,low,750-1000 Hz,0.55033463
+Sparse ($\lambda=0.05$),83,low,low,1-1.5 kHz,0.5578437
+Sparse ($\lambda=0.05$),83,low,low,1.5-2.5 kHz,0.58687073
+Sparse ($\lambda=0.05$),83,low,low,2.5-4 kHz,0.6322832
+Sparse ($\lambda=0.05$),83,low,low,>4 kHz,0.570819
+Sparse ($\lambda=0.05$),84,low,low,<250 Hz,0.530574
+Sparse ($\lambda=0.05$),84,low,low,250-500 Hz,0.5627852
+Sparse ($\lambda=0.05$),84,low,low,500-750 Hz,0.8449683
+Sparse ($\lambda=0.05$),84,low,low,750-1000 Hz,0.58864146
+Sparse ($\lambda=0.05$),84,low,low,1-1.5 kHz,0.5202464
+Sparse ($\lambda=0.05$),84,low,low,1.5-2.5 kHz,0.54955673
+Sparse ($\lambda=0.05$),84,low,low,2.5-4 kHz,0.5543905
+Sparse ($\lambda=0.05$),84,low,low,>4 kHz,0.6848904
+Sparse ($\lambda=0.05$),85,low,high,<250 Hz,0.53560036
+Sparse ($\lambda=0.05$),85,low,high,250-500 Hz,0.5684855
+Sparse ($\lambda=0.05$),85,low,high,500-750 Hz,0.89401585
+Sparse ($\lambda=0.05$),85,low,high,750-1000 Hz,0.57680035
+Sparse ($\lambda=0.05$),85,low,high,1-1.5 kHz,0.54115057
+Sparse ($\lambda=0.05$),85,low,high,1.5-2.5 kHz,0.65860254
+Sparse ($\lambda=0.05$),85,low,high,2.5-4 kHz,0.54212964
+Sparse ($\lambda=0.05$),85,low,high,>4 kHz,0.6448845
+Sparse ($\lambda=0.05$),86,high,high,<250 Hz,0.5534399
+Sparse ($\lambda=0.05$),86,high,high,250-500 Hz,0.55511814
+Sparse ($\lambda=0.05$),86,high,high,500-750 Hz,0.7273944
+Sparse ($\lambda=0.05$),86,high,high,750-1000 Hz,0.57106024
+Sparse ($\lambda=0.05$),86,high,high,1-1.5 kHz,0.6475669
+Sparse ($\lambda=0.05$),86,high,high,1.5-2.5 kHz,0.6339742
+Sparse ($\lambda=0.05$),86,high,high,2.5-4 kHz,0.5274009
+Sparse ($\lambda=0.05$),86,high,high,>4 kHz,0.6915259
+Sparse ($\lambda=0.05$),87,low + high,low + high,<250 Hz,0.5484453
+Sparse ($\lambda=0.05$),87,low + high,low + high,250-500 Hz,0.57261705
+Sparse ($\lambda=0.05$),87,low + high,low + high,500-750 Hz,0.56329703
+Sparse ($\lambda=0.05$),87,low + high,low + high,750-1000 Hz,0.50855976
+Sparse ($\lambda=0.05$),87,low + high,low + high,1-1.5 kHz,0.70895946
+Sparse ($\lambda=0.05$),87,low + high,low + high,1.5-2.5 kHz,0.78394556
+Sparse ($\lambda=0.05$),87,low + high,low + high,2.5-4 kHz,0.5359621
+Sparse ($\lambda=0.05$),87,low + high,low + high,>4 kHz,0.60505086
+Sparse ($\lambda=0.05$),88,high,mid,<250 Hz,0.54681015
+Sparse ($\lambda=0.05$),88,high,mid,250-500 Hz,0.555881
+Sparse ($\lambda=0.05$),88,high,mid,500-750 Hz,0.8059746
+Sparse ($\lambda=0.05$),88,high,mid,750-1000 Hz,0.6012184
+Sparse ($\lambda=0.05$),88,high,mid,1-1.5 kHz,0.52311295
+Sparse ($\lambda=0.05$),88,high,mid,1.5-2.5 kHz,0.56989866
+Sparse ($\lambda=0.05$),88,high,mid,2.5-4 kHz,0.5452783
+Sparse ($\lambda=0.05$),88,high,mid,>4 kHz,0.7654392
+Sparse ($\lambda=0.05$),89,high,high,<250 Hz,0.54886436
+Sparse ($\lambda=0.05$),89,high,high,250-500 Hz,0.550517
+Sparse ($\lambda=0.05$),89,high,high,500-750 Hz,0.78988403
+Sparse ($\lambda=0.05$),89,high,high,750-1000 Hz,0.5624356
+Sparse ($\lambda=0.05$),89,high,high,1-1.5 kHz,0.6295465
+Sparse ($\lambda=0.05$),89,high,high,1.5-2.5 kHz,0.6633601
+Sparse ($\lambda=0.05$),89,high,high,2.5-4 kHz,0.5577213
+Sparse ($\lambda=0.05$),89,high,high,>4 kHz,0.7941031
+Sparse ($\lambda=0.05$),90,high,high,<250 Hz,0.5696706
+Sparse ($\lambda=0.05$),90,high,high,250-500 Hz,0.53480285
+Sparse ($\lambda=0.05$),90,high,high,500-750 Hz,0.7334704
+Sparse ($\lambda=0.05$),90,high,high,750-1000 Hz,0.6119998
+Sparse ($\lambda=0.05$),90,high,high,1-1.5 kHz,0.6783042
+Sparse ($\lambda=0.05$),90,high,high,1.5-2.5 kHz,0.6629152
+Sparse ($\lambda=0.05$),90,high,high,2.5-4 kHz,0.5301139
+Sparse ($\lambda=0.05$),90,high,high,>4 kHz,0.7556073
+Sparse ($\lambda=0.05$),91,mid,low + high,<250 Hz,0.59212476
+Sparse ($\lambda=0.05$),91,mid,low + high,250-500 Hz,0.5486315
+Sparse ($\lambda=0.05$),91,mid,low + high,500-750 Hz,0.54280156
+Sparse ($\lambda=0.05$),91,mid,low + high,750-1000 Hz,0.5740841
+Sparse ($\lambda=0.05$),91,mid,low + high,1-1.5 kHz,0.7315733
+Sparse ($\lambda=0.05$),91,mid,low + high,1.5-2.5 kHz,0.7261103
+Sparse ($\lambda=0.05$),91,mid,low + high,2.5-4 kHz,0.5396698
+Sparse ($\lambda=0.05$),91,mid,low + high,>4 kHz,0.74637586
+Sparse ($\lambda=0.05$),92,low + high,low + high,<250 Hz,0.6357632
+Sparse ($\lambda=0.05$),92,low + high,low + high,250-500 Hz,0.88897604
+Sparse ($\lambda=0.05$),92,low + high,low + high,500-750 Hz,0.54334253
+Sparse ($\lambda=0.05$),92,low + high,low + high,750-1000 Hz,0.53444636
+Sparse ($\lambda=0.05$),92,low + high,low + high,1-1.5 kHz,0.6034098
+Sparse ($\lambda=0.05$),92,low + high,low + high,1.5-2.5 kHz,0.54987967
+Sparse ($\lambda=0.05$),92,low + high,low + high,2.5-4 kHz,0.75787127
+Sparse ($\lambda=0.05$),92,low + high,low + high,>4 kHz,0.5954536
+Sparse ($\lambda=0.05$),93,low + high,low,<250 Hz,0.71819687
+Sparse ($\lambda=0.05$),93,low + high,low,250-500 Hz,0.8632692
+Sparse ($\lambda=0.05$),93,low + high,low,500-750 Hz,0.54286724
+Sparse ($\lambda=0.05$),93,low + high,low,750-1000 Hz,0.5510688
+Sparse ($\lambda=0.05$),93,low + high,low,1-1.5 kHz,0.5791074
+Sparse ($\lambda=0.05$),93,low + high,low,1.5-2.5 kHz,0.5447654
+Sparse ($\lambda=0.05$),93,low + high,low,2.5-4 kHz,0.7606911
+Sparse ($\lambda=0.05$),93,low + high,low,>4 kHz,0.5949058
+Sparse ($\lambda=0.05$),94,low,low,<250 Hz,0.55041784
+Sparse ($\lambda=0.05$),94,low,low,250-500 Hz,0.7378715
+Sparse ($\lambda=0.05$),94,low,low,500-750 Hz,0.58380854
+Sparse ($\lambda=0.05$),94,low,low,750-1000 Hz,0.66720444
+Sparse ($\lambda=0.05$),94,low,low,1-1.5 kHz,0.5580837
+Sparse ($\lambda=0.05$),94,low,low,1.5-2.5 kHz,0.54639846
+Sparse ($\lambda=0.05$),94,low,low,2.5-4 kHz,0.6013032
+Sparse ($\lambda=0.05$),94,low,low,>4 kHz,0.5582382
+Sparse ($\lambda=0.05$),95,mid,mid,<250 Hz,0.6226364
+Sparse ($\lambda=0.05$),95,mid,mid,250-500 Hz,0.5420205
+Sparse ($\lambda=0.05$),95,mid,mid,500-750 Hz,0.61921334
+Sparse ($\lambda=0.05$),95,mid,mid,750-1000 Hz,0.6393648
+Sparse ($\lambda=0.05$),95,mid,mid,1-1.5 kHz,0.5353207
+Sparse ($\lambda=0.05$),95,mid,mid,1.5-2.5 kHz,0.56190044
+Sparse ($\lambda=0.05$),95,mid,mid,2.5-4 kHz,0.58112913
+Sparse ($\lambda=0.05$),95,mid,mid,>4 kHz,0.71436286
+Sparse ($\lambda=0.05$),96,mid,mid,<250 Hz,0.6642508
+Sparse ($\lambda=0.05$),96,mid,mid,250-500 Hz,0.7315094
+Sparse ($\lambda=0.05$),96,mid,mid,500-750 Hz,0.54846704
+Sparse ($\lambda=0.05$),96,mid,mid,750-1000 Hz,0.5461623
+Sparse ($\lambda=0.05$),96,mid,mid,1-1.5 kHz,0.59528595
+Sparse ($\lambda=0.05$),96,mid,mid,1.5-2.5 kHz,0.6084013
+Sparse ($\lambda=0.05$),96,mid,mid,2.5-4 kHz,0.6707569
+Sparse ($\lambda=0.05$),96,mid,mid,>4 kHz,0.7338918
+Sparse ($\lambda=0.05$),97,low,low,<250 Hz,0.60894805
+Sparse ($\lambda=0.05$),97,low,low,250-500 Hz,0.8070517
+Sparse ($\lambda=0.05$),97,low,low,500-750 Hz,0.57973164
+Sparse ($\lambda=0.05$),97,low,low,750-1000 Hz,0.683402
+Sparse ($\lambda=0.05$),97,low,low,1-1.5 kHz,0.5751293
+Sparse ($\lambda=0.05$),97,low,low,1.5-2.5 kHz,0.55650544
+Sparse ($\lambda=0.05$),97,low,low,2.5-4 kHz,0.6802609
+Sparse ($\lambda=0.05$),97,low,low,>4 kHz,0.573018
+Sparse ($\lambda=0.05$),98,mid,high,<250 Hz,0.54376155
+Sparse ($\lambda=0.05$),98,mid,high,250-500 Hz,0.53972965
+Sparse ($\lambda=0.05$),98,mid,high,500-750 Hz,0.6961025
+Sparse ($\lambda=0.05$),98,mid,high,750-1000 Hz,0.55989975
+Sparse ($\lambda=0.05$),98,mid,high,1-1.5 kHz,0.61172223
+Sparse ($\lambda=0.05$),98,mid,high,1.5-2.5 kHz,0.63420117
+Sparse ($\lambda=0.05$),98,mid,high,2.5-4 kHz,0.54069084
+Sparse ($\lambda=0.05$),98,mid,high,>4 kHz,0.7815018
+Sparse ($\lambda=0.05$),99,low + high,mid,<250 Hz,0.6249292
+Sparse ($\lambda=0.05$),99,low + high,mid,250-500 Hz,0.6250588
+Sparse ($\lambda=0.05$),99,low + high,mid,500-750 Hz,0.5602974
+Sparse ($\lambda=0.05$),99,low + high,mid,750-1000 Hz,0.60059047
+Sparse ($\lambda=0.05$),99,low + high,mid,1-1.5 kHz,0.64722085
+Sparse ($\lambda=0.05$),99,low + high,mid,1.5-2.5 kHz,0.6736256
+Sparse ($\lambda=0.05$),99,low + high,mid,2.5-4 kHz,0.6237953
+Sparse ($\lambda=0.05$),99,low + high,mid,>4 kHz,0.81587493
+Sparse ($\lambda=0.05$),100,low,low,<250 Hz,0.5907163
+Sparse ($\lambda=0.05$),100,low,low,250-500 Hz,0.7603418
+Sparse ($\lambda=0.05$),100,low,low,500-750 Hz,0.7167278
+Sparse ($\lambda=0.05$),100,low,low,750-1000 Hz,0.5277222
+Sparse ($\lambda=0.05$),100,low,low,1-1.5 kHz,0.55418175
+Sparse ($\lambda=0.05$),100,low,low,1.5-2.5 kHz,0.56392276
+Sparse ($\lambda=0.05$),100,low,low,2.5-4 kHz,0.63652974
+Sparse ($\lambda=0.05$),100,low,low,>4 kHz,0.5627711
+Sparse ($\lambda=0.05$),101,mid,mid,<250 Hz,0.6362131
+Sparse ($\lambda=0.05$),101,mid,mid,250-500 Hz,0.5975881
+Sparse ($\lambda=0.05$),101,mid,mid,500-750 Hz,0.5691519
+Sparse ($\lambda=0.05$),101,mid,mid,750-1000 Hz,0.7208008
+Sparse ($\lambda=0.05$),101,mid,mid,1-1.5 kHz,0.5217892
+Sparse ($\lambda=0.05$),101,mid,mid,1.5-2.5 kHz,0.54373425
+Sparse ($\lambda=0.05$),101,mid,mid,2.5-4 kHz,0.5910982
+Sparse ($\lambda=0.05$),101,mid,mid,>4 kHz,0.60965794
+Sparse ($\lambda=0.05$),102,mid,low + high,<250 Hz,0.5960681
+Sparse ($\lambda=0.05$),102,mid,low + high,250-500 Hz,0.5519925
+Sparse ($\lambda=0.05$),102,mid,low + high,500-750 Hz,0.5401754
+Sparse ($\lambda=0.05$),102,mid,low + high,750-1000 Hz,0.5738982
+Sparse ($\lambda=0.05$),102,mid,low + high,1-1.5 kHz,0.73365855
+Sparse ($\lambda=0.05$),102,mid,low + high,1.5-2.5 kHz,0.6834567
+Sparse ($\lambda=0.05$),102,mid,low + high,2.5-4 kHz,0.56366867
+Sparse ($\lambda=0.05$),102,mid,low + high,>4 kHz,0.7423727
+Sparse ($\lambda=0.05$),103,low,low,<250 Hz,0.6828828
+Sparse ($\lambda=0.05$),103,low,low,250-500 Hz,0.8659994
+Sparse ($\lambda=0.05$),103,low,low,500-750 Hz,0.5391413
+Sparse ($\lambda=0.05$),103,low,low,750-1000 Hz,0.54348713
+Sparse ($\lambda=0.05$),103,low,low,1-1.5 kHz,0.5886634
+Sparse ($\lambda=0.05$),103,low,low,1.5-2.5 kHz,0.54463494
+Sparse ($\lambda=0.05$),103,low,low,2.5-4 kHz,0.7507965
+Sparse ($\lambda=0.05$),103,low,low,>4 kHz,0.59457386
+Sparse ($\lambda=0.05$),104,low + high,mid,<250 Hz,0.6355371
+Sparse ($\lambda=0.05$),104,low + high,mid,250-500 Hz,0.6029965
+Sparse ($\lambda=0.05$),104,low + high,mid,500-750 Hz,0.5414001
+Sparse ($\lambda=0.05$),104,low + high,mid,750-1000 Hz,0.546021
+Sparse ($\lambda=0.05$),104,low + high,mid,1-1.5 kHz,0.62742966
+Sparse ($\lambda=0.05$),104,low + high,mid,1.5-2.5 kHz,0.6229801
+Sparse ($\lambda=0.05$),104,low + high,mid,2.5-4 kHz,0.5700307
+Sparse ($\lambda=0.05$),104,low + high,mid,>4 kHz,0.747707
+Sparse ($\lambda=0.05$),105,mid,low,<250 Hz,0.603895
+Sparse ($\lambda=0.05$),105,mid,low,250-500 Hz,0.5371914
+Sparse ($\lambda=0.05$),105,mid,low,500-750 Hz,0.65955645
+Sparse ($\lambda=0.05$),105,mid,low,750-1000 Hz,0.85058606
+Sparse ($\lambda=0.05$),105,mid,low,1-1.5 kHz,0.54724455
+Sparse ($\lambda=0.05$),105,mid,low,1.5-2.5 kHz,0.5427221
+Sparse ($\lambda=0.05$),105,mid,low,2.5-4 kHz,0.5844151
+Sparse ($\lambda=0.05$),105,mid,low,>4 kHz,0.5766345
+Sparse ($\lambda=0.05$),106,low,low,<250 Hz,0.6144208
+Sparse ($\lambda=0.05$),106,low,low,250-500 Hz,0.5383259
+Sparse ($\lambda=0.05$),106,low,low,500-750 Hz,0.6546967
+Sparse ($\lambda=0.05$),106,low,low,750-1000 Hz,0.82183737
+Sparse ($\lambda=0.05$),106,low,low,1-1.5 kHz,0.5474249
+Sparse ($\lambda=0.05$),106,low,low,1.5-2.5 kHz,0.548822
+Sparse ($\lambda=0.05$),106,low,low,2.5-4 kHz,0.5845748
+Sparse ($\lambda=0.05$),106,low,low,>4 kHz,0.57541555
+Sparse ($\lambda=0.05$),107,high,high,<250 Hz,0.5322054
+Sparse ($\lambda=0.05$),107,high,high,250-500 Hz,0.5819876
+Sparse ($\lambda=0.05$),107,high,high,500-750 Hz,0.57115954
+Sparse ($\lambda=0.05$),107,high,high,750-1000 Hz,0.50633967
+Sparse ($\lambda=0.05$),107,high,high,1-1.5 kHz,0.75623596
+Sparse ($\lambda=0.05$),107,high,high,1.5-2.5 kHz,0.7673615
+Sparse ($\lambda=0.05$),107,high,high,2.5-4 kHz,0.5216237
+Sparse ($\lambda=0.05$),107,high,high,>4 kHz,0.5495399
+Sparse ($\lambda=0.05$),108,mid,low,<250 Hz,0.7942339
+Sparse ($\lambda=0.05$),108,mid,low,250-500 Hz,0.8697812
+Sparse ($\lambda=0.05$),108,mid,low,500-750 Hz,0.56511104
+Sparse ($\lambda=0.05$),108,mid,low,750-1000 Hz,0.5802544
+Sparse ($\lambda=0.05$),108,mid,low,1-1.5 kHz,0.57199806
+Sparse ($\lambda=0.05$),108,mid,low,1.5-2.5 kHz,0.54921806
+Sparse ($\lambda=0.05$),108,mid,low,2.5-4 kHz,0.7853052
+Sparse ($\lambda=0.05$),108,mid,low,>4 kHz,0.65684736
+Sparse ($\lambda=0.05$),109,high,high,<250 Hz,0.5545973
+Sparse ($\lambda=0.05$),109,high,high,250-500 Hz,0.5417673
+Sparse ($\lambda=0.05$),109,high,high,500-750 Hz,0.7601544
+Sparse ($\lambda=0.05$),109,high,high,750-1000 Hz,0.54589194
+Sparse ($\lambda=0.05$),109,high,high,1-1.5 kHz,0.6297452
+Sparse ($\lambda=0.05$),109,high,high,1.5-2.5 kHz,0.635321
+Sparse ($\lambda=0.05$),109,high,high,2.5-4 kHz,0.52639717
+Sparse ($\lambda=0.05$),109,high,high,>4 kHz,0.6819722
+Sparse ($\lambda=0.05$),110,low,low,<250 Hz,0.62455535
+Sparse ($\lambda=0.05$),110,low,low,250-500 Hz,0.7456245
+Sparse ($\lambda=0.05$),110,low,low,500-750 Hz,0.75747114
+Sparse ($\lambda=0.05$),110,low,low,750-1000 Hz,0.537661
+Sparse ($\lambda=0.05$),110,low,low,1-1.5 kHz,0.5447619
+Sparse ($\lambda=0.05$),110,low,low,1.5-2.5 kHz,0.5562161
+Sparse ($\lambda=0.05$),110,low,low,2.5-4 kHz,0.6452957
+Sparse ($\lambda=0.05$),110,low,low,>4 kHz,0.58906674
+Sparse ($\lambda=0.05$),111,low + high,low + high,<250 Hz,0.6494172
+Sparse ($\lambda=0.05$),111,low + high,low + high,250-500 Hz,0.64853436
+Sparse ($\lambda=0.05$),111,low + high,low + high,500-750 Hz,0.53728944
+Sparse ($\lambda=0.05$),111,low + high,low + high,750-1000 Hz,0.5380487
+Sparse ($\lambda=0.05$),111,low + high,low + high,1-1.5 kHz,0.6753939
+Sparse ($\lambda=0.05$),111,low + high,low + high,1.5-2.5 kHz,0.65929466
+Sparse ($\lambda=0.05$),111,low + high,low + high,2.5-4 kHz,0.5871524
+Sparse ($\lambda=0.05$),111,low + high,low + high,>4 kHz,0.6511285
+Sparse ($\lambda=0.05$),112,high,low + high,<250 Hz,0.60166234
+Sparse ($\lambda=0.05$),112,high,low + high,250-500 Hz,0.5491158
+Sparse ($\lambda=0.05$),112,high,low + high,500-750 Hz,0.53884643
+Sparse ($\lambda=0.05$),112,high,low + high,750-1000 Hz,0.5937196
+Sparse ($\lambda=0.05$),112,high,low + high,1-1.5 kHz,0.75853485
+Sparse ($\lambda=0.05$),112,high,low + high,1.5-2.5 kHz,0.70796204
+Sparse ($\lambda=0.05$),112,high,low + high,2.5-4 kHz,0.53579783
+Sparse ($\lambda=0.05$),112,high,low + high,>4 kHz,0.799818
+Sparse ($\lambda=0.05$),113,low,low,<250 Hz,0.592177
+Sparse ($\lambda=0.05$),113,low,low,250-500 Hz,0.5391829
+Sparse ($\lambda=0.05$),113,low,low,500-750 Hz,0.6372047
+Sparse ($\lambda=0.05$),113,low,low,750-1000 Hz,0.7758054
+Sparse ($\lambda=0.05$),113,low,low,1-1.5 kHz,0.5672581
+Sparse ($\lambda=0.05$),113,low,low,1.5-2.5 kHz,0.54855055
+Sparse ($\lambda=0.05$),113,low,low,2.5-4 kHz,0.56553864
+Sparse ($\lambda=0.05$),113,low,low,>4 kHz,0.57051694
+Sparse ($\lambda=0.05$),114,low + high,low + high,<250 Hz,0.6271407
+Sparse ($\lambda=0.05$),114,low + high,low + high,250-500 Hz,0.6063064
+Sparse ($\lambda=0.05$),114,low + high,low + high,500-750 Hz,0.5378679
+Sparse ($\lambda=0.05$),114,low + high,low + high,750-1000 Hz,0.5388241
+Sparse ($\lambda=0.05$),114,low + high,low + high,1-1.5 kHz,0.6616038
+Sparse ($\lambda=0.05$),114,low + high,low + high,1.5-2.5 kHz,0.6446002
+Sparse ($\lambda=0.05$),114,low + high,low + high,2.5-4 kHz,0.56074595
+Sparse ($\lambda=0.05$),114,low + high,low + high,>4 kHz,0.6697992
+Sparse ($\lambda=0.05$),115,mid,low + high,<250 Hz,0.6784209
+Sparse ($\lambda=0.05$),115,mid,low + high,250-500 Hz,0.73322463
+Sparse ($\lambda=0.05$),115,mid,low + high,500-750 Hz,0.5533803
+Sparse ($\lambda=0.05$),115,mid,low + high,750-1000 Hz,0.55620134
+Sparse ($\lambda=0.05$),115,mid,low + high,1-1.5 kHz,0.6104788
+Sparse ($\lambda=0.05$),115,mid,low + high,1.5-2.5 kHz,0.6232959
+Sparse ($\lambda=0.05$),115,mid,low + high,2.5-4 kHz,0.6760756
+Sparse ($\lambda=0.05$),115,mid,low + high,>4 kHz,0.76134413
+Sparse ($\lambda=0.05$),116,high,high,<250 Hz,0.5408006
+Sparse ($\lambda=0.05$),116,high,high,250-500 Hz,0.5325537
+Sparse ($\lambda=0.05$),116,high,high,500-750 Hz,0.75938493
+Sparse ($\lambda=0.05$),116,high,high,750-1000 Hz,0.57589716
+Sparse ($\lambda=0.05$),116,high,high,1-1.5 kHz,0.56519365
+Sparse ($\lambda=0.05$),116,high,high,1.5-2.5 kHz,0.719457
+Sparse ($\lambda=0.05$),116,high,high,2.5-4 kHz,0.5259094
+Sparse ($\lambda=0.05$),116,high,high,>4 kHz,0.57156444
+Sparse ($\lambda=0.05$),117,mid,mid,<250 Hz,0.5623793
+Sparse ($\lambda=0.05$),117,mid,mid,250-500 Hz,0.53618634
+Sparse ($\lambda=0.05$),117,mid,mid,500-750 Hz,0.6691373
+Sparse ($\lambda=0.05$),117,mid,mid,750-1000 Hz,0.5643967
+Sparse ($\lambda=0.05$),117,mid,mid,1-1.5 kHz,0.6085545
+Sparse ($\lambda=0.05$),117,mid,mid,1.5-2.5 kHz,0.6235874
+Sparse ($\lambda=0.05$),117,mid,mid,2.5-4 kHz,0.53540385
+Sparse ($\lambda=0.05$),117,mid,mid,>4 kHz,0.78508896
+Sparse ($\lambda=0.05$),118,high,high,<250 Hz,0.54195374
+Sparse ($\lambda=0.05$),118,high,high,250-500 Hz,0.54876107
+Sparse ($\lambda=0.05$),118,high,high,500-750 Hz,0.7268631
+Sparse ($\lambda=0.05$),118,high,high,750-1000 Hz,0.63073254
+Sparse ($\lambda=0.05$),118,high,high,1-1.5 kHz,0.6123359
+Sparse ($\lambda=0.05$),118,high,high,1.5-2.5 kHz,0.7201325
+Sparse ($\lambda=0.05$),118,high,high,2.5-4 kHz,0.52811533
+Sparse ($\lambda=0.05$),118,high,high,>4 kHz,0.58856815
+Sparse ($\lambda=0.05$),119,low,low,<250 Hz,0.5807537
+Sparse ($\lambda=0.05$),119,low,low,250-500 Hz,0.7843517
+Sparse ($\lambda=0.05$),119,low,low,500-750 Hz,0.78607863
+Sparse ($\lambda=0.05$),119,low,low,750-1000 Hz,0.5298945
+Sparse ($\lambda=0.05$),119,low,low,1-1.5 kHz,0.56898975
+Sparse ($\lambda=0.05$),119,low,low,1.5-2.5 kHz,0.5989405
+Sparse ($\lambda=0.05$),119,low,low,2.5-4 kHz,0.6501128
+Sparse ($\lambda=0.05$),119,low,low,>4 kHz,0.56358016
+Sparse ($\lambda=0.05$),120,low + high,mid,<250 Hz,0.6510159
+Sparse ($\lambda=0.05$),120,low + high,mid,250-500 Hz,0.6016828
+Sparse ($\lambda=0.05$),120,low + high,mid,500-750 Hz,0.5471345
+Sparse ($\lambda=0.05$),120,low + high,mid,750-1000 Hz,0.5405127
+Sparse ($\lambda=0.05$),120,low + high,mid,1-1.5 kHz,0.58161885
+Sparse ($\lambda=0.05$),120,low + high,mid,1.5-2.5 kHz,0.6166219
+Sparse ($\lambda=0.05$),120,low + high,mid,2.5-4 kHz,0.6034063
+Sparse ($\lambda=0.05$),120,low + high,mid,>4 kHz,0.76205546
+Sparse ($\lambda=0.05$),121,low + high,low + high,<250 Hz,0.6025136
+Sparse ($\lambda=0.05$),121,low + high,low + high,250-500 Hz,0.7677959
+Sparse ($\lambda=0.05$),121,low + high,low + high,500-750 Hz,0.5399182
+Sparse ($\lambda=0.05$),121,low + high,low + high,750-1000 Hz,0.52638507
+Sparse ($\lambda=0.05$),121,low + high,low + high,1-1.5 kHz,0.7279489
+Sparse ($\lambda=0.05$),121,low + high,low + high,1.5-2.5 kHz,0.6381612
+Sparse ($\lambda=0.05$),121,low + high,low + high,2.5-4 kHz,0.64155805
+Sparse ($\lambda=0.05$),121,low + high,low + high,>4 kHz,0.5673962
+Sparse ($\lambda=0.05$),122,high,high,<250 Hz,0.566639
+Sparse ($\lambda=0.05$),122,high,high,250-500 Hz,0.5398463
+Sparse ($\lambda=0.05$),122,high,high,500-750 Hz,0.61349714
+Sparse ($\lambda=0.05$),122,high,high,750-1000 Hz,0.5604493
+Sparse ($\lambda=0.05$),122,high,high,1-1.5 kHz,0.7202517
+Sparse ($\lambda=0.05$),122,high,high,1.5-2.5 kHz,0.7433113
+Sparse ($\lambda=0.05$),122,high,high,2.5-4 kHz,0.5825221
+Sparse ($\lambda=0.05$),122,high,high,>4 kHz,0.86767095
+Sparse ($\lambda=0.05$),123,low,low,<250 Hz,0.75732774
+Sparse ($\lambda=0.05$),123,low,low,250-500 Hz,0.8684105
+Sparse ($\lambda=0.05$),123,low,low,500-750 Hz,0.5582996
+Sparse ($\lambda=0.05$),123,low,low,750-1000 Hz,0.5741878
+Sparse ($\lambda=0.05$),123,low,low,1-1.5 kHz,0.576334
+Sparse ($\lambda=0.05$),123,low,low,1.5-2.5 kHz,0.5392947
+Sparse ($\lambda=0.05$),123,low,low,2.5-4 kHz,0.775248
+Sparse ($\lambda=0.05$),123,low,low,>4 kHz,0.6173305
+Sparse ($\lambda=0.05$),124,high,high,<250 Hz,0.555783
+Sparse ($\lambda=0.05$),124,high,high,250-500 Hz,0.53566223
+Sparse ($\lambda=0.05$),124,high,high,500-750 Hz,0.7596851
+Sparse ($\lambda=0.05$),124,high,high,750-1000 Hz,0.5524222
+Sparse ($\lambda=0.05$),124,high,high,1-1.5 kHz,0.6130534
+Sparse ($\lambda=0.05$),124,high,high,1.5-2.5 kHz,0.6195894
+Sparse ($\lambda=0.05$),124,high,high,2.5-4 kHz,0.5363676
+Sparse ($\lambda=0.05$),124,high,high,>4 kHz,0.6255605
+Sparse ($\lambda=0.05$),125,high,low + high,<250 Hz,0.56050974
+Sparse ($\lambda=0.05$),125,high,low + high,250-500 Hz,0.6197784
+Sparse ($\lambda=0.05$),125,high,low + high,500-750 Hz,0.55331016
+Sparse ($\lambda=0.05$),125,high,low + high,750-1000 Hz,0.5048517
+Sparse ($\lambda=0.05$),125,high,low + high,1-1.5 kHz,0.80891925
+Sparse ($\lambda=0.05$),125,high,low + high,1.5-2.5 kHz,0.69957685
+Sparse ($\lambda=0.05$),125,high,low + high,2.5-4 kHz,0.54111576
+Sparse ($\lambda=0.05$),125,high,low + high,>4 kHz,0.58145815
+Sparse ($\lambda=0.05$),126,low + high,mid,<250 Hz,0.7490441
+Sparse ($\lambda=0.05$),126,low + high,mid,250-500 Hz,0.7491802
+Sparse ($\lambda=0.05$),126,low + high,mid,500-750 Hz,0.56556964
+Sparse ($\lambda=0.05$),126,low + high,mid,750-1000 Hz,0.5433194
+Sparse ($\lambda=0.05$),126,low + high,mid,1-1.5 kHz,0.52128613
+Sparse ($\lambda=0.05$),126,low + high,mid,1.5-2.5 kHz,0.57779884
+Sparse ($\lambda=0.05$),126,low + high,mid,2.5-4 kHz,0.6748271
+Sparse ($\lambda=0.05$),126,low + high,mid,>4 kHz,0.73535806
+Sparse ($\lambda=0.05$),127,mid,mid,<250 Hz,0.6371333
+Sparse ($\lambda=0.05$),127,mid,mid,250-500 Hz,0.5613915
+Sparse ($\lambda=0.05$),127,mid,mid,500-750 Hz,0.56756645
+Sparse ($\lambda=0.05$),127,mid,mid,750-1000 Hz,0.6537059
+Sparse ($\lambda=0.05$),127,mid,mid,1-1.5 kHz,0.52368945
+Sparse ($\lambda=0.05$),127,mid,mid,1.5-2.5 kHz,0.5626119
+Sparse ($\lambda=0.05$),127,mid,mid,2.5-4 kHz,0.5787763
+Sparse ($\lambda=0.05$),127,mid,mid,>4 kHz,0.6843366

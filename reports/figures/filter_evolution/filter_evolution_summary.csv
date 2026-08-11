@@ -1,0 +1,4 @@
+configuration,source,best_validation_accuracy
+coarse_fixed_5_band,historical log,0.531
+fine_fixed_8_band,outputs/hard_fixed/metrics/synthetic_history.csv,0.6328125
+fine_learnable_8_band,outputs/hard_learnable/metrics/synthetic_history.csv,0.703125

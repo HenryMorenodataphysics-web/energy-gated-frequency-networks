@@ -1,0 +1,588 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[spanish,es-nodecimaldot]{babel}
+\usepackage{lmodern}
+\usepackage{microtype}
+\usepackage{geometry}
+\usepackage{xcolor}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage{amsmath,amssymb}
+\usepackage{siunitx}
+\usepackage{hyperref}
+\usepackage{cleveref}
+\usepackage{enumitem}
+\usepackage{graphicx}
+\usepackage{tikz}
+\usepackage{pgfplots}
+\usepackage{listings}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{caption}
+
+\usetikzlibrary{arrows.meta,positioning,shapes.geometric}
+\pgfplotsset{compat=1.18}
+\geometry{margin=2.35cm}
+\sisetup{output-decimal-marker={.}}
+
+\definecolor{egfnblue}{HTML}{245A73}
+\definecolor{egfngreen}{HTML}{2C7A6B}
+\definecolor{egfnorange}{HTML}{D97732}
+\definecolor{softgray}{HTML}{F3F5F6}
+\definecolor{textgray}{HTML}{40464B}
+
+\hypersetup{
+  colorlinks=true,
+  linkcolor=egfnblue,
+  citecolor=egfngreen,
+  urlcolor=egfnorange,
+  pdftitle={Energy-Gated Frequency Neuron: desarrollo y evaluacion},
+  pdfauthor={Henry}
+}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small Energy-Gated Frequency Neuron}
+\fancyhead[R]{\small Reporte técnico}
+\fancyfoot[C]{\thepage}
+\setlength{\headheight}{14pt}
+
+\titleformat{\section}{\Large\bfseries\color{egfnblue}}{\thesection}{0.65em}{}
+\titleformat{\subsection}{\large\bfseries\color{egfngreen}}{\thesubsection}{0.65em}{}
+\setlist{itemsep=2pt,topsep=4pt}
+\captionsetup{font=small,labelfont=bf}
+
+\lstset{
+  basicstyle=\ttfamily\small,
+  backgroundcolor=\color{softgray},
+  frame=single,
+  rulecolor=\color{softgray},
+  breaklines=true,
+  columns=fullflexible,
+  showstringspaces=false
+}
+
+\newcommand{\project}{Energy-Gated Frequency Neuron}
+\newcommand{\egfn}{EGFN}
+\newcommand{\pending}{\textcolor{egfnorange}{\textbf{En curso}}}
+
+\begin{document}
+
+\begin{titlepage}
+  \centering
+  \vspace*{2.2cm}
+  {\color{egfnblue}\rule{\textwidth}{1.2pt}}\\[1.2cm]
+  {\Huge\bfseries \project\par}
+  \vspace{0.45cm}
+  {\LARGE De una neurona frecuencial interpretable a la detección de anomalías industriales\par}
+  \vspace{1.2cm}
+  {\large Reporte de desarrollo, validación experimental y conclusiones\par}
+  \vspace{1.5cm}
+
+  \begin{tikzpicture}[node distance=8mm, every node/.style={font=\small}]
+    \node[draw=egfnblue,fill=egfnblue!8,rounded corners,minimum width=2.6cm,minimum height=1cm] (audio) {Audio crudo};
+    \node[draw=egfngreen,fill=egfngreen!8,rounded corners,right=of audio,minimum width=2.7cm,minimum height=1cm] (filters) {Filtros};
+    \node[draw=egfnorange,fill=egfnorange!10,rounded corners,right=of filters,minimum width=2.7cm,minimum height=1cm] (gates) {Energía + gates};
+    \node[draw=egfnblue,fill=egfnblue!8,rounded corners,right=of gates,minimum width=2.8cm,minimum height=1cm] (decision) {Clasificación};
+    \draw[-{Latex},thick] (audio) -- (filters);
+    \draw[-{Latex},thick] (filters) -- (gates);
+    \draw[-{Latex},thick] (gates) -- (decision);
+  \end{tikzpicture}
+
+  \vfill
+  {\large Autor: Henry\par}
+  \vspace{0.25cm}
+  {\large Proyecto de investigación y portafolio\par}
+  \vspace{0.25cm}
+  {\large \today\par}
+  \vspace{1cm}
+  {\color{egfnblue}\rule{\textwidth}{1.2pt}}
+\end{titlepage}
+
+\begin{abstract}
+Este proyecto investiga una arquitectura de audio denominada \emph{Energy-Gated
+Frequency Neuron} (\egfn). Su hipótesis central es que un banco de filtros,
+combinado con medición explícita de energía y compuertas aprendibles, puede
+proporcionar un sesgo inductivo útil e interpretable para señales cuyos patrones
+discriminativos aparecen en regiones frecuenciales. La investigación evolucionó
+desde señales sintéticas controladas hasta voz real y sonidos de maquinaria
+industrial. En Google Speech Commands, la variante temporal amplia alcanzó
+\(0.886\) de exactitud de prueba frente a \(0.892\) de una Conv1D. En MIMII
+Valve obtuvo AUC \(0.984\), comparable y ligeramente superior al \(0.982\) de
+la Conv1D. La calibración del umbral elevó el F1 de EGFN de \(0.738\) a
+\(0.828\), aunque redujo el recall. Los resultados apoyan el valor del frontend
+frecuencial, pero también muestran que los gates actuales no explican por sí
+solos las decisiones y que los filtros no restringidos pueden perder su forma
+clásica de banda. Se presenta una evaluación honesta de estas fortalezas,
+limitaciones y próximos experimentos.
+\end{abstract}
+
+\tableofcontents
+\newpage
+
+\section{Origen y motivación}
+
+El proyecto surgió de una pregunta sencilla: ¿puede una neurona diseñada con
+principios de procesamiento de señales identificar qué regiones de frecuencia
+son relevantes antes de tomar una decisión? Una red Conv1D convencional puede
+aprender filtros directamente desde el audio, pero sus canales no tienen por
+qué conservar una interpretación física inmediata. La propuesta EGFN introduce
+explícitamente tres elementos:
+
+\begin{enumerate}
+  \item un banco de filtros inicializado con bandas conocidas;
+  \item una medida de energía por banda;
+  \item una compuerta aprendible que modula la respuesta de cada banda.
+\end{enumerate}
+
+El objetivo no fue afirmar desde el inicio que EGFN superaría universalmente a
+una CNN, sino comprobar si podía aproximarse a su capacidad predictiva mientras
+ofrecía una representación frecuencial más fácil de examinar. Esta diferencia
+es especialmente relevante en vibración, maquinaria, voz y audio médico, donde
+los cambios de estado suelen expresarse como variaciones espectrales.
+
+\section{Hipótesis y preguntas de investigación}
+
+La hipótesis principal es:
+
+\begin{quote}
+Un frontend neuronal con estructura frecuencial explícita puede alcanzar una
+capacidad discriminativa comparable a un baseline convolucional y, al mismo
+tiempo, exponer información útil sobre las regiones espectrales procesadas.
+\end{quote}
+
+De ella se derivan cuatro preguntas:
+
+\begin{enumerate}
+  \item ¿Aprende el bloque EGFN en señales donde la clase depende de frecuencia?
+  \item ¿Generaliza desde datos sintéticos hasta audio real con variación de hablante?
+  \item ¿Puede competir con Conv1D en una tarea industrial normal/anormal?
+  \item ¿Los filtros, energías y gates proporcionan evidencia interpretable?
+\end{enumerate}
+
+\section{Formulación de la neurona frecuencial}
+
+Sea (x[n]) una señal de audio y (h_k[n]) el filtro asociado con la banda
+\(k\). La respuesta filtrada es
+
+\begin{equation}
+u_k[n] = (h_k * x)[n].
+\end{equation}
+
+Después se aplica un sesgo y una no linealidad \(\phi\):
+
+\begin{equation}
+a_k[n] = \phi\!\left(u_k[n] + b_k\right).
+\end{equation}
+
+La energía media de la banda se calcula como
+
+\begin{equation}
+E_k = \frac{1}{N}\sum_{n=1}^{N} u_k[n]^2.
+\end{equation}
+
+En el modo independiente, el gate es
+
+\begin{equation}
+g_k = \sigma\!\left(\alpha_k \log(1+E_k)+\beta_k\right),
+\end{equation}
+
+y la salida modulada queda
+
+\begin{equation}
+y_k[n] = g_k a_k[n].
+\end{equation}
+
+También se implementó un modo contextual en el cual el vector completo de
+energías entra a una MLP:
+
+\begin{equation}
+\mathbf{g}=\sigma\!\left(\operatorname{MLP}
+(\log(1+\mathbf{E}))\right).
+\end{equation}
+
+Este modo permite que la activación de una banda dependa del patrón energético
+global. En los experimentos finales se utilizó el modo independiente porque
+ofreció una comparación más directa y conservó parámetros por banda.
+
+\section{Evolución arquitectónica}
+
+\subsection{Clasificador EGFN inicial}
+
+La primera versión resumía cada banda mediante media, máximo, desviación
+estándar, energía y gate. Estas características entraban a un pequeño MLP. Era
+una arquitectura compacta y adecuada para validar el bloque, pero el pooling
+global eliminaba gran parte del orden temporal.
+
+\subsection{EGFN temporal}
+
+Para preservar patrones locales se agregó una cabeza convolucional temporal:
+
+\begin{center}
+\begin{tikzpicture}[
+  node distance=6mm,
+  block/.style={draw,rounded corners,minimum height=8mm,minimum width=2.2cm,align=center,font=\small},
+  arrow/.style={-{Latex},thick}
+]
+  \node[block,fill=egfnblue!8] (x) {Waveform\\\(1\times N\)};
+  \node[block,fill=egfngreen!10,right=of x] (bank) {Banco EGFN\\8 bandas};
+  \node[block,fill=egfnorange!10,right=of bank] (gate) {Energía y\\gating};
+  \node[block,fill=egfnblue!8,right=of gate] (proj) {Proyección\\\(1\times1\)};
+  \node[block,fill=egfngreen!10,below=of proj] (temp) {Conv temporal\\64, 128};
+  \node[block,fill=egfnorange!10,left=of temp] (pool) {Pooling\\global};
+  \node[block,fill=egfnblue!8,left=of pool] (out) {Logits\\de clase};
+  \draw[arrow] (x) -- (bank);
+  \draw[arrow] (bank) -- (gate);
+  \draw[arrow] (gate) -- (proj);
+  \draw[arrow] (proj) -- (temp);
+  \draw[arrow] (temp) -- (pool);
+  \draw[arrow] (pool) -- (out);
+\end{tikzpicture}
+\end{center}
+
+La variante \emph{wide} proyecta las ocho bandas a 32 canales y usa bloques
+temporales de 64 y 128 canales. Incluye Batch Normalization, GELU, pooling,
+dropout y clasificación final. Los filtros pueden mantenerse fijos o hacerse
+aprendibles; la mejor variante utilizó filtros aprendibles.
+
+\subsection{Baseline Conv1D}
+
+Conv1D sirve como control experimental. Aprende directamente kernels sobre la
+forma de onda y representa una alternativa estándar con menor compromiso de
+interpretabilidad explícita. Una comparación válida exige mismo dataset,
+split, augmentación y evaluación.
+
+\section{Ruta experimental}
+
+\subsection{Señales sintéticas}
+
+La primera etapa generó tonos y combinaciones de frecuencia con ruido
+controlado. Su función fue verificar formas tensoriales, propagación hacia
+adelante y capacidad de aprendizaje. En la tarea sencilla, el modelo llegó a
+exactitud perfecta. Al aumentar solapamiento, ruido y dificultad, la exactitud
+bajó al rango aproximado de \(0.70\)--\(0.75\), mostrando que el primer éxito no
+debía interpretarse como evidencia suficiente de generalización.
+
+El barrido de SNR de una variante difícil produjo resultados alrededor de
+\(0.69\)--\(0.75\), incluso con ruido intenso. Esta fase permitió comparar
+filtros fijos, filtros aprendibles, gating contextual y regularización de gates.
+
+\subsection{Free Spoken Digit Dataset}
+
+FSDD fue el primer contacto con audio real. Un split aleatorio alcanzó
+\(0.840\) de exactitud de prueba, mientras que splits por hablante fueron más
+difíciles. La variante temporal alcanzó \(0.724\) de mejor validación y
+\(0.708\) en test en uno de estos escenarios. La brecha entre entrenamiento y
+validación reveló sobreajuste y dependencia de identidad vocal. Este resultado
+motivó el salto a un dataset más grande y diverso.
+
+\subsection{Google Speech Commands}
+
+Se utilizaron diez comandos: \texttt{yes}, \texttt{no}, \texttt{up},
+\texttt{down}, \texttt{left}, \texttt{right}, \texttt{on}, \texttt{off},
+\texttt{stop} y \texttt{go}. El split oficial contenía 30,769 ejemplos de
+entrenamiento, 3,703 de validación y 4,074 de prueba.
+
+\begin{table}[ht]
+\centering
+\caption{Resultados en Google Speech Commands.}
+\label{tab:speech}
+\begin{tabular}{lccc}
+\toprule
+Modelo & Mejor validación & Test accuracy & Gate medio \\
+\midrule
+Conv1D & \textbf{0.902} & \textbf{0.892} & -- \\
+EGFN temporal & 0.856 & 0.849 & 0.547 \\
+EGFN temporal wide & 0.893 & 0.886 & 0.444 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+La diferencia final entre Conv1D y EGFN wide fue de solo \(0.006\). Esto
+demostró que el frontend frecuencial podía aproximarse al baseline en una tarea
+real y amplia, justificando una evaluación donde la estructura espectral fuera
+central.
+
+\section{Aplicación industrial con MIMII}
+
+\subsection{Dataset y tarea}
+
+MIMII contiene sonidos normales y anormales de maquinaria industrial
+\cite{purohit2019mimii}. Se descargó el subconjunto de válvulas a \(6\,\mathrm{dB}\),
+con 4,170 grabaciones: 2,922 para entrenamiento, 624 para validación y 624
+para test. La tarea actual es clasificación binaria supervisada.
+
+Existe un fuerte desbalance: las grabaciones normales son mucho más numerosas.
+Por ello se usó cross-entropy ponderada y se reportaron precision, recall, F1 y
+AUC, además de accuracy. Se aplicaron augmentaciones de ganancia, desplazamiento
+temporal, ruido y enmascaramiento.
+
+\subsection{Resultados con umbral 0.50}
+
+\begin{table}[ht]
+\centering
+\caption{Resultados de prueba en MIMII Valve con umbral 0.50.}
+\label{tab:mimii-default}
+\begin{tabular}{lccccc}
+\toprule
+Modelo & Accuracy & Precision & Recall & F1 & AUC \\
+\midrule
+Conv1D & \textbf{0.955} & \textbf{0.765} & 0.873 & \textbf{0.816} & 0.982 \\
+EGFN temporal wide & 0.929 & 0.639 & 0.873 & 0.738 & \textbf{0.984} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Conv1D produjo mejor accuracy, precision y F1 en el punto operativo estándar.
+Sin embargo, EGFN igualó exactamente el recall y obtuvo un AUC ligeramente
+superior. El AUC indica que la capacidad de ordenar ejemplos normales y
+anormales es prácticamente equivalente; la diferencia principal estaba en el
+umbral usado para convertir probabilidad en decisión.
+
+\section{Calibración del umbral}
+
+El umbral se seleccionó maximizando F1 únicamente sobre validación. Después se
+aplicó una sola vez al test, evitando optimizar con información del conjunto
+final. Los umbrales seleccionados fueron \(0.65\) para Conv1D y \(0.78\) para
+EGFN.
+
+\begin{table}[ht]
+\centering
+\caption{Comparación de puntos operativos calibrados.}
+\label{tab:calibrated}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{llcccccc}
+\toprule
+Modelo & Umbral & Accuracy & Precision & Recall & F1 & FP & FN \\
+\midrule
+Conv1D & 0.50 & 0.955 & 0.765 & 0.873 & 0.816 & 19 & 9 \\
+Conv1D & 0.65 & 0.960 & 0.883 & 0.746 & 0.809 & 7 & 18 \\
+EGFN & 0.50 & 0.929 & 0.639 & 0.873 & 0.738 & 35 & 9 \\
+EGFN & 0.78 & \textbf{0.965} & \textbf{0.930} & 0.746 & \textbf{0.828} & \textbf{4} & 18 \\
+\bottomrule
+\end{tabular}}
+\end{table}
+
+La calibración de EGFN redujo falsas alarmas de 35 a 4 y elevó F1 de 0.738 a
+0.828. El costo fue aumentar anomalías omitidas de 9 a 18. Por tanto, no existe
+un umbral universalmente mejor:
+
+\begin{itemize}
+  \item \textbf{Umbral 0.50:} preferible cuando omitir una falla es muy costoso.
+  \item \textbf{Umbral 0.78:} preferible cuando las falsas alarmas son costosas.
+\end{itemize}
+
+\section{Análisis de interpretabilidad}
+
+\subsection{Gates y energía}
+
+Los gates promedio se mantuvieron alrededor de \(0.50\)--\(0.56\) y mostraron
+diferencias pequeñas entre audio normal y anormal. Por ejemplo, el mayor cambio
+medio observado fue aproximadamente \(-0.012\) en la banda inicial de
+1.5--2.5 kHz. Esto significa que no es correcto afirmar que el gate por sí solo
+explica la clasificación.
+
+Las energías sí mostraron diferencias más visibles. El audio anormal presentó
+menor energía media en la banda inicial de 1.5--2.5 kHz y mayor energía sobre
+4 kHz. La cabeza temporal recibe las respuestas moduladas completas, por lo que
+puede explotar tanto energía como estructura temporal aunque los gates medios
+sean similares.
+
+\subsection{Filtros aprendibles}
+
+Los kernels se inicializaron como filtros pasa-baja, pasa-banda y pasa-alta,
+pero se entrenaron sin una restricción que conservara esas formas. El análisis
+FFT mostró desplazamientos considerables y respuestas multibanda. Por ejemplo,
+el filtro inicialmente menor de 250 Hz terminó con un pico aproximado en
+1.90 kHz, mientras que el filtro inicialmente mayor de 4 kHz alcanzó un pico
+cercano a 6.34 kHz.
+
+Este hallazgo tiene dos interpretaciones:
+
+\begin{enumerate}
+  \item \textbf{Ventaja:} el modelo puede adaptar libremente su representación
+  al sonido de las válvulas.
+  \item \textbf{Limitación:} la etiqueta de banda inicial deja de describir
+  exactamente la respuesta final y disminuye la interpretabilidad clásica.
+\end{enumerate}
+
+Una futura versión puede parametrizar directamente frecuencias de corte o usar
+filtros tipo SincNet \cite{ravanelli2018sincnet}, conservando bandas válidas
+durante el aprendizaje.
+
+\section{Comparación conceptual con otras arquitecturas}
+
+\begin{table}[ht]
+\centering
+\caption{Comparación cualitativa de enfoques de audio.}
+\label{tab:architectures}
+\begin{tabularx}{\textwidth}{>{\bfseries}lXXX}
+\toprule
+Arquitectura & Representación & Ventaja principal & Limitación principal \\
+\midrule
+Conv1D & Filtros libres sobre waveform & Buen rendimiento y simplicidad & Canales menos interpretables \\
+CNN sobre espectrograma & Imagen tiempo-frecuencia & Patrones espectro-temporales explícitos & Requiere transformación previa \\
+MFCC + MLP & Coeficientes acústicos compactos & Bajo costo computacional & Descarta detalles del waveform \\
+SincNet & Cortes frecuenciales parametrizados & Filtros físicamente restringidos & Menor libertad que kernels completos \\
+EGFN temporal & Filtros, energía, gates y Conv temporal & Sesgo frecuencial y diagnóstico por banda & Gates poco selectivos y filtros no restringidos \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+EGFN no debe presentarse como reemplazo universal de Conv1D. Su contribución es
+un frontend híbrido donde parte del procesamiento tiene significado espectral
+explícito. El resultado más convincente es alcanzar discriminación comparable
+en MIMII, no una superioridad absoluta en todas las métricas.
+
+\section{Experimento multisemilla}
+
+\pending. Una sola semilla puede favorecer accidentalmente a un modelo por la
+inicialización, el split o el orden de augmentación. Para medir estabilidad se
+diseñó un runner reproducible con semillas \(42\), \(123\) y \(456\) para
+Conv1D y EGFN. Cada corrida:
+
+\begin{enumerate}
+  \item usa la misma semilla para Python, NumPy, PyTorch y CUDA;
+  \item construye splits emparejados por semilla;
+  \item entrena con la configuración establecida;
+  \item selecciona su threshold usando únicamente validación;
+  \item reporta métricas default y calibradas sobre test.
+\end{enumerate}
+
+El resultado final se expresará como
+
+\begin{equation}
+\bar{x} \pm s,
+\qquad
+s=\sqrt{\frac{1}{n-1}\sum_{i=1}^{n}(x_i-\bar{x})^2},
+\end{equation}
+
+donde \(s\) es la desviación estándar muestral y \(n=3\). La
+\cref{tab:multiseed} queda preparada para completar al finalizar el proceso.
+
+\begin{table}[ht]
+\centering
+\caption{Resultados multisemilla pendientes, media \(\pm\) desviación estándar.}
+\label{tab:multiseed}
+\begin{tabular}{llccc}
+\toprule
+Modelo & Punto operativo & Accuracy & F1 & AUC \\
+\midrule
+Conv1D & 0.50 & \multicolumn{3}{c}{En ejecución} \\
+Conv1D & Calibrado & \multicolumn{3}{c}{En ejecución} \\
+EGFN & 0.50 & \multicolumn{3}{c}{En ejecución} \\
+EGFN & Calibrado & \multicolumn{3}{c}{En ejecución} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Validez, limitaciones y riesgos}
+
+\begin{enumerate}
+  \item \textbf{Split de MIMII.} El experimento actual usa un split estratificado
+  de grabaciones y mezcla los mismos machine IDs entre conjuntos. Esto mide
+  generalización a nuevas grabaciones, no necesariamente a una máquina física
+  nunca observada.
+  \item \textbf{Clasificación supervisada.} Se usan ejemplos anormales durante
+  entrenamiento. Un sistema clásico de detección de anomalías puede entrenarse
+  solo con normalidad; es una tarea distinta y más cercana a escenarios donde
+  las fallas son escasas.
+  \item \textbf{Desbalance.} Accuracy puede ocultar errores en la clase
+  minoritaria. Por eso AUC, recall, precision y F1 son indispensables.
+  \item \textbf{Interpretabilidad parcial.} Los gates son observables, pero su
+  existencia no demuestra causalidad. Se requieren ablaciones o intervenciones
+  por banda para sostener explicaciones más fuertes.
+  \item \textbf{Filtros no restringidos.} Los kernels aprendidos pueden dejar de
+  comportarse como filtros clásicos.
+  \item \textbf{Escala experimental.} Tres semillas permiten una primera medida
+  de variabilidad, pero no equivalen a validación industrial extensa.
+\end{enumerate}
+
+\section{Conclusiones}
+
+El proyecto cumplió su objetivo principal como investigación aplicada y pieza
+de portafolio. Se diseñó un módulo PyTorch propio, se verificó en señales
+sintéticas, se evaluó en dos datasets de voz y se transfirió a detección de
+fallas industriales. La variante EGFN temporal wide quedó a 0.006 de Conv1D en
+Speech Commands y obtuvo AUC 0.984 en MIMII Valve frente a 0.982 del baseline.
+
+El análisis posterior fue tan importante como la métrica principal. La
+calibración mostró que EGFN puede operar con muy pocas falsas alarmas, pero a
+costa de recall. El análisis frecuencial mostró cambios de energía útiles y, al
+mismo tiempo, reveló que los gates son poco discriminativos y que los filtros
+libres pueden perder su interpretación inicial.
+
+La conclusión defendible no es que EGFN sea universalmente superior, sino que
+\textbf{alcanza capacidad discriminativa comparable a Conv1D en una aplicación
+industrial mientras expone una representación frecuencial analizable}. Esta es
+una base sólida para continuar con filtros restringidos, evaluación por
+machine ID, detección normal-only y despliegue de inferencia.
+
+\section{Próximos pasos}
+
+\begin{enumerate}
+  \item Completar y reportar el experimento multisemilla.
+  \item Evaluar generalización dejando un machine ID fuera del entrenamiento.
+  \item Implementar filtros parametrizados por cortes frecuenciales válidos.
+  \item Realizar ablaciones: sin gates, filtros fijos y energía sin gating.
+  \item Medir parámetros, latencia, memoria e inferencia en GPU y CPU.
+  \item Preparar README final, licencia, entorno reproducible y release v1.0.
+  \item Como extensión, probar bombas, ventiladores o audio respiratorio.
+\end{enumerate}
+
+\appendix
+\section{Comandos principales}
+
+\begin{lstlisting}[language=bash,caption={Entrenamiento del baseline industrial.}]
+python scripts/train_mimii.py --data-dir data/raw/mimii \
+  --machine-type valve --model conv1d --augment \
+  --balanced-loss --num-workers 2 --epochs 40 \
+  --output-dir outputs/mimii_valve_conv1d
+\end{lstlisting}
+
+\begin{lstlisting}[language=bash,caption={Entrenamiento de EGFN temporal wide.}]
+python scripts/train_mimii.py --data-dir data/raw/mimii \
+  --machine-type valve --model egfn_temporal \
+  --filter-bank fine --learnable-filters \
+  --gate-mode independent --frontend-channels 32 \
+  --temporal-channels 64,128 --dropout 0.25 \
+  --label-smoothing 0.05 --scheduler cosine \
+  --augment --balanced-loss --num-workers 2 \
+  --epochs 40 --patience 10 \
+  --output-dir outputs/mimii_valve_egfn_temporal_wide
+\end{lstlisting}
+
+\begin{lstlisting}[language=bash,caption={Calibración e interpretabilidad.}]
+python scripts/analyze_mimii_results.py \
+  --run-dir outputs/mimii_valve_egfn_temporal_wide \
+  --num-workers 2 --device cuda
+\end{lstlisting}
+
+\begin{lstlisting}[language=bash,caption={Experimento multisemilla reproducible.}]
+python scripts/run_mimii_multiseed.py \
+  --device cuda --num-workers 2
+\end{lstlisting}
+
+\begin{thebibliography}{9}
+
+\bibitem{purohit2019mimii}
+H.~Purohit, R.~Tanabe, T.~Ichige, T.~Endo, Y.~Nikaido, K.~Suefusa y Y.~Kawaguchi.
+\newblock MIMII Dataset: Sound Dataset for Malfunctioning Industrial Machine Investigation and Inspection.
+\newblock \emph{Proceedings of the Detection and Classification of Acoustic Scenes and Events Workshop}, 2019.
+
+\bibitem{warden2018speech}
+P.~Warden.
+\newblock Speech Commands: A Dataset for Limited-Vocabulary Speech Recognition.
+\newblock \emph{arXiv preprint arXiv:1804.03209}, 2018.
+
+\bibitem{ravanelli2018sincnet}
+M.~Ravanelli y Y.~Bengio.
+\newblock Speaker Recognition from Raw Waveform with SincNet.
+\newblock \emph{IEEE Spoken Language Technology Workshop}, 2018.
+
+\end{thebibliography}
+
+\end{document}

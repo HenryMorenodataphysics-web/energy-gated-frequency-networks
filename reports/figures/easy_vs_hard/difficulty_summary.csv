@@ -1,0 +1,3 @@
+difficulty,num_examples,accuracy
+easy,2048,0.98388671875
+hard,2048,0.375

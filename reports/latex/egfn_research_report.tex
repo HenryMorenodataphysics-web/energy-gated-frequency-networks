@@ -1,0 +1,522 @@
+\documentclass[11pt,letterpaper]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{float}
+\usepackage{enumitem}
+\usepackage{caption}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue!55!black,
+    urlcolor=blue!55!black,
+    citecolor=blue!55!black
+}
+
+\graphicspath{{../../outputs/}}
+
+\title{\textbf{Energy-Gated Frequency Neuron}\\
+\large Un bloque neuronal fisico-inspirado para clasificacion de audio}
+\author{Proyecto de portafolio e investigacion aplicada}
+\date{Julio 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Este documento describe el desarrollo conceptual, matematico y experimental de
+la \textit{Energy-Gated Frequency Neuron} (EGFN), un bloque neuronal para audio
+que combina bancos de filtros, activaciones no lineales, energia por banda de
+frecuencia y compuertas aprendibles. El objetivo del proyecto no es demostrar
+un nuevo estado del arte, sino construir una pieza de investigacion aplicada
+que conecte procesamiento de senales, redes neuronales e interpretabilidad. Se
+presenta la motivacion inicial, la formulacion del bloque, la arquitectura
+implementada en PyTorch, las variantes experimentales evaluadas y una
+comparacion con enfoques alternativos como MFCC+MLP, Mel-spectrogram+CNN,
+Conv1D, SincNet y LEAF.
+\end{abstract}
+
+\tableofcontents
+\newpage
+
+\section{Origen del proyecto}
+
+El proyecto surge de una pregunta conceptual: \textit{los filtros que aparecen
+en circuitos y procesamiento de senales, como filtros pasa baja, pasa alta y
+pasa banda, pueden utilizarse como funciones de activacion en redes
+neuronales?}
+
+La respuesta corta es que no son equivalentes. Una funcion de activacion
+clasica opera punto a punto:
+
+\begin{equation}
+    y_i = f(x_i).
+\end{equation}
+
+En cambio, un filtro digital opera sobre una vecindad temporal:
+
+\begin{equation}
+    y[n] = \sum_k h[k]x[n-k].
+\end{equation}
+
+Por lo tanto, un filtro introduce estructura temporal y memoria local, pero
+sigue siendo una transformacion lineal si no se combina con una no linealidad.
+Esta diferencia es importante: reemplazar ReLU por un filtro no produce
+automaticamente una red profunda no lineal. La idea fuerte del proyecto es otra:
+usar filtros como una primera etapa fisico-inspirada y luego combinarlos con
+activaciones, energia y compuertas aprendibles.
+
+La hipotesis de trabajo es:
+
+\begin{quote}
+Un modelo de audio puede ganar interpretabilidad y potencialmente robustez si
+procesa la senal como una composicion de bandas de frecuencia, energia por
+banda y decisiones aprendibles de paso o atenuacion.
+\end{quote}
+
+\section{Principios de senales aplicados}
+
+\subsection{Audio como senal temporal}
+
+Un audio mono discreto puede representarse como una secuencia:
+
+\begin{equation}
+    x[n], \quad n = 0,1,\ldots,T-1.
+\end{equation}
+
+En deep learning, esta senal normalmente se organiza como un tensor:
+
+\begin{equation}
+    x \in \mathbb{R}^{B \times 1 \times T},
+\end{equation}
+
+donde $B$ es el tamano de batch, $1$ es el canal de audio mono y $T$ es el
+numero de muestras temporales.
+
+\subsection{Filtros y convolucion}
+
+Un filtro digital se define por un kernel $h[k]$. La salida filtrada es:
+
+\begin{equation}
+    u[n] = (h * x)[n] = \sum_k h[k]x[n-k].
+\end{equation}
+
+Esto conecta directamente con las redes convolucionales. Una capa
+\texttt{Conv1D} tambien aprende kernels que recorren la senal. Por tanto, una
+CNN 1D ya contiene una idea de filtrado, aunque sus filtros no necesariamente
+tengan una interpretacion fisica directa.
+
+\subsection{No linealidad}
+
+Si una red contiene solo transformaciones lineales, la composicion completa
+puede reducirse a una unica transformacion lineal:
+
+\begin{equation}
+    y = W_3(W_2(W_1x)) = W_{\text{total}}x.
+\end{equation}
+
+Por eso se necesita una activacion:
+
+\begin{equation}
+    y = W_3 f(W_2 f(W_1x)).
+\end{equation}
+
+En la EGFN, el filtro prepara la senal y la activacion introduce capacidad no
+lineal.
+
+\subsection{Energia por banda}
+
+En procesamiento de senales, la energia mide la intensidad o actividad de una
+senal. Para la respuesta filtrada $u_k[n]$ de una banda $k$, se usa:
+
+\begin{equation}
+    E_k = \frac{1}{T}\sum_n u_k[n]^2.
+\end{equation}
+
+Esta magnitud es interpretable: si $E_k$ es alta, la banda $k$ contiene
+actividad importante para esa senal.
+
+\section{Energy-Gated Frequency Neuron}
+
+\subsection{Formulacion principal}
+
+Para cada banda de frecuencia $k$, la EGFN calcula:
+
+\begin{align}
+    u_k[n] &= (h_k * x)[n], \\
+    z_k[n] &= u_k[n] + b_k, \\
+    a_k[n] &= \phi(z_k[n]), \\
+    E_k &= \frac{1}{T}\sum_n u_k[n]^2, \\
+    g_k &= \sigma(\alpha_k \log(1 + E_k) + \beta_k), \\
+    y_k[n] &= g_k a_k[n].
+\end{align}
+
+Donde:
+
+\begin{itemize}[leftmargin=*]
+    \item $h_k$ es el filtro de la banda $k$.
+    \item $\phi$ es una activacion, por ejemplo GELU o ReLU.
+    \item $E_k$ es la energia de la banda.
+    \item $g_k$ es una compuerta aprendible entre 0 y 1.
+    \item $\alpha_k$, $\beta_k$ y $b_k$ son parametros entrenables.
+\end{itemize}
+
+\subsection{Interpretacion}
+
+El bloque se puede leer como:
+
+\begin{quote}
+Filtra la senal por banda, activa la respuesta, mide cuanta energia contiene
+esa banda y aprende cuanto dejar pasar hacia el clasificador.
+\end{quote}
+
+Esto permite visualizar no solo que clase predice el modelo, sino tambien que
+bandas de frecuencia usa para llegar a esa decision.
+
+\section{Arquitectura neuronal completa}
+
+La red implementada tiene tres componentes principales:
+
+\begin{enumerate}[leftmargin=*]
+    \item \textbf{Frontend EGFN}: banco de filtros, activacion, energia y gate.
+    \item \textbf{FrequencyPooling}: resumen temporal interpretable.
+    \item \textbf{Classifier Head}: MLP pequeno para clasificacion.
+\end{enumerate}
+
+\subsection{Flujo de tensores}
+
+\begin{verbatim}
+Raw waveform [B, 1, T]
+  -> EnergyGatedFrequencyNeuron
+       -> filter bank
+       -> activation
+       -> energy estimation
+       -> learned gate
+  -> FrequencyPooling
+       -> mean, max, std, log-energy, gates
+  -> MLP classifier
+  -> logits [B, num_classes]
+\end{verbatim}
+
+\subsection{Pooling temporal}
+
+Despues de la EGFN, se resumen las respuestas por banda:
+
+\begin{align}
+    \mu_k &= \text{mean}_n(y_k[n]), \\
+    m_k &= \max_n(y_k[n]), \\
+    s_k &= \text{std}_n(y_k[n]).
+\end{align}
+
+Luego se concatenan:
+
+\begin{equation}
+    p = [\mu, m, s, \log(1+E), g].
+\end{equation}
+
+Esta representacion es compacta y mantiene informacion interpretable por banda.
+
+\section{Variantes implementadas}
+
+\subsection{V0: filtros fijos}
+
+La primera version usa filtros predefinidos tipo pasa baja, pasa banda y pasa
+alta. Esta version es la mas interpretable porque cada filtro conserva su
+significado original.
+
+\subsection{V1: filtros aprendibles}
+
+En la segunda version, los filtros se inicializan como filtros interpretables,
+pero sus kernels se vuelven parametros entrenables. Esto aumenta flexibilidad,
+pero puede reducir interpretabilidad si los kernels dejan de parecer filtros
+limpios.
+
+\subsection{Banco de filtros fino}
+
+El banco original tenia 5 bandas. Para el caso dificil, se agrego un banco fino
+de 8 bandas:
+
+\begin{center}
+\begin{tabular}{ll}
+\toprule
+Indice & Banda \\
+\midrule
+1 & lowpass \\
+2 & 250--500 Hz \\
+3 & 500--750 Hz \\
+4 & 750--1000 Hz \\
+5 & 1000--1500 Hz \\
+6 & 1500--2500 Hz \\
+7 & 2500--4000 Hz \\
+8 & highpass \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Este cambio fue importante porque las clases hard viven principalmente entre
+aproximadamente 420 Hz y 1260 Hz.
+
+\subsection{Gate contextual}
+
+El gate independiente calcula:
+
+\begin{equation}
+    g_k = \sigma(\alpha_k \log(1 + E_k) + \beta_k).
+\end{equation}
+
+El gate contextual usa todo el vector de energias:
+
+\begin{equation}
+    g = \sigma(\text{MLP}([\log(1+E_1), \ldots, \log(1+E_K)])).
+\end{equation}
+
+La motivacion era permitir que cada banda se interprete en contexto. Sin
+embargo, los resultados iniciales no mostraron mejora clara. Esta observacion
+es valiosa: mas capacidad no siempre mejora el modelo.
+
+\subsection{V2: sparse selective gate}
+
+La V2 introduce una penalizacion:
+
+\begin{equation}
+    \mathcal{L} =
+    \mathcal{L}_{CE} + \lambda_{gate}\frac{1}{BK}\sum_{b,k} g_{b,k}.
+\end{equation}
+
+La intencion es que el modelo no use todas las bandas si no es necesario. Los
+resultados iniciales muestran selectividad suave: no se apagan todas las bandas
+de forma binaria, pero con umbral 0.7 se observa que el modelo concentra gates
+fuertes en cerca de dos bandas promedio.
+
+\section{Datos sinteticos}
+
+Antes de usar audio real, se construyo un dataset sintetico controlado. Esto es
+importante porque permite saber si el bloque responde a frecuencia y energia
+antes de introducir complejidad externa.
+
+\subsection{Dificultad easy}
+
+Las clases estan muy separadas:
+
+\begin{itemize}[leftmargin=*]
+    \item Clase 0: bajas frecuencias.
+    \item Clase 1: frecuencias medias.
+    \item Clase 2: frecuencias altas.
+    \item Clase 3: mezcla baja + alta.
+\end{itemize}
+
+Este experimento valido que el pipeline completo funciona, pero resulto muy
+facil.
+
+\subsection{Dificultad hard}
+
+El modo hard agrega:
+
+\begin{itemize}[leftmargin=*]
+    \item frecuencias mas cercanas,
+    \item jitter de frecuencia,
+    \item tonos distractores,
+    \item ruido controlado por SNR,
+    \item desplazamientos temporales,
+    \item dropout parcial de componentes.
+\end{itemize}
+
+Este modo es mas util para investigar si el modelo realmente aprende
+representaciones robustas.
+
+\section{Resultados experimentales iniciales}
+
+Los resultados aun son exploratorios y se basan en datos sinteticos. No deben
+interpretarse como una comparacion definitiva contra modelos de audio reales.
+
+\begin{longtable}{p{0.38\linewidth}rrrrr}
+\caption{Resumen de experimentos locales.}\\
+\toprule
+Configuracion & Best epoch & Best val acc & Final val acc & Gate mean & Active bands \\
+\midrule
+\endfirsthead
+\toprule
+Configuracion & Best epoch & Best val acc & Final val acc & Gate mean & Active bands \\
+\midrule
+\endhead
+Hard + fine + fixed filters & -- & -- & -- & -- & -- \\
+Hard + fine + learnable filters & -- & -- & -- & -- & -- \\
+Hard + learnable + contextual gate & 40--90 & 0.703 & 0.688 & -- & -- \\
+Hard + sparse gate, $\lambda=0.005$ & -- & 0.711 & -- & 0.667 & 8.00 \\
+Hard + sparse gate, $\lambda=0.05$ & 92 & 0.727 & 0.688 & 0.623 & 7.99 \\
+Sparse gate, threshold 0.7 & 92 & 0.719 & 0.695 & 0.651 & 2.07 \\
+\bottomrule
+\end{longtable}
+
+\subsection{Lectura de resultados}
+
+\begin{itemize}[leftmargin=*]
+    \item El modo easy alcanzo accuracy perfecta rapidamente, validando el
+    pipeline pero mostrando que el problema era demasiado simple.
+    \item El modo hard con banco grueso se quedo cerca de 0.53, lo que sugirio
+    falta de resolucion en frecuencia.
+    \item El banco fine y filtros aprendibles mejoraron el comportamiento en
+    hard.
+    \item El gate contextual no mejoro automaticamente. Es una ablation util.
+    \item La sparse gate mejoro ligeramente accuracy y mostro selectividad
+    suave.
+\end{itemize}
+
+\section{Figuras experimentales}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\linewidth]{hard_sparse_gate_l005/figures/synthetic_training_curves.png}
+\caption{Curvas de entrenamiento para sparse gate con $\lambda=0.05$.}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.95\linewidth]{hard_sparse_gate_l005/figures/synthetic_gates_by_class.png}
+\caption{Gates promedio por clase y banda.}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.95\linewidth]{hard_sparse_gate_l005/figures/synthetic_energy_by_class.png}
+\caption{Energia logaritmica promedio por clase y banda.}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\linewidth]{hard_sparse_gate/figures/snr_sweep_hard.png}
+\caption{Barrido de robustez a ruido para el caso hard sparse gate.}
+\end{figure}
+
+\section{Comparacion con arquitecturas alternativas}
+
+\subsection{MFCC + MLP}
+
+MFCC es un pipeline clasico de audio. Extrae caracteristicas compactas basadas
+en una escala perceptual y luego un MLP puede clasificarlas. Es eficiente y
+fuerte como baseline, pero la extraccion de caracteristicas esta predefinida.
+La EGFN, en cambio, aprende gates y opcionalmente filtros, manteniendo una
+lectura por banda.
+
+\subsection{Mel-spectrogram + CNN}
+
+Este enfoque transforma audio en una representacion tiempo-frecuencia y aplica
+convoluciones 2D. Es un baseline fuerte para audio. Su principal ventaja es
+que produce una imagen espectral rica. Su desventaja para este proyecto es que
+la interpretacion del frontend queda parcialmente fijada por el diseno mel.
+
+\subsection{Conv1D sobre waveform}
+
+Una CNN 1D aprende directamente desde la forma de onda. Es flexible, pero sus
+primeros kernels pueden ser dificiles de interpretar. La EGFN busca un punto
+medio: usar filtros y gates con significado fisico.
+
+\subsection{SincNet}
+
+SincNet aprende filtros pasa banda parametrizados por frecuencias de corte baja
+y alta. Esto es muy relevante para la futura V3 del proyecto, porque permite
+aprender filtros sin perder interpretabilidad fisica. A diferencia de kernels
+libres, los parametros siguen teniendo significado.
+
+\subsection{LEAF y EfficientLEAF}
+
+LEAF propone un frontend aprendible completo para audio: filtros, pooling,
+compresion y normalizacion. EfficientLEAF muestra que estas ideas pueden ser
+mas eficientes, pero tambien advierte que los frontends aprendibles no siempre
+superan a mel-filterbanks fijos. Esto refuerza la necesidad de baselines y
+ablations honestas.
+
+\section{Como se podria mejorar}
+
+\subsection{Gate sharpness}
+
+La sparse gate actual produce selectividad suave. Una mejora directa seria:
+
+\begin{equation}
+    g = \sigma(\tau \cdot r),
+\end{equation}
+
+donde $r$ es el logit del gate y $\tau > 1$ aumenta la nitidez. Esto podria
+empujar gates hacia valores mas cercanos a 0 o 1.
+
+\subsection{Filtros parametrizados tipo SincNet}
+
+En vez de aprender todos los valores del kernel, se pueden aprender parametros:
+
+\begin{equation}
+    h_k = \text{BandPass}(f_{low,k}, f_{high,k}).
+\end{equation}
+
+Esto permitiria decir, por ejemplo, que una banda aprendio a moverse hacia
+620--940 Hz. Para un proyecto de portafolio, esta mejora seria muy fuerte
+porque une capacidad aprendible e interpretabilidad.
+
+\subsection{Temporal Conv Head}
+
+El pooling actual resume toda la senal con estadisticas globales. Para audio
+real puede ser importante cuando ocurre la energia, no solo cuanta energia hay.
+Una cabeza temporal podria usar:
+
+\begin{verbatim}
+EGFN output [B, K, T]
+  -> temporal Conv1D
+  -> pooling
+  -> classifier
+\end{verbatim}
+
+Esto mantiene la EGFN como frontend interpretable y agrega modelado temporal.
+
+\subsection{Datos reales}
+
+Despues de validar con datos sinteticos, el siguiente paso es usar datasets
+reales:
+
+\begin{itemize}[leftmargin=*]
+    \item Free Spoken Digit Dataset para una primera prueba liviana.
+    \item Speech Commands para keyword spotting.
+    \item ESC-50 o UrbanSound8K para eventos ambientales.
+\end{itemize}
+
+\section{Conclusiones}
+
+La Energy-Gated Frequency Neuron es una arquitectura experimental razonable
+para un portafolio de investigacion. Su valor no esta solo en buscar accuracy,
+sino en mostrar una cadena completa de razonamiento:
+
+\begin{itemize}[leftmargin=*]
+    \item partir de filtros y activaciones,
+    \item distinguir operaciones lineales y no lineales,
+    \item disenar un bloque fisico-inspirado,
+    \item implementar una capa personalizada en PyTorch,
+    \item evaluar variantes y ablations,
+    \item interpretar gates y energias por banda,
+    \item comparar contra modelos existentes.
+\end{itemize}
+
+Los resultados actuales sugieren que filtros aprendibles y bancos de frecuencia
+mas finos ayudan en problemas ambiguos. El gate contextual no mejoro
+automaticamente, mientras que la sparse gate mostro selectividad suave y una
+leve mejora de accuracy. La siguiente etapa mas prometedora es implementar
+filtros parametrizados tipo SincNet o una cabeza temporal ligera.
+
+\section*{Referencias}
+
+\begin{itemize}[leftmargin=*]
+    \item Ravanelli, M. and Bengio, Y. \textit{Speech and Speaker Recognition
+    from Raw Waveform with SincNet}. arXiv:1812.05920.
+    \url{https://arxiv.org/abs/1812.05920}
+    \item Zeghidour, N. et al. \textit{LEAF: A Learnable Frontend for Audio
+    Classification}. arXiv:2101.08596.
+    \url{https://arxiv.org/abs/2101.08596}
+    \item Schluter, J. and Gutenbrunner, G. \textit{EfficientLEAF: A Faster
+    LEarnable Audio Frontend of Questionable Use}. arXiv:2207.05508.
+    \url{https://arxiv.org/abs/2207.05508}
+\end{itemize}
+
+\end{document}
