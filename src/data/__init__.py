@@ -4,6 +4,7 @@ from .anomaly_protocol import (
     split_anomaly_records,
     validate_anomaly_split,
 )
+from .anomaly_window_dataset import AnomalyWindowDataset
 from .fsdd_dataset import FSDDDataset, FSDDRecord, find_fsdd_recordings
 from .mimii_dataset import (
     MIMIIDataset,
@@ -18,6 +19,7 @@ from .speech_commands_dataset import DEFAULT_SPEECH_COMMANDS_LABELS, SpeechComma
 __all__ = [
     "AnomalyAudioRecord",
     "AnomalyDataSplit",
+    "AnomalyWindowDataset",
     "DEFAULT_SPEECH_COMMANDS_LABELS",
     "FSDDDataset",
     "FSDDRecord",

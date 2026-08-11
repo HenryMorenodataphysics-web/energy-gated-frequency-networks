@@ -6,6 +6,7 @@ from .frequency_gated_classifier import (
     get_filter_bands,
 )
 from .baselines import Conv1DBaseline
+from .conv1d_anomaly_encoder import Conv1DAnomalyEncoder
 from .hierarchical_anomaly_detector import (
     CompactHierarchicalEncoder,
     HierarchicalAnomalyDetector,
@@ -13,6 +14,7 @@ from .hierarchical_anomaly_detector import (
 
 __all__ = [
     "Conv1DBaseline",
+    "Conv1DAnomalyEncoder",
     "CompactHierarchicalEncoder",
     "FrequencyGatedClassifier",
     "FrequencyGatedTemporalClassifier",
