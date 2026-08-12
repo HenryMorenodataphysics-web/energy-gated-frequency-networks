@@ -18,13 +18,13 @@ class Conv1DAnomalyEncoder(nn.Module):
         first, second, third = channels
         self.encoder = nn.Sequential(
             nn.Conv1d(1, first, kernel_size=31, stride=4, padding=15, bias=False),
-            nn.BatchNorm1d(first, affine=False),
+            nn.GroupNorm(1, first, affine=False),
             nn.GELU(),
             nn.Conv1d(first, second, kernel_size=15, stride=4, padding=7, bias=False),
-            nn.BatchNorm1d(second, affine=False),
+            nn.GroupNorm(1, second, affine=False),
             nn.GELU(),
             nn.Conv1d(second, third, kernel_size=9, stride=4, padding=4, bias=False),
-            nn.BatchNorm1d(third, affine=False),
+            nn.GroupNorm(1, third, affine=False),
             nn.GELU(),
             nn.AdaptiveAvgPool1d(1),
         )

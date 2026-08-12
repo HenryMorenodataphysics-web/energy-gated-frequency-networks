@@ -8,10 +8,16 @@ import soundfile as sf
 import torch
 from scipy.io import wavfile
 
-from src.anomaly import deep_svdd_loss, deep_svdd_scores, stabilize_center
+from src.anomaly import (
+    anti_collapse_loss,
+    deep_svdd_loss,
+    deep_svdd_scores,
+    stabilize_center,
+    standardized_embedding_scores,
+)
 from src.data import AnomalyAudioRecord, AnomalyWindowDataset
 from src.models import Conv1DAnomalyEncoder
-from scripts.train_mimii_one_class import is_meaningful_improvement
+from scripts.train_mimii_one_class import is_meaningful_improvement, make_audio_view
 
 
 def test_deep_svdd_scores_and_center_stabilization() -> None:
@@ -29,6 +35,38 @@ def test_early_stopping_requires_meaningful_relative_improvement() -> None:
     assert is_meaningful_improvement(0.989, 1.0, 0.01)
 
 
+def test_anti_collapse_objective_penalizes_constant_embeddings() -> None:
+    collapsed = torch.zeros(8, 4, requires_grad=True)
+    result = anti_collapse_loss(collapsed, collapsed, variance_target=0.05)
+    result["representation_loss"].backward()
+
+    assert result["variance_loss"].item() > 0
+    assert result["embedding_std"].item() < 0.05
+    assert collapsed.grad is not None
+
+
+def test_standardized_score_uses_fitted_normal_scale() -> None:
+    embedding = torch.tensor([[1.0, 4.0], [3.0, 2.0]])
+    scores = standardized_embedding_scores(
+        embedding,
+        normal_mean=torch.tensor([1.0, 2.0]),
+        normal_std=torch.tensor([2.0, 1.0]),
+    )
+
+    assert scores.tolist() == pytest.approx([2.0, 0.5])
+
+
+def test_audio_views_preserve_shape_and_approximately_preserve_energy() -> None:
+    waveform = torch.randn(4, 2, 1_000)
+    view = make_audio_view(waveform, noise_fraction=0.001, max_shift_fraction=0.05)
+
+    assert view.shape == waveform.shape
+    assert view.square().mean().item() == pytest.approx(
+        waveform.square().mean().item(),
+        rel=0.01,
+    )
+
+
 def test_conv1d_encoder_shares_weights_across_audio_channels() -> None:
     model = Conv1DAnomalyEncoder(embedding_channels=8)
     mono = torch.randn(2, 1, 4_000)
@@ -41,6 +79,18 @@ def test_conv1d_encoder_shares_weights_across_audio_channels() -> None:
     assert duplicated_output["channel_embeddings"].shape == (2, 3, 8)
     assert torch.allclose(mono_output["embedding"], duplicated_output["embedding"], atol=1e-6)
     assert sum(parameter.numel() for parameter in model.parameters()) < 2_000
+
+
+def test_conv1d_embedding_does_not_change_between_train_and_eval_modes() -> None:
+    model = Conv1DAnomalyEncoder(embedding_channels=8)
+    waveform = torch.randn(4, 2, 4_000)
+
+    model.train()
+    training_embedding = model(waveform)["embedding"]
+    model.eval()
+    evaluation_embedding = model(waveform)["embedding"]
+
+    assert torch.allclose(training_embedding, evaluation_embedding, atol=1e-6)
 
 
 def test_window_dataset_preserves_channels_and_reads_only_requested_window(

@@ -17,9 +17,8 @@ sys.path.insert(0, str(ROOT))
 
 from src.anomaly import (
     ConditionedNormalProfile,
-    deep_svdd_loss,
-    deep_svdd_scores,
-    stabilize_center,
+    anti_collapse_loss,
+    standardized_embedding_scores,
 )
 from src.blocks import HierarchicalSpectralFrontend
 from src.data import (
@@ -53,6 +52,12 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--learning-rate", type=float, default=1e-3)
     parser.add_argument("--weight-decay", type=float, default=1e-4)
     parser.add_argument("--gate-regularization-weight", type=float, default=0.1)
+    parser.add_argument("--variance-target", type=float, default=0.05)
+    parser.add_argument("--invariance-weight", type=float, default=25.0)
+    parser.add_argument("--variance-weight", type=float, default=25.0)
+    parser.add_argument("--covariance-weight", type=float, default=1.0)
+    parser.add_argument("--view-noise-fraction", type=float, default=0.005)
+    parser.add_argument("--view-max-shift-fraction", type=float, default=0.05)
     parser.add_argument("--duration", type=float, default=2.0)
     parser.add_argument("--evaluation-windows", type=int, default=5)
     parser.add_argument("--recording-quantile", type=float, default=0.95)
@@ -132,15 +137,37 @@ def forward_model(
     return model(waveform)
 
 
-def estimate_center(
+def make_audio_view(
+    waveform: torch.Tensor,
+    noise_fraction: float,
+    max_shift_fraction: float,
+) -> torch.Tensor:
+    if noise_fraction < 0 or not 0 <= max_shift_fraction < 1:
+        raise ValueError("view augmentation values are outside their valid ranges.")
+    maximum_shift = int(waveform.shape[-1] * max_shift_fraction)
+    shifts = torch.randint(
+        -maximum_shift,
+        maximum_shift + 1,
+        (waveform.shape[0],),
+        device=waveform.device,
+    )
+    shifted = torch.stack(
+        [torch.roll(item, int(shift.item()), dims=-1) for item, shift in zip(waveform, shifts)]
+    )
+    if noise_fraction == 0:
+        return shifted
+    rms = shifted.square().mean(dim=(-2, -1), keepdim=True).sqrt().clamp_min(1e-8)
+    return shifted + torch.randn_like(shifted) * rms * noise_fraction
+
+
+def estimate_embedding_statistics(
     model: torch.nn.Module,
     model_name: str,
     loader: DataLoader,
     device: torch.device,
-) -> torch.Tensor:
+) -> tuple[torch.Tensor, torch.Tensor]:
     model.eval()
-    embedding_sum: torch.Tensor | None = None
-    example_count = 0
+    embeddings = []
     with torch.no_grad():
         for batch in loader:
             waveform = batch["waveform"].to(device, non_blocking=True)
@@ -151,24 +178,27 @@ def estimate_center(
                 list(batch["condition_id"]),
                 progress=0.0,
             )
-            embeddings = output["embedding"]
-            batch_sum = embeddings.sum(dim=0)
-            embedding_sum = batch_sum if embedding_sum is None else embedding_sum + batch_sum
-            example_count += embeddings.shape[0]
-    if embedding_sum is None or example_count == 0:
-        raise RuntimeError("cannot estimate a center from an empty loader.")
-    return stabilize_center(embedding_sum / example_count)
+            embeddings.append(output["embedding"].cpu())
+    if not embeddings:
+        raise RuntimeError("cannot estimate statistics from an empty loader.")
+    stacked = torch.cat(embeddings)
+    return stacked.mean(dim=0).to(device), stacked.std(dim=0).clamp_min(1e-3).to(device)
 
 
 def run_training_epoch(
     model: torch.nn.Module,
     model_name: str,
     loader: DataLoader,
-    center: torch.Tensor,
     optimizer: torch.optim.Optimizer,
     device: torch.device,
     progress: float,
     gate_weight: float,
+    variance_target: float,
+    invariance_weight: float,
+    variance_weight: float,
+    covariance_weight: float,
+    noise_fraction: float,
+    max_shift_fraction: float,
 ) -> dict[str, float]:
     model.train()
     totals = defaultdict(float)
@@ -176,24 +206,49 @@ def run_training_epoch(
     for batch in loader:
         waveform = batch["waveform"].to(device, non_blocking=True)
         optimizer.zero_grad(set_to_none=True)
-        output = forward_model(
+        first_view = make_audio_view(waveform, noise_fraction, max_shift_fraction)
+        second_view = make_audio_view(waveform, noise_fraction, max_shift_fraction)
+        first_output = forward_model(
             model,
             model_name,
-            waveform,
+            first_view,
             list(batch["condition_id"]),
             progress,
         )
-        svdd_loss = deep_svdd_loss(output["embedding"], center)
-        gate_loss = output.get("gate_regularization_loss", svdd_loss.new_zeros(()))
-        loss = svdd_loss + gate_weight * gate_loss
+        second_output = forward_model(
+            model,
+            model_name,
+            second_view,
+            list(batch["condition_id"]),
+            progress,
+        )
+        objective = anti_collapse_loss(
+            first_output["embedding"],
+            second_output["embedding"],
+            variance_target=variance_target,
+            invariance_weight=invariance_weight,
+            variance_weight=variance_weight,
+            covariance_weight=covariance_weight,
+        )
+        first_gate_loss = first_output.get(
+            "gate_regularization_loss", objective["representation_loss"].new_zeros(())
+        )
+        second_gate_loss = second_output.get(
+            "gate_regularization_loss", first_gate_loss
+        )
+        gate_loss = 0.5 * (first_gate_loss + second_gate_loss)
+        loss = objective["representation_loss"] + gate_weight * gate_loss
         loss.backward()
         optimizer.step()
 
         batch_size = waveform.shape[0]
         totals["loss"] += loss.item() * batch_size
-        totals["svdd_loss"] += svdd_loss.item() * batch_size
+        totals["representation_loss"] += objective["representation_loss"].item() * batch_size
+        totals["invariance_loss"] += objective["invariance_loss"].item() * batch_size
+        totals["variance_loss"] += objective["variance_loss"].item() * batch_size
+        totals["covariance_loss"] += objective["covariance_loss"].item() * batch_size
         totals["gate_loss"] += gate_loss.item() * batch_size
-        totals["embedding_std"] += output["embedding"].std(dim=0).mean().item() * batch_size
+        totals["embedding_std"] += objective["embedding_std"].item() * batch_size
         example_count += batch_size
     return {name: value / example_count for name, value in totals.items()}
 
@@ -202,7 +257,8 @@ def collect_window_scores(
     model: torch.nn.Module,
     model_name: str,
     loader: DataLoader,
-    center: torch.Tensor,
+    normal_mean: torch.Tensor,
+    normal_std: torch.Tensor,
     device: torch.device,
 ) -> tuple[list[str], np.ndarray, np.ndarray, np.ndarray | None]:
     model.eval()
@@ -222,7 +278,11 @@ def collect_window_scores(
             )
             recording_ids.extend(batch["recording_id"])
             labels.extend(batch["label"].tolist())
-            learned_scores.extend(deep_svdd_scores(output["embedding"], center).cpu().tolist())
+            learned_scores.extend(
+                standardized_embedding_scores(
+                    output["embedding"], normal_mean, normal_std
+                ).cpu().tolist()
+            )
             if "recording_score" in output:
                 profile_scores.extend(output["recording_score"].cpu().tolist())
     optional_profile = np.asarray(profile_scores) if profile_scores else None
@@ -256,11 +316,14 @@ def evaluate_normal_mean(
     model: torch.nn.Module,
     model_name: str,
     loader: DataLoader,
-    center: torch.Tensor,
+    normal_mean: torch.Tensor,
+    normal_std: torch.Tensor,
     device: torch.device,
     recording_quantile: float,
 ) -> float:
-    ids, labels, scores, _ = collect_window_scores(model, model_name, loader, center, device)
+    ids, labels, scores, _ = collect_window_scores(
+        model, model_name, loader, normal_mean, normal_std, device
+    )
     record_labels, record_scores = aggregate_recordings(ids, labels, scores, recording_quantile)
     if np.any(record_labels != 0):
         raise ValueError("validation must contain only normal recordings.")
@@ -300,7 +363,8 @@ def save_history(history: list[dict[str, float]], path: Path) -> None:
 def save_recovery_checkpoint(
     path: Path,
     model_state: dict[str, torch.Tensor],
-    center: torch.Tensor,
+    normal_mean: torch.Tensor,
+    normal_std: torch.Tensor,
     epoch: int,
     validation_score: float,
     args: argparse.Namespace,
@@ -309,7 +373,8 @@ def save_recovery_checkpoint(
     torch.save(
         {
             "model_state": model_state,
-            "center": center.detach().cpu(),
+            "normal_mean": normal_mean.detach().cpu(),
+            "normal_std": normal_std.detach().cpu(),
             "epoch": int(epoch),
             "validation_normal_score": float(validation_score),
             "args": serializable_args(args),
@@ -321,8 +386,8 @@ def save_recovery_checkpoint(
 
 def main() -> None:
     args = parse_args()
-    if args.epochs <= 0 or args.batch_size <= 0:
-        raise ValueError("epochs and batch size must be positive.")
+    if args.epochs <= 0 or args.batch_size < 2:
+        raise ValueError("epochs must be positive and batch size must be at least two.")
     for name in ("recording_quantile", "normal_threshold_quantile"):
         if not 0 < getattr(args, name) < 1:
             raise ValueError(f"--{name.replace('_', '-')} must be in (0, 1).")
@@ -330,6 +395,14 @@ def main() -> None:
         raise ValueError(
             "--early-stopping-min-relative-improvement must be in [0, 1)."
         )
+    if args.variance_target <= 0 or min(
+        args.invariance_weight,
+        args.variance_weight,
+        args.covariance_weight,
+    ) < 0:
+        raise ValueError("representation objective values are invalid.")
+    if args.view_noise_fraction < 0 or not 0 <= args.view_max_shift_fraction < 1:
+        raise ValueError("view augmentation values are invalid.")
 
     random.seed(args.seed)
     np.random.seed(args.seed)
@@ -402,6 +475,7 @@ def main() -> None:
         train_set,
         batch_size=args.batch_size,
         shuffle=True,
+        drop_last=True,
         **loader_options,
     )
     validation_loader = DataLoader(
@@ -433,14 +507,16 @@ def main() -> None:
             raise ValueError("checkpoint model does not match --model.")
         if int(checkpoint_args.get("seed", -1)) != args.seed:
             raise ValueError("checkpoint seed does not match --seed.")
+        if "variance_target" not in checkpoint_args:
+            raise ValueError("checkpoint was not trained with the anti-collapse objective.")
         best_state = checkpoint["model_state"]
-        center = checkpoint["center"].to(device)
+        normal_mean = checkpoint["normal_mean"].to(device)
+        normal_std = checkpoint["normal_std"].to(device)
         print(
             f"loaded_checkpoint={recovery_checkpoint_path} "
             f"epoch={checkpoint.get('epoch', 'unknown')}"
         )
     else:
-        center = estimate_center(model, args.model, center_loader, device)
         optimizer = torch.optim.AdamW(
             model.parameters(),
             lr=args.learning_rate,
@@ -455,17 +531,26 @@ def main() -> None:
                 model,
                 args.model,
                 train_loader,
-                center,
                 optimizer,
                 device,
                 progress,
                 args.gate_regularization_weight,
+                args.variance_target,
+                args.invariance_weight,
+                args.variance_weight,
+                args.covariance_weight,
+                args.view_noise_fraction,
+                args.view_max_shift_fraction,
+            )
+            normal_mean, normal_std = estimate_embedding_statistics(
+                model, args.model, center_loader, device
             )
             validation_score = evaluate_normal_mean(
                 model,
                 args.model,
                 validation_loader,
-                center,
+                normal_mean,
+                normal_std,
                 device,
                 args.recording_quantile,
             )
@@ -490,7 +575,8 @@ def main() -> None:
                 save_recovery_checkpoint(
                     recovery_checkpoint_path,
                     best_state,
-                    center,
+                    normal_mean,
+                    normal_std,
                     epoch,
                     validation_score,
                     args,
@@ -514,6 +600,14 @@ def main() -> None:
 
     if best_state is None:
         raise RuntimeError("training did not produce a checkpoint.")
+    if not args.evaluate_only:
+        best_checkpoint = torch.load(
+            recovery_checkpoint_path,
+            map_location="cpu",
+            weights_only=False,
+        )
+        normal_mean = best_checkpoint["normal_mean"].to(device)
+        normal_std = best_checkpoint["normal_std"].to(device)
     model.load_state_dict(best_state)
     model.to(device)
 
@@ -523,7 +617,7 @@ def main() -> None:
         validation_scores,
         validation_profile_window_scores,
     ) = collect_window_scores(
-        model, args.model, validation_loader, center, device
+        model, args.model, validation_loader, normal_mean, normal_std, device
     )
     validation_labels, validation_scores = aggregate_recordings(
         validation_ids,
@@ -533,7 +627,7 @@ def main() -> None:
     )
     threshold = float(np.quantile(validation_scores, args.normal_threshold_quantile))
     test_ids, test_labels, test_scores, profile_window_scores = collect_window_scores(
-        model, args.model, test_loader, center, device
+        model, args.model, test_loader, normal_mean, normal_std, device
     )
     test_labels, test_scores = aggregate_recordings(
         test_ids,
@@ -544,9 +638,10 @@ def main() -> None:
     metrics = metrics_at_threshold(test_labels, test_scores, threshold)
     result: dict[str, object] = {
         "model": args.model,
-        "protocol": "one_class_normal_train_and_validation",
+        "protocol": "normal_only_anti_collapse_representation",
         "trainable_parameters": trainable_parameters,
-        "center": center.detach().cpu().tolist(),
+        "normal_mean": normal_mean.detach().cpu().tolist(),
+        "normal_std": normal_std.detach().cpu().tolist(),
         "threshold_source": f"validation_normal_quantile_{args.normal_threshold_quantile}",
         "metrics": metrics,
         "split_counts": {
@@ -588,7 +683,8 @@ def main() -> None:
     torch.save(
         {
             "model_state": best_state,
-            "center": center.detach().cpu(),
+            "normal_mean": normal_mean.detach().cpu(),
+            "normal_std": normal_std.detach().cpu(),
             "threshold": threshold,
             "args": serializable_args(args),
         },
