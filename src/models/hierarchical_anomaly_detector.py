@@ -8,6 +8,7 @@ import torch.nn.functional as F
 
 from src.anomaly import ConditionedNormalProfile, GateRegularizer, ProfileAnomalyScorer
 from src.blocks import HierarchicalSpectralFrontend
+from src.models.event_pooling import soft_event_pool
 
 
 class CompactHierarchicalEncoder(nn.Module):
@@ -18,10 +19,14 @@ class CompactHierarchicalEncoder(nn.Module):
         frontend_channels: int,
         descriptor_channels: int = 2,
         embedding_channels: int = 8,
+        event_temperature: float = 0.1,
     ) -> None:
         super().__init__()
         if frontend_channels <= 0 or descriptor_channels <= 0 or embedding_channels <= 0:
             raise ValueError("all encoder channel counts must be positive.")
+        if event_temperature <= 0:
+            raise ValueError("event_temperature must be positive.")
+        self.event_temperature = float(event_temperature)
         input_channels = frontend_channels + descriptor_channels
         self.input_projection = nn.Conv2d(
             input_channels, embedding_channels, 1, bias=False
@@ -42,19 +47,45 @@ class CompactHierarchicalEncoder(nn.Module):
         self,
         frontend_features: torch.Tensor,
         profile_z_scores: torch.Tensor,
+        masked_subbands: torch.Tensor | None = None,
     ) -> dict[str, torch.Tensor]:
         if frontend_features.ndim != 4 or profile_z_scores.ndim != 4:
             raise ValueError("encoder inputs must have shape [batch, channel, subband, time].")
         z_features = profile_z_scores.permute(0, 2, 1, 3)
+        if masked_subbands is not None:
+            if masked_subbands.shape != (
+                frontend_features.shape[0],
+                frontend_features.shape[2],
+            ):
+                raise ValueError("masked_subbands must have shape [batch, subband].")
+            z_features = z_features.masked_fill(
+                masked_subbands[:, None, :, None], 0.0
+            )
         if frontend_features.shape[0] != z_features.shape[0] or frontend_features.shape[2:] != z_features.shape[2:]:
             raise ValueError("frontend features and profile deviations must align.")
 
         projected = self.input_projection(torch.cat((frontend_features, z_features), dim=1))
         contextual = self.channel_mixing(F.gelu(self.local_context(projected)))
         embedding_map = F.gelu(projected + contextual)
+        temporal_mean = embedding_map.mean(dim=-1)
+        temporal_event = soft_event_pool(embedding_map, self.event_temperature)
+        sustained_embedding = torch.cat(
+            (temporal_mean.mean(dim=-1), temporal_mean.mean(dim=1)),
+            dim=1,
+        )
+        event_embedding = torch.cat(
+            (temporal_event.mean(dim=-1), temporal_event.mean(dim=1)),
+            dim=1,
+        )
         return {
             "embedding_map": embedding_map,
-            "embedding": embedding_map.mean(dim=(-2, -1)),
+            "sustained_embedding": sustained_embedding,
+            "event_embedding": event_embedding,
+            "subband_embedding": torch.cat(
+                (temporal_mean.mean(dim=1), temporal_event.mean(dim=1)),
+                dim=1,
+            ),
+            "embedding": torch.cat((sustained_embedding, event_embedding), dim=1),
         }
 
 
@@ -79,6 +110,9 @@ class HierarchicalAnomalyDetector(nn.Module):
             frontend_channels=frontend.temporal_channels,
             descriptor_channels=normal_profile.mean.shape[2],
             embedding_channels=embedding_channels,
+        )
+        self.reconstruction_head = nn.Conv2d(
+            embedding_channels, 1, kernel_size=1
         )
 
     @staticmethod
@@ -112,8 +146,9 @@ class HierarchicalAnomalyDetector(nn.Module):
         waveform: torch.Tensor,
         condition_ids: Sequence[str],
         regularization_progress: float = 0.0,
+        masked_subbands: torch.Tensor | None = None,
     ) -> dict[str, torch.Tensor]:
-        frontend_outputs = self.frontend(waveform)
+        frontend_outputs = self.frontend(waveform, masked_subbands=masked_subbands)
         profile_outputs = self.normal_profile.standardize(
             frontend_outputs["subband_energy"],
             condition_ids,
@@ -125,7 +160,11 @@ class HierarchicalAnomalyDetector(nn.Module):
         encoder_outputs = self.encoder(
             frontend_outputs["features"],
             profile_outputs["z_scores"],
+            masked_subbands=masked_subbands,
         )
+        reconstruction = self.reconstruction_head(
+            encoder_outputs["embedding_map"]
+        ).squeeze(1)
         regularization_outputs = self.gate_regularizer(
             frontend_outputs["macro_gates"],
             frontend_outputs["subband_gates"],
@@ -136,5 +175,6 @@ class HierarchicalAnomalyDetector(nn.Module):
             **profile_outputs,
             **score_outputs,
             **encoder_outputs,
+            "reconstructed_log_energy_z": reconstruction,
             **regularization_outputs,
         }

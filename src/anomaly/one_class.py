@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from collections.abc import Mapping, Sequence
+
 import torch
 import torch.nn.functional as F
 
@@ -78,6 +80,191 @@ def standardized_embedding_scores(
         raise ValueError("embedding statistics must be on the embedding device.")
     z_scores = (embedding - normal_mean) / normal_std.clamp_min(minimum_std)
     return z_scores.square().mean(dim=1)
+
+
+class ConditionedEmbeddingProfile:
+    """Normal embedding statistics indexed by operating condition."""
+
+    def __init__(
+        self,
+        condition_ids: Sequence[str],
+        mean: torch.Tensor,
+        std: torch.Tensor,
+        sample_counts: torch.Tensor,
+        fallback_mean: torch.Tensor,
+        fallback_std: torch.Tensor,
+        minimum_std: float = 1e-3,
+    ) -> None:
+        self.condition_ids = tuple(condition_ids)
+        if not self.condition_ids or len(set(self.condition_ids)) != len(self.condition_ids):
+            raise ValueError("condition_ids must be non-empty and unique.")
+        if mean.ndim != 2 or mean.shape != std.shape:
+            raise ValueError("mean and std must have shape [condition, embedding].")
+        if mean.shape[0] != len(self.condition_ids):
+            raise ValueError("condition_ids must match the statistics.")
+        if sample_counts.shape != (len(self.condition_ids),):
+            raise ValueError("sample_counts must contain one count per condition.")
+        if fallback_mean.shape != mean.shape[1:] or fallback_std.shape != mean.shape[1:]:
+            raise ValueError("fallback statistics must match the embedding dimension.")
+        if minimum_std <= 0 or torch.any(std <= 0) or torch.any(fallback_std <= 0):
+            raise ValueError("embedding standard deviations must be positive.")
+        self._condition_to_index = {
+            condition_id: index for index, condition_id in enumerate(self.condition_ids)
+        }
+        self.mean = mean.detach().float()
+        self.std = std.detach().float()
+        self.sample_counts = sample_counts.detach().long()
+        self.fallback_mean = fallback_mean.detach().float()
+        self.fallback_std = fallback_std.detach().float()
+        self.minimum_std = float(minimum_std)
+
+    def to(self, device: torch.device | str) -> ConditionedEmbeddingProfile:
+        return ConditionedEmbeddingProfile(
+            self.condition_ids,
+            self.mean.to(device),
+            self.std.to(device),
+            self.sample_counts.to(device),
+            self.fallback_mean.to(device),
+            self.fallback_std.to(device),
+            self.minimum_std,
+        )
+
+    def standardize(
+        self,
+        embedding: torch.Tensor,
+        condition_ids: Sequence[str],
+    ) -> tuple[torch.Tensor, torch.Tensor]:
+        if embedding.ndim != 2 or embedding.shape[1] != self.mean.shape[1]:
+            raise ValueError("embedding dimension does not match the fitted profile.")
+        if len(condition_ids) != embedding.shape[0]:
+            raise ValueError("condition_ids must contain one value per embedding.")
+        if embedding.device != self.mean.device:
+            raise ValueError("move the embedding profile to the embedding device.")
+        means = []
+        standard_deviations = []
+        known = []
+        for condition_id in condition_ids:
+            index = self._condition_to_index.get(condition_id)
+            if index is None:
+                means.append(self.fallback_mean)
+                standard_deviations.append(self.fallback_std)
+                known.append(False)
+            else:
+                means.append(self.mean[index])
+                standard_deviations.append(self.std[index])
+                known.append(True)
+        selected_mean = torch.stack(means)
+        selected_std = torch.stack(standard_deviations).clamp_min(self.minimum_std)
+        return (
+            (embedding - selected_mean) / selected_std,
+            torch.tensor(known, dtype=torch.bool, device=embedding.device),
+        )
+
+    def scores(
+        self,
+        embedding: torch.Tensor,
+        condition_ids: Sequence[str],
+    ) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+        z_scores, known = self.standardize(embedding, condition_ids)
+        return z_scores.square().mean(dim=1), z_scores, known
+
+    def to_dict(self) -> dict[str, object]:
+        return {
+            "version": 1,
+            "condition_ids": list(self.condition_ids),
+            "mean": self.mean.cpu().tolist(),
+            "std": self.std.cpu().tolist(),
+            "sample_counts": self.sample_counts.cpu().tolist(),
+            "fallback_mean": self.fallback_mean.cpu().tolist(),
+            "fallback_std": self.fallback_std.cpu().tolist(),
+            "minimum_std": self.minimum_std,
+        }
+
+    @classmethod
+    def from_dict(cls, payload: Mapping[str, object]) -> ConditionedEmbeddingProfile:
+        if payload.get("version") != 1:
+            raise ValueError("unsupported embedding profile version.")
+        return cls(
+            condition_ids=payload["condition_ids"],
+            mean=torch.tensor(payload["mean"]),
+            std=torch.tensor(payload["std"]),
+            sample_counts=torch.tensor(payload["sample_counts"]),
+            fallback_mean=torch.tensor(payload["fallback_mean"]),
+            fallback_std=torch.tensor(payload["fallback_std"]),
+            minimum_std=float(payload["minimum_std"]),
+        )
+
+
+class ConditionedEmbeddingEstimator:
+    """Fit condition-specific moments and a pooled fallback from normal embeddings."""
+
+    def __init__(self, minimum_std: float = 1e-3) -> None:
+        if minimum_std <= 0:
+            raise ValueError("minimum_std must be positive.")
+        self.minimum_std = float(minimum_std)
+        self._moments: dict[str, dict[str, torch.Tensor | int]] = {}
+
+    def update(self, embedding: torch.Tensor, condition_ids: Sequence[str]) -> None:
+        if embedding.ndim != 2 or len(condition_ids) != embedding.shape[0]:
+            raise ValueError("embeddings and condition_ids must share a batch dimension.")
+        values = embedding.detach().double().cpu()
+        for value, condition_id in zip(values, condition_ids, strict=True):
+            if not condition_id:
+                raise ValueError("condition_ids must be non-empty strings.")
+            moments = self._moments.setdefault(
+                condition_id,
+                {
+                    "count": 0,
+                    "sum": torch.zeros_like(value),
+                    "square_sum": torch.zeros_like(value),
+                },
+            )
+            moments["count"] = int(moments["count"]) + 1
+            moments["sum"] = moments["sum"] + value
+            moments["square_sum"] = moments["square_sum"] + value.square()
+
+    def finalize(self) -> ConditionedEmbeddingProfile:
+        if not self._moments:
+            raise RuntimeError("no embeddings were provided.")
+        condition_ids = tuple(sorted(self._moments))
+        means = []
+        second_moments = []
+        counts = []
+        total_sum = None
+        total_square_sum = None
+        total_count = 0
+        for condition_id in condition_ids:
+            moments = self._moments[condition_id]
+            count = int(moments["count"])
+            value_sum = moments["sum"]
+            square_sum = moments["square_sum"]
+            means.append(value_sum / count)
+            second_moments.append(square_sum / count)
+            counts.append(count)
+            total_sum = value_sum.clone() if total_sum is None else total_sum + value_sum
+            total_square_sum = (
+                square_sum.clone()
+                if total_square_sum is None
+                else total_square_sum + square_sum
+            )
+            total_count += count
+        mean = torch.stack(means)
+        second = torch.stack(second_moments)
+        std = (second - mean.square()).clamp_min(self.minimum_std**2).sqrt()
+        fallback_mean = total_sum / total_count
+        fallback_second = total_square_sum / total_count
+        fallback_std = (
+            fallback_second - fallback_mean.square()
+        ).clamp_min(self.minimum_std**2).sqrt()
+        return ConditionedEmbeddingProfile(
+            condition_ids,
+            mean,
+            std,
+            torch.tensor(counts),
+            fallback_mean,
+            fallback_std,
+            self.minimum_std,
+        )
 
 
 def stabilize_center(center: torch.Tensor, epsilon: float = 0.1) -> torch.Tensor:

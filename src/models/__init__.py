@@ -7,6 +7,7 @@ from .frequency_gated_classifier import (
 )
 from .baselines import Conv1DBaseline
 from .conv1d_anomaly_encoder import Conv1DAnomalyEncoder
+from .event_pooling import soft_event_pool
 from .hierarchical_anomaly_detector import (
     CompactHierarchicalEncoder,
     HierarchicalAnomalyDetector,
@@ -15,6 +16,7 @@ from .hierarchical_anomaly_detector import (
 __all__ = [
     "Conv1DBaseline",
     "Conv1DAnomalyEncoder",
+    "soft_event_pool",
     "CompactHierarchicalEncoder",
     "FrequencyGatedClassifier",
     "FrequencyGatedTemporalClassifier",
