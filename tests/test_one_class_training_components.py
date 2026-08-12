@@ -9,6 +9,8 @@ import torch
 from scipy.io import wavfile
 
 from src.anomaly import (
+    ConditionedEmbeddingEstimator,
+    ConditionedEmbeddingProfile,
     anti_collapse_loss,
     deep_svdd_loss,
     deep_svdd_scores,
@@ -17,6 +19,7 @@ from src.anomaly import (
 )
 from src.data import AnomalyAudioRecord, AnomalyWindowDataset
 from src.models import Conv1DAnomalyEncoder
+from src.models import soft_event_pool
 from scripts.train_mimii_one_class import is_meaningful_improvement, make_audio_view
 
 
@@ -56,6 +59,32 @@ def test_standardized_score_uses_fitted_normal_scale() -> None:
     assert scores.tolist() == pytest.approx([2.0, 0.5])
 
 
+def test_conditioned_embedding_profile_uses_condition_and_global_fallback() -> None:
+    estimator = ConditionedEmbeddingEstimator(minimum_std=0.1)
+    estimator.update(
+        torch.tensor([[0.0, 0.0], [2.0, 2.0], [10.0, 10.0], [12.0, 12.0]]),
+        ["id_00", "id_00", "id_02", "id_02"],
+    )
+    profile = estimator.finalize()
+    scores, _, known = profile.scores(
+        torch.tensor([[1.0, 1.0], [11.0, 11.0], [6.0, 6.0]]),
+        ["id_00", "id_02", "unknown"],
+    )
+    restored = ConditionedEmbeddingProfile.from_dict(profile.to_dict())
+
+    assert scores.tolist() == pytest.approx([0.0, 0.0, 0.0], abs=1e-6)
+    assert known.tolist() == [True, True, False]
+    assert restored.condition_ids == profile.condition_ids
+    assert torch.allclose(restored.fallback_mean, profile.fallback_mean)
+
+
+def test_soft_event_pool_retains_a_brief_peak() -> None:
+    features = torch.tensor([[[0.0, 0.0, 4.0, 0.0]]])
+    pooled = soft_event_pool(features, temperature=0.1)
+
+    assert pooled.item() > features.mean().item() + 2.0
+
+
 def test_audio_views_preserve_shape_and_approximately_preserve_energy() -> None:
     waveform = torch.randn(4, 2, 1_000)
     view = make_audio_view(waveform, noise_fraction=0.001, max_shift_fraction=0.05)
@@ -77,6 +106,7 @@ def test_conv1d_encoder_shares_weights_across_audio_channels() -> None:
     duplicated_output = model(duplicated)
 
     assert duplicated_output["channel_embeddings"].shape == (2, 3, 8)
+    assert duplicated_output["embedding"].shape == (2, 16)
     assert torch.allclose(mono_output["embedding"], duplicated_output["embedding"], atol=1e-6)
     assert sum(parameter.numel() for parameter in model.parameters()) < 2_000
 

@@ -126,3 +126,44 @@ def test_subband_edges_are_strictly_ordered() -> None:
 
     assert len(edges) == frontend.num_subbands + 1
     assert np.all(np.diff(edges) > 0)
+
+
+def test_learnable_subband_weights_start_fixed_and_cannot_cross_boundaries() -> None:
+    fixed = build_frontend()
+    learnable = HierarchicalSpectralFrontend(
+        sample_rate=8_000,
+        macro_edges_hz=(0.0, 666.6667, 2_666.6667, 4_000.0),
+        subbands_per_macro=(2, 3, 2),
+        n_fft=256,
+        hop_length=64,
+        temporal_channels=3,
+        learnable_subband_weights=True,
+    )
+
+    assert torch.allclose(
+        learnable.effective_subband_weights(), fixed.subband_mask, atol=1e-7
+    )
+    with torch.no_grad():
+        learnable.subband_weight_logits.normal_()
+    weights = learnable.effective_subband_weights()
+    assert torch.all(weights[~learnable.subband_support] == 0)
+    assert torch.allclose(weights.sum(dim=1), torch.ones(learnable.num_subbands))
+
+
+def test_learnable_subband_weights_receive_reconstruction_gradient() -> None:
+    frontend = HierarchicalSpectralFrontend(
+        sample_rate=8_000,
+        macro_edges_hz=(0.0, 666.6667, 2_666.6667, 4_000.0),
+        subbands_per_macro=(2, 3, 2),
+        n_fft=256,
+        hop_length=64,
+        temporal_channels=3,
+        learnable_subband_weights=True,
+    )
+    output = frontend(torch.randn(2, 1, 4_000))
+    output["subband_log_energy"].square().mean().backward()
+
+    gradient = frontend.subband_weight_logits.grad
+    assert gradient is not None
+    assert torch.any(gradient[frontend.subband_support] != 0)
+    assert torch.all(gradient[~frontend.subband_support] == 0)

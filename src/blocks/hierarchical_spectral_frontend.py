@@ -23,6 +23,7 @@ class HierarchicalSpectralFrontend(nn.Module):
         hop_length: int = 128,
         temporal_channels: int = 4,
         temporal_kernel_size: int = 5,
+        learnable_subband_weights: bool = False,
         epsilon: float = 1e-8,
     ) -> None:
         super().__init__()
@@ -60,6 +61,7 @@ class HierarchicalSpectralFrontend(nn.Module):
         self.num_macro_bands = 3
         self.subbands_per_macro = subband_counts
         self.num_subbands = sum(subband_counts)
+        self.learnable_subband_weights = bool(learnable_subband_weights)
 
         frequency_bins = torch.linspace(0.0, nyquist, n_fft // 2 + 1)
         subband_edges: list[float] = []
@@ -85,7 +87,13 @@ class HierarchicalSpectralFrontend(nn.Module):
         self.register_buffer("subband_edges_hz", subband_edges_tensor)
         self.register_buffer("subband_macro_index", torch.tensor(subband_macro_indices))
         self.register_buffer("subband_mask", subband_mask)
+        self.register_buffer("subband_support", subband_mask > 0)
         self.register_buffer("macro_mask", macro_mask)
+        if self.learnable_subband_weights:
+            initial_logits = torch.zeros_like(subband_mask)
+            self.subband_weight_logits = nn.Parameter(initial_logits)
+        else:
+            self.register_parameter("subband_weight_logits", None)
 
         temporal_padding = temporal_kernel_size // 2
         self.shared_temporal_transform = nn.Sequential(
@@ -157,7 +165,19 @@ class HierarchicalSpectralFrontend(nn.Module):
             dim=1
         )
 
-    def forward(self, waveform: torch.Tensor) -> dict[str, torch.Tensor]:
+    def effective_subband_weights(self) -> torch.Tensor:
+        if self.subband_weight_logits is None:
+            return self.subband_mask
+        masked_logits = self.subband_weight_logits.masked_fill(
+            ~self.subband_support, torch.finfo(self.subband_weight_logits.dtype).min
+        )
+        return torch.softmax(masked_logits, dim=1)
+
+    def forward(
+        self,
+        waveform: torch.Tensor,
+        masked_subbands: torch.Tensor | None = None,
+    ) -> dict[str, torch.Tensor]:
         if waveform.ndim != 3 or waveform.shape[1] < 1:
             raise ValueError("waveform must have shape [batch, channels, time].")
         if waveform.shape[-1] <= self.n_fft // 2:
@@ -165,7 +185,8 @@ class HierarchicalSpectralFrontend(nn.Module):
 
         power = self._spectrogram(waveform)
         log_power = torch.log(power.clamp_min(self.epsilon))
-        subband_energy = torch.einsum("sf,bft->bst", self.subband_mask, power)
+        subband_weights = self.effective_subband_weights()
+        subband_energy = torch.einsum("sf,bft->bst", subband_weights, power)
         macro_energy = torch.einsum("mf,bft->bmt", self.macro_mask, power)
         subband_log_energy = torch.log(subband_energy.clamp_min(self.epsilon))
         macro_log_energy = torch.log(macro_energy.clamp_min(self.epsilon))
@@ -185,7 +206,26 @@ class HierarchicalSpectralFrontend(nn.Module):
             frames,
         )
 
-        temporal_input = subband_log_energy.reshape(batch_size * self.num_subbands, 1, frames)
+        if masked_subbands is not None:
+            if masked_subbands.shape != (batch_size, self.num_subbands):
+                raise ValueError("masked_subbands must have shape [batch, subband].")
+            masked_subbands = masked_subbands.to(
+                device=subband_log_energy.device, dtype=torch.bool
+            )
+            visible = ~masked_subbands
+            visible_count = visible.sum(dim=1, keepdim=True).clamp_min(1)
+            replacement = (
+                subband_log_energy * visible.unsqueeze(-1)
+            ).sum(dim=1, keepdim=True) / visible_count.unsqueeze(-1)
+            temporal_log_energy = torch.where(
+                masked_subbands.unsqueeze(-1), replacement, subband_log_energy
+            )
+        else:
+            temporal_log_energy = subband_log_energy
+
+        temporal_input = temporal_log_energy.reshape(
+            batch_size * self.num_subbands, 1, frames
+        )
         transformed = self.shared_temporal_transform(temporal_input).reshape(
             batch_size,
             self.num_subbands,
@@ -198,7 +238,11 @@ class HierarchicalSpectralFrontend(nn.Module):
 
         context_summary = contextual_features.mean(dim=1)
         child_descriptors = torch.stack(
-            (subband_log_energy, subband_delta, context_summary),
+            (
+                temporal_log_energy,
+                self._absolute_delta(temporal_log_energy),
+                context_summary,
+            ),
             dim=2,
         ).reshape(batch_size * self.num_subbands, 3, frames)
         subband_gates = torch.sigmoid(self.child_gate(child_descriptors)).reshape(
@@ -215,6 +259,8 @@ class HierarchicalSpectralFrontend(nn.Module):
             "spectrogram": log_power,
             "macro_energy": macro_energy,
             "subband_energy": subband_energy,
+            "subband_log_energy": subband_log_energy,
+            "subband_weights": subband_weights,
             "macro_gates": macro_gates,
             "subband_gates": subband_gates,
             "joint_gates": joint_gates,
