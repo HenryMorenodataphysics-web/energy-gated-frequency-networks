@@ -5,6 +5,7 @@ from .anomaly_protocol import (
     validate_anomaly_split,
 )
 from .anomaly_window_dataset import AnomalyWindowDataset, ConditionBatchSampler
+from .dcase2020_dataset import find_dcase2020_development_split
 from .fsdd_dataset import FSDDDataset, FSDDRecord, find_fsdd_recordings
 from .folder_anomaly_dataset import (
     SUPPORTED_AUDIO_SUFFIXES,
@@ -33,6 +34,7 @@ __all__ = [
     "SpeechCommandsSubset",
     "SUPPORTED_AUDIO_SUFFIXES",
     "find_folder_anomaly_recordings",
+    "find_dcase2020_development_split",
     "find_fsdd_recordings",
     "find_mimii_recordings",
     "split_records_stratified",
