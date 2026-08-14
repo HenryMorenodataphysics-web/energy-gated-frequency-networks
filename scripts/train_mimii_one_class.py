@@ -63,6 +63,12 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     )
     parser.add_argument("--model", choices=("egfn", "conv1d"), required=True)
     parser.add_argument(
+        "--egfn-embedding-channels",
+        type=int,
+        default=8,
+        help="Internal EGFN width; use 22 for the approximately 1,000-parameter variant.",
+    )
+    parser.add_argument(
         "--conv1d-channels",
         type=parse_int_tuple,
         default=(4, 8, 8),
@@ -227,6 +233,7 @@ def cap_by_label(
 def build_model(
     model_name: str,
     profile: ConditionedNormalProfile,
+    egfn_embedding_channels: int = 8,
     conv1d_channels: tuple[int, ...] = (4, 8, 8),
     learnable_subband_weights: bool = False,
     gate_mode: str = "hierarchical",
@@ -256,7 +263,11 @@ def build_model(
         conditional_subgates=conditional_subgates,
         harmonic_context=harmonic_context,
     )
-    return HierarchicalAnomalyDetector(frontend, profile, embedding_channels=8)
+    return HierarchicalAnomalyDetector(
+        frontend,
+        profile,
+        embedding_channels=egfn_embedding_channels,
+    )
 
 
 def bootstrap_normal_profile(
@@ -1440,6 +1451,8 @@ def main(argv: list[str] | None = None) -> None:
         raise ValueError("--normal-dir is required with --dataset-format folders.")
     if args.dataset_format == "dcase2020" and args.dcase_dir is None:
         raise ValueError("--dcase-dir is required with --dataset-format dcase2020.")
+    if args.egfn_embedding_channels <= 0:
+        raise ValueError("--egfn-embedding-channels must be positive.")
     if len(args.conv1d_channels) != 3:
         raise ValueError("--conv1d-channels requires exactly three values.")
 
@@ -1595,6 +1608,7 @@ def main(argv: list[str] | None = None) -> None:
     model = build_model(
         args.model,
         profile,
+        egfn_embedding_channels=args.egfn_embedding_channels,
         conv1d_channels=args.conv1d_channels,
         learnable_subband_weights=args.learnable_subband_weights,
         gate_mode=args.gate_mode,
