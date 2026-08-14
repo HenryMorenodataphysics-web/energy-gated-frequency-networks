@@ -24,6 +24,10 @@ class HierarchicalSpectralFrontend(nn.Module):
         temporal_channels: int = 4,
         temporal_kernel_size: int = 5,
         learnable_subband_weights: bool = False,
+        gate_mode: str = "hierarchical",
+        normalize_gate_inputs: bool = False,
+        conditional_subgates: bool = False,
+        harmonic_context: bool = False,
         epsilon: float = 1e-8,
     ) -> None:
         super().__init__()
@@ -39,6 +43,10 @@ class HierarchicalSpectralFrontend(nn.Module):
             raise ValueError("temporal_kernel_size must be a positive odd integer.")
         if epsilon <= 0:
             raise ValueError("epsilon must be positive.")
+        if gate_mode not in {"none", "macro", "subband", "hierarchical"}:
+            raise ValueError(
+                "gate_mode must be none, macro, subband, or hierarchical."
+            )
 
         macro_edges = torch.as_tensor(tuple(macro_edges_hz), dtype=torch.float32)
         if macro_edges.numel() != 4:
@@ -62,6 +70,11 @@ class HierarchicalSpectralFrontend(nn.Module):
         self.subbands_per_macro = subband_counts
         self.num_subbands = sum(subband_counts)
         self.learnable_subband_weights = bool(learnable_subband_weights)
+        self.gate_mode = gate_mode
+        self.normalize_gate_inputs = bool(normalize_gate_inputs)
+        self.conditional_subgates = bool(conditional_subgates)
+        self.harmonic_context_enabled = bool(harmonic_context)
+        self.hard_routing_top_k: int | None = None
 
         frequency_bins = torch.linspace(0.0, nyquist, n_fft // 2 + 1)
         subband_edges: list[float] = []
@@ -89,6 +102,14 @@ class HierarchicalSpectralFrontend(nn.Module):
         self.register_buffer("subband_mask", subband_mask)
         self.register_buffer("subband_support", subband_mask > 0)
         self.register_buffer("macro_mask", macro_mask)
+        self.register_buffer(
+            "second_harmonic_matrix",
+            self._build_harmonic_matrix(subband_edges_tensor, ratio=2.0),
+        )
+        self.register_buffer(
+            "third_harmonic_matrix",
+            self._build_harmonic_matrix(subband_edges_tensor, ratio=3.0),
+        )
         if self.learnable_subband_weights:
             initial_logits = torch.zeros_like(subband_mask)
             self.subband_weight_logits = nn.Parameter(initial_logits)
@@ -121,8 +142,25 @@ class HierarchicalSpectralFrontend(nn.Module):
             groups=temporal_channels,
             bias=False,
         )
+        if self.harmonic_context_enabled:
+            self.second_harmonic_scale = nn.Parameter(torch.zeros(temporal_channels))
+            self.third_harmonic_scale = nn.Parameter(torch.zeros(temporal_channels))
+        else:
+            self.register_parameter("second_harmonic_scale", None)
+            self.register_parameter("third_harmonic_scale", None)
         self.parent_gate = nn.Conv1d(2, 1, kernel_size=3, padding=1)
-        self.child_gate = nn.Conv1d(3, 1, kernel_size=1)
+        child_channels = 4 if self.conditional_subgates else 3
+        self.child_gate = nn.Conv1d(child_channels, 1, kernel_size=1)
+
+    def set_hard_routing_top_k(self, top_k: int | None) -> None:
+        """Enable inference-only top-k macro routing without changing parameters."""
+        if top_k is not None and not 1 <= top_k <= self.num_macro_bands:
+            raise ValueError(
+                f"hard routing top_k must be between 1 and {self.num_macro_bands}."
+            )
+        if top_k is not None and self.gate_mode != "macro":
+            raise ValueError("hard routing currently requires gate_mode='macro'.")
+        self.hard_routing_top_k = top_k
 
     @staticmethod
     def _build_frequency_mask(
@@ -146,8 +184,73 @@ class HierarchicalSpectralFrontend(nn.Module):
         return torch.stack(masks)
 
     @staticmethod
+    def _build_harmonic_matrix(
+        subband_edges: torch.Tensor,
+        ratio: float,
+    ) -> torch.Tensor:
+        """Map non-adjacent fundamentals to bands containing ratio * center."""
+        if subband_edges.ndim != 1 or subband_edges.numel() < 3:
+            raise ValueError("subband_edges must define at least two subbands.")
+        if ratio <= 1:
+            raise ValueError("harmonic ratio must be greater than one.")
+        centers = 0.5 * (subband_edges[:-1] + subband_edges[1:])
+        num_subbands = centers.numel()
+        matrix = torch.zeros(num_subbands, num_subbands, dtype=torch.float32)
+        for source, center in enumerate(centers):
+            harmonic_frequency = ratio * center
+            target_matches = torch.nonzero(
+                (harmonic_frequency >= subband_edges[:-1])
+                & (harmonic_frequency < subband_edges[1:]),
+                as_tuple=False,
+            ).flatten()
+            if target_matches.numel() != 1:
+                continue
+            target = int(target_matches.item())
+            if abs(target - source) <= 1:
+                continue
+            matrix[target, source] = 1.0
+        row_mass = matrix.sum(dim=1, keepdim=True)
+        return torch.where(row_mass > 0, matrix / row_mass.clamp_min(1.0), matrix)
+
+    @staticmethod
     def _absolute_delta(values: torch.Tensor) -> torch.Tensor:
         return F.pad(torch.diff(values, dim=-1).abs(), (1, 0))
+
+    def _normalize_over_time(self, values: torch.Tensor) -> torch.Tensor:
+        mean = values.mean(dim=-1, keepdim=True)
+        std = values.std(dim=-1, keepdim=True, unbiased=False).clamp_min(
+            self.epsilon**0.5
+        )
+        return (values - mean) / std
+
+    def _gate_inputs(self, values: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor]:
+        delta = self._absolute_delta(values)
+        if not self.normalize_gate_inputs:
+            return values, delta
+        return self._normalize_over_time(values), self._normalize_over_time(delta)
+
+    @staticmethod
+    def activation_signature(
+        joint_gates: torch.Tensor,
+        subband_log_energy: torch.Tensor,
+    ) -> torch.Tensor:
+        """Return [mean gate, peak gate, gated energy, duration, gated delta]."""
+        if joint_gates.shape != subband_log_energy.shape or joint_gates.ndim != 3:
+            raise ValueError(
+                "joint_gates and subband_log_energy must share [batch, subband, time]."
+            )
+        delta = HierarchicalSpectralFrontend._absolute_delta(subband_log_energy)
+        gate_mass = joint_gates.sum(dim=-1).clamp_min(1e-8)
+        return torch.stack(
+            (
+                joint_gates.mean(dim=-1),
+                joint_gates.amax(dim=-1),
+                (joint_gates * subband_log_energy).sum(dim=-1) / gate_mass,
+                (joint_gates >= 0.5).float().mean(dim=-1),
+                (joint_gates * delta).sum(dim=-1) / gate_mass,
+            ),
+            dim=-1,
+        )
 
     def _spectrogram(self, waveform: torch.Tensor) -> torch.Tensor:
         batch_size, channels, samples = waveform.shape
@@ -190,11 +293,11 @@ class HierarchicalSpectralFrontend(nn.Module):
         macro_energy = torch.einsum("mf,bft->bmt", self.macro_mask, power)
         subband_log_energy = torch.log(subband_energy.clamp_min(self.epsilon))
         macro_log_energy = torch.log(macro_energy.clamp_min(self.epsilon))
-        subband_delta = self._absolute_delta(subband_log_energy)
-        macro_delta = self._absolute_delta(macro_log_energy)
+        subband_gate_energy, subband_delta = self._gate_inputs(subband_log_energy)
+        macro_gate_energy, macro_delta = self._gate_inputs(macro_log_energy)
 
         batch_size, _, frames = subband_log_energy.shape
-        parent_descriptors = torch.stack((macro_log_energy, macro_delta), dim=2)
+        parent_descriptors = torch.stack((macro_gate_energy, macro_delta), dim=2)
         parent_descriptors = parent_descriptors.reshape(
             batch_size * self.num_macro_bands,
             2,
@@ -205,6 +308,27 @@ class HierarchicalSpectralFrontend(nn.Module):
             self.num_macro_bands,
             frames,
         )
+        if self.hard_routing_top_k is not None:
+            if self.training:
+                raise RuntimeError("hard routing is inference-only; call eval() first.")
+            selected_macro_indices = macro_gates.mean(dim=-1).topk(
+                self.hard_routing_top_k, dim=1
+            ).indices
+            active_macro_mask = torch.zeros(
+                batch_size,
+                self.num_macro_bands,
+                dtype=torch.bool,
+                device=macro_gates.device,
+            )
+            active_macro_mask.scatter_(1, selected_macro_indices, True)
+        else:
+            active_macro_mask = torch.ones(
+                batch_size,
+                self.num_macro_bands,
+                dtype=torch.bool,
+                device=macro_gates.device,
+            )
+        active_subband_mask = active_macro_mask[:, self.subband_macro_index]
 
         if masked_subbands is not None:
             if masked_subbands.shape != (batch_size, self.num_subbands):
@@ -226,33 +350,74 @@ class HierarchicalSpectralFrontend(nn.Module):
         temporal_input = temporal_log_energy.reshape(
             batch_size * self.num_subbands, 1, frames
         )
-        transformed = self.shared_temporal_transform(temporal_input).reshape(
-            batch_size,
-            self.num_subbands,
-            self.temporal_channels,
-            frames,
+        if self.hard_routing_top_k is None:
+            transformed = self.shared_temporal_transform(temporal_input)
+        else:
+            flat_active = active_subband_mask.reshape(-1)
+            active_transformed = self.shared_temporal_transform(
+                temporal_input[flat_active]
+            )
+            transformed = active_transformed.new_zeros(
+                batch_size * self.num_subbands,
+                self.temporal_channels,
+                frames,
+            )
+            transformed[flat_active] = active_transformed
+        transformed = transformed.reshape(
+            batch_size, self.num_subbands, self.temporal_channels, frames
         )
         transformed = transformed.permute(0, 2, 1, 3)
         context = self.neighbor_context(transformed)
-        contextual_features = transformed + context
+        if self.harmonic_context_enabled:
+            second_harmonic = torch.einsum(
+                "ij,bcjt->bcit", self.second_harmonic_matrix, transformed
+            )
+            third_harmonic = torch.einsum(
+                "ij,bcjt->bcit", self.third_harmonic_matrix, transformed
+            )
+            harmonic_features = (
+                self.second_harmonic_scale[None, :, None, None] * second_harmonic
+                + self.third_harmonic_scale[None, :, None, None] * third_harmonic
+            )
+        else:
+            harmonic_features = torch.zeros_like(transformed)
+        contextual_features = (transformed + context + harmonic_features) * active_subband_mask[
+            :, None, :, None
+        ]
 
         context_summary = contextual_features.mean(dim=1)
-        child_descriptors = torch.stack(
-            (
-                temporal_log_energy,
-                self._absolute_delta(temporal_log_energy),
-                context_summary,
-            ),
-            dim=2,
-        ).reshape(batch_size * self.num_subbands, 3, frames)
-        subband_gates = torch.sigmoid(self.child_gate(child_descriptors)).reshape(
-            batch_size,
-            self.num_subbands,
-            frames,
-        )
+        if self.normalize_gate_inputs:
+            context_summary = self._normalize_over_time(context_summary)
         parent_for_subband = macro_gates[:, self.subband_macro_index, :]
-        joint_gates = parent_for_subband * subband_gates
+        if self.hard_routing_top_k is not None and self.gate_mode == "macro":
+            subband_gates = torch.ones_like(parent_for_subband)
+        else:
+            child_energy, child_delta = self._gate_inputs(temporal_log_energy)
+            child_parts = [child_energy, child_delta, context_summary]
+            if self.conditional_subgates:
+                child_parts.append(parent_for_subband)
+            child_descriptors = torch.stack(child_parts, dim=2).reshape(
+                batch_size * self.num_subbands,
+                len(child_parts),
+                frames,
+            )
+            subband_gates = torch.sigmoid(self.child_gate(child_descriptors)).reshape(
+                batch_size,
+                self.num_subbands,
+                frames,
+            )
+        if self.gate_mode == "none":
+            joint_gates = torch.ones_like(subband_gates)
+        elif self.gate_mode == "macro":
+            joint_gates = parent_for_subband
+        elif self.gate_mode == "subband":
+            joint_gates = subband_gates
+        else:
+            joint_gates = parent_for_subband * subband_gates
+        if self.hard_routing_top_k is not None:
+            joint_gates = joint_gates * active_subband_mask.unsqueeze(-1)
         features = contextual_features * joint_gates.unsqueeze(1)
+        signature = self.activation_signature(joint_gates, subband_log_energy)
 
         return {
             "features": features,
@@ -264,6 +429,12 @@ class HierarchicalSpectralFrontend(nn.Module):
             "macro_gates": macro_gates,
             "subband_gates": subband_gates,
             "joint_gates": joint_gates,
+            "active_macro_mask": active_macro_mask,
+            "active_subband_mask": active_subband_mask,
+            "active_macro_fraction": active_macro_mask.float().mean(),
+            "active_subband_fraction": active_subband_mask.float().mean(),
+            "harmonic_features": harmonic_features,
+            "activation_signature": signature,
             "frequency_bins_hz": self.frequency_bins_hz,
             "macro_edges_hz": self.macro_edges_hz,
             "subband_edges_hz": self.subband_edges_hz,

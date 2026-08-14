@@ -52,3 +52,15 @@ def test_invalid_gate_probabilities_are_rejected() -> None:
     regularizer = GateRegularizer()
     with pytest.raises(ValueError, match="probabilities"):
         regularizer(torch.tensor([[[1.2]]]), torch.tensor([[[0.5]]]))
+
+
+def test_inactive_gate_branches_do_not_contribute_to_regularization() -> None:
+    regularizer = GateRegularizer()
+    result = regularizer(
+        torch.ones(2, 3, 4),
+        torch.zeros(2, 6, 4),
+        regularize_macro=False,
+        regularize_subband=False,
+    )
+
+    assert result["gate_regularization_loss"].item() == 0.0

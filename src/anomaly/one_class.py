@@ -46,10 +46,11 @@ def anti_collapse_loss(
     first_covariance = first_centered.T @ first_centered / batch_denominator
     second_covariance = second_centered.T @ second_centered / batch_denominator
     embedding_dimensions = first_embedding.shape[1]
+    off_diagonal_count = max(embedding_dimensions * (embedding_dimensions - 1), 1)
     covariance_loss = (
         off_diagonal(first_covariance).square().sum()
         + off_diagonal(second_covariance).square().sum()
-    ) / (2.0 * embedding_dimensions)
+    ) / (2.0 * off_diagonal_count)
     total_loss = (
         invariance_weight * invariance_loss
         + variance_weight * variance_loss
