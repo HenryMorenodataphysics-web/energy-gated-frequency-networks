@@ -1,9 +1,101 @@
 # Energy-Gated Frequency Neuron
 
- project exploring a physically inspired neural block
-for audio classification.
+Experimental Scientific ML project for interpretable acoustic classification
+and normal-only industrial anomaly detection.
 
-## Core Idea
+## Current One-Class Architecture
+
+The current detector is no longer the original single-level raw-waveform gate.
+Its industrial path is a compact hierarchical spectral model:
+
+```text
+waveform
+  -> log-power STFT
+  -> three macro frequency bands and fixed subbands
+  -> shared temporal transforms
+  -> macro/subband energy gates
+  -> activation signature and condition-aware normal profile
+  -> compact encoder with sustained + soft-event pooling
+  -> condition-aware feature memory
+  -> calibrated anomaly score
+```
+
+Training fits only normal recordings. Anomaly labels are optional and are used
+only to evaluate ROC AUC, F1, precision, and recall after training. Machine or
+condition IDs can calibrate separate normal profiles, with a global fallback
+for unseen conditions.
+
+Implemented experimental controls include:
+
+- `none`, `macro`, `subband`, and `hierarchical` gate modes;
+- conditional subgates and activation-signature descriptors;
+- sustained mean pooling plus soft event pooling for brief anomalies;
+- optional learnable spectral-bin weights and staged training;
+- optional sparse second/third-harmonic context;
+- inference-only top-k macro routing evaluation;
+- MIMII, DCASE 2020 development, and generic normal/anomalous folder adapters.
+
+These are capabilities, not a claim that every option improves detection. The
+best controlled DCASE result below uses macro gating, fixed subband weights,
+and no harmonic-context module.
+
+## Current Controlled Result: DCASE 2020 Fan
+
+The capacity-matched experiment uses the official DCASE 2020 Task 2
+development `fan` split: 3,126 normal training recordings, 549 held-out normal
+validation recordings, and an untouched labeled test set with 400 normal and
+1,475 anomalous recordings. Both models use the same normal-only objective,
+condition calibration, feature memory, threshold protocol, 20 epochs, and
+seeds `42,123,456`.
+
+| Model | Parameters | ROC AUC, mean +/- sample SD | F1, mean +/- sample SD |
+| --- | ---: | ---: | ---: |
+| Hierarchical spectral EGFN | 304 | **0.5922 +/- 0.0341** | **0.2171 +/- 0.0989** |
+| Raw-waveform Conv1D | 304 | 0.5151 +/- 0.0321 | 0.1633 +/- 0.0199 |
+
+EGFN won ROC AUC in all three paired seeds, with a mean absolute difference of
+`+0.0771`. Its mean embedding effective rank was `2.975`, versus `1.034` for
+Conv1D-304. The machine-readable per-seed evidence is in
+[`reports/dcase2020_fan_capacity_matched_summary.csv`](reports/dcase2020_fan_capacity_matched_summary.csv),
+with protocol details and limitations in
+[`reports/experiment_log.md`](reports/experiment_log.md).
+
+### Capacity scaling check
+
+Increasing only the EGFN encoder width from 8 to 22 channels raises the model
+from 304 to 1,032 parameters. The seed-42 screening result did not improve:
+
+| Seed 42 model | Parameters | ROC AUC | F1 | Effective rank |
+| --- | ---: | ---: | ---: | ---: |
+| EGFN default | 304 | **0.6209** | **0.2962** | **3.484** |
+| EGFN wide | 1,032 | 0.5726 | 0.2320 | 2.998 |
+
+This negative result is retained deliberately: extra capacity alone did not
+improve the detector, so the 1,032-parameter variant was not promoted to a
+three-seed experiment.
+
+Run the default DCASE experiment:
+
+```powershell
+python scripts/train_mimii_one_class.py --model egfn --dataset-format dcase2020 --dcase-dir data/raw/dcase2020/fan/fan --gate-mode macro --device cuda --epochs 20 --batch-size 8 --num-workers 2 --evaluation-windows 5 --memory-size 512 --seed 42 --output-dir outputs/dcase2020_fan/egfn_seed42
+```
+
+Add `--egfn-embedding-channels 22` only to reproduce the 1,032-parameter
+capacity screening. The default value remains `8`.
+
+### Generic audio folders
+
+The model is not tied to MIMII or DCASE directory names. A normal-only custom
+dataset can be trained through the generic adapter:
+
+```powershell
+python scripts/train_audio_one_class.py --model egfn --normal-dir data/custom/normal --dataset-name custom_machine --device cuda --epochs 20 --output-dir outputs/custom_machine
+```
+
+An optional `--anomalous-dir` supplies labeled evaluation audio; it is never
+used to fit the normal representation.
+
+## Original Neuron Concept
 
 The project does not treat filters as classical activation functions. Instead,
 it builds a neural frontend that combines:

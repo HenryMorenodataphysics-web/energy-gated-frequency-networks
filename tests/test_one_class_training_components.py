@@ -62,6 +62,30 @@ def test_capacity_matched_conv1d_has_exactly_304_parameters(tmp_path: Path) -> N
     assert sum(parameter.numel() for parameter in model.parameters()) == 304
 
 
+def test_wide_egfn_has_about_one_thousand_parameters(tmp_path: Path) -> None:
+    record = AnomalyAudioRecord(
+        path=tmp_path / "normal.wav",
+        dataset_name="test",
+        machine_type="machine",
+        machine_id="id_00",
+        condition_id="machine/id_00",
+        group_id="normal.wav",
+        label="normal",
+    )
+    profile = bootstrap_normal_profile(
+        (record,),
+        sample_rate=8_000,
+        n_fft=256,
+        hop_length=64,
+        macro_edges_hz=None,
+        subbands_per_macro=(2, 3, 2),
+    )
+
+    model = build_model("egfn", profile, egfn_embedding_channels=22)
+
+    assert sum(parameter.numel() for parameter in model.parameters()) == 1_032
+
+
 def test_deep_svdd_scores_and_center_stabilization() -> None:
     center = stabilize_center(torch.tensor([0.0, -0.01, 2.0]), epsilon=0.1)
     embedding = torch.stack((center, center + 1.0))
