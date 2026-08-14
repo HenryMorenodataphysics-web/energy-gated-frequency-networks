@@ -23,6 +23,8 @@ from src.models import Conv1DAnomalyEncoder
 from src.models import soft_event_pool
 from scripts.train_mimii_one_class import (
     apply_condition_thresholds,
+    bootstrap_normal_profile,
+    build_model,
     configure_training_stage,
     complementary_subband_masks,
     evaluate_representation_epoch,
@@ -34,6 +36,30 @@ from scripts.train_mimii_one_class import (
     training_stage,
 )
 from src.blocks import HierarchicalSpectralFrontend
+
+
+def test_capacity_matched_conv1d_has_exactly_304_parameters(tmp_path: Path) -> None:
+    record = AnomalyAudioRecord(
+        path=tmp_path / "normal.wav",
+        dataset_name="test",
+        machine_type="machine",
+        machine_id="id_00",
+        condition_id="machine/id_00",
+        group_id="normal.wav",
+        label="normal",
+    )
+    profile = bootstrap_normal_profile(
+        (record,),
+        sample_rate=8_000,
+        n_fft=256,
+        hop_length=64,
+        macro_edges_hz=None,
+        subbands_per_macro=(2, 3, 2),
+    )
+
+    model = build_model("conv1d", profile, conv1d_channels=(2, 2, 7))
+
+    assert sum(parameter.numel() for parameter in model.parameters()) == 304
 
 
 def test_deep_svdd_scores_and_center_stabilization() -> None:

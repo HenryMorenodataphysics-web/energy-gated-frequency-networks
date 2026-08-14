@@ -29,6 +29,7 @@ from src.data import (
     AnomalyAudioRecord,
     AnomalyWindowDataset,
     ConditionBatchSampler,
+    find_dcase2020_development_split,
     find_folder_anomaly_recordings,
     find_mimii_recordings,
     split_anomaly_records,
@@ -62,7 +63,13 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     )
     parser.add_argument("--model", choices=("egfn", "conv1d"), required=True)
     parser.add_argument(
-        "--dataset-format", choices=("mimii", "folders"), default="mimii"
+        "--conv1d-channels",
+        type=parse_int_tuple,
+        default=(4, 8, 8),
+        help="Three Conv1D encoder widths; use 2,2,7 for the 304-parameter control.",
+    )
+    parser.add_argument(
+        "--dataset-format", choices=("mimii", "folders", "dcase2020"), default="mimii"
     )
     parser.add_argument("--data-dir", type=Path, default=ROOT / "data" / "raw" / "mimii")
     parser.add_argument("--machine-type", default="valve")
@@ -70,6 +77,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--snr", default="all")
     parser.add_argument("--normal-dir", type=Path, default=None)
     parser.add_argument("--anomalous-dir", type=Path, default=None)
+    parser.add_argument("--dcase-dir", type=Path, default=None)
     parser.add_argument("--dataset-name", default="folder_audio")
     parser.add_argument(
         "--condition-mode", choices=("global", "parent"), default="global"
@@ -219,6 +227,7 @@ def cap_by_label(
 def build_model(
     model_name: str,
     profile: ConditionedNormalProfile,
+    conv1d_channels: tuple[int, ...] = (4, 8, 8),
     learnable_subband_weights: bool = False,
     gate_mode: str = "hierarchical",
     normalize_gate_inputs: bool = False,
@@ -226,7 +235,12 @@ def build_model(
     harmonic_context: bool = False,
 ) -> torch.nn.Module:
     if model_name == "conv1d":
-        return Conv1DAnomalyEncoder(embedding_channels=8)
+        if len(conv1d_channels) != 3:
+            raise ValueError("Conv1D requires exactly three channel widths.")
+        return Conv1DAnomalyEncoder(
+            embedding_channels=8,
+            channels=tuple(conv1d_channels),
+        )
     signature = profile.metadata.get("frontend")
     if not isinstance(signature, dict):
         raise ValueError("normal profile does not contain a frontend signature.")
@@ -1424,6 +1438,10 @@ def main(argv: list[str] | None = None) -> None:
         raise ValueError("view augmentation values are invalid.")
     if args.dataset_format == "folders" and args.normal_dir is None:
         raise ValueError("--normal-dir is required with --dataset-format folders.")
+    if args.dataset_format == "dcase2020" and args.dcase_dir is None:
+        raise ValueError("--dcase-dir is required with --dataset-format dcase2020.")
+    if len(args.conv1d_channels) != 3:
+        raise ValueError("--conv1d-channels requires exactly three values.")
 
     random.seed(args.seed)
     np.random.seed(args.seed)
@@ -1434,11 +1452,11 @@ def main(argv: list[str] | None = None) -> None:
     print(f"device={device}")
     if device.type == "cuda":
         print(f"cuda_device={torch.cuda.get_device_name(device)}")
-    default_output_name = (
-        "mimii_one_class"
-        if args.dataset_format == "mimii"
-        else f"{args.dataset_name}_one_class"
-    )
+    default_output_name = {
+        "mimii": "mimii_one_class",
+        "folders": f"{args.dataset_name}_one_class",
+        "dcase2020": "dcase2020_one_class",
+    }[args.dataset_format]
     output_dir = args.output_dir or (
         ROOT / "outputs" / default_output_name / f"{args.model}_seed{args.seed}"
     )
@@ -1456,19 +1474,31 @@ def main(argv: list[str] | None = None) -> None:
                 snr=args.snr,
             )
         ]
-    else:
+        split = split_anomaly_records(
+            records,
+            validation_normal_ratio=args.validation_normal_ratio,
+            test_normal_ratio=args.test_normal_ratio,
+            seed=args.seed,
+        )
+    elif args.dataset_format == "folders":
         records = find_folder_anomaly_recordings(
             args.normal_dir,
             args.anomalous_dir,
             dataset_name=args.dataset_name,
             condition_mode=args.condition_mode,
         )
-    split = split_anomaly_records(
-        records,
-        validation_normal_ratio=args.validation_normal_ratio,
-        test_normal_ratio=args.test_normal_ratio,
-        seed=args.seed,
-    )
+        split = split_anomaly_records(
+            records,
+            validation_normal_ratio=args.validation_normal_ratio,
+            test_normal_ratio=args.test_normal_ratio,
+            seed=args.seed,
+        )
+    else:
+        split = find_dcase2020_development_split(
+            args.dcase_dir,
+            validation_normal_ratio=args.validation_normal_ratio,
+            seed=args.seed,
+        )
     validate_anomaly_split(split)
     train_records = split.train[: args.max_train_records]
     validation_records = cap_by_label(split.validation, args.max_eval_records_per_label)
@@ -1565,6 +1595,7 @@ def main(argv: list[str] | None = None) -> None:
     model = build_model(
         args.model,
         profile,
+        conv1d_channels=args.conv1d_channels,
         learnable_subband_weights=args.learnable_subband_weights,
         gate_mode=args.gate_mode,
         normalize_gate_inputs=args.normalize_gate_inputs,
