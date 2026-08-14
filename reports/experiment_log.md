@@ -112,3 +112,61 @@ The matched Conv and free EGFN differ by only 16 parameters. EGFN-Sinc learns
 two cutoff parameters per filter and guarantees valid ordered cutoffs without
 hard clamping. Seed 42 is the screening experiment; seeds 123 and 456 are run
 only if V2 remains close enough to justify the complete comparison.
+
+## DCASE 2020 Fan: Capacity-Matched One-Class Ablation
+
+Research question:
+
+```text
+Does the hierarchical spectral EGFN outperform a raw-waveform Conv1D when
+both anomaly encoders have exactly 304 trainable parameters?
+```
+
+Protocol:
+
+- dataset: DCASE 2020 Task 2 development `fan`;
+- official normal-only training partition and labeled official test partition;
+- `3126 / 549` normal train/validation recordings;
+- `400 / 1475` normal/anomalous test recordings;
+- seeds `42`, `123`, and `456`;
+- 20 epochs, batch size 8, five evaluation windows, and identical one-class
+  objective, condition-aware calibration, feature-memory size, and threshold
+  protocol;
+- primary metric: ROC AUC from the condition-calibrated `memory_score`;
+- Conv1D widths `(2, 2, 7)` preserve its three convolutional stages and
+  produce exactly 304 trainable parameters.
+
+| Seed | EGFN AUC | Conv1D-304 AUC | AUC difference | EGFN F1 | Conv1D-304 F1 |
+| ---: | ---: | ---: | ---: | ---: | ---: |
+| 42 | 0.6209 | 0.4928 | +0.1281 | 0.2962 | 0.1789 |
+| 123 | 0.5544 | 0.5006 | +0.0538 | 0.1063 | 0.1409 |
+| 456 | 0.6012 | 0.5519 | +0.0493 | 0.2488 | 0.1700 |
+| **Mean +/- sample SD** | **0.5922 +/- 0.0341** | **0.5151 +/- 0.0321** | **+0.0771** | **0.2171 +/- 0.0989** | **0.1633 +/- 0.0199** |
+
+Representation geometry averaged across seeds:
+
+| Model | Mean effective rank | Mean absolute off-diagonal correlation |
+| --- | ---: | ---: |
+| EGFN | 2.975 | 0.618 |
+| Conv1D-304 | 1.034 | 0.989 |
+
+Key result:
+
+```text
+EGFN wins ROC AUC in all three paired seeds at the same parameter count,
+with a mean absolute advantage of 0.0771. Conv1D-304 remains close to a
+rank-one representation, while EGFN retains substantially more effective
+embedding dimensions.
+```
+
+Interpretation and limits:
+
+The controlled result removes trainable parameter count as an explanation
+for EGFN's AUC advantage and supports the value of its spectral inductive
+bias. F1 is less stable: EGFN loses the seed-123 F1 comparison because the
+normal-only threshold is conservative and recall varies by seed. The evidence
+is limited to three seeds and one DCASE machine type (`fan`); it does not yet
+demonstrate the same advantage on pump, slider, valve, or domain-shifted data.
+
+Machine-readable evidence is stored in
+`reports/dcase2020_fan_capacity_matched_summary.csv`.

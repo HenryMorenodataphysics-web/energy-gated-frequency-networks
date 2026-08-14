@@ -63,6 +63,12 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     )
     parser.add_argument("--model", choices=("egfn", "conv1d"), required=True)
     parser.add_argument(
+        "--conv1d-channels",
+        type=parse_int_tuple,
+        default=(4, 8, 8),
+        help="Three Conv1D encoder widths; use 2,2,7 for the 304-parameter control.",
+    )
+    parser.add_argument(
         "--dataset-format", choices=("mimii", "folders", "dcase2020"), default="mimii"
     )
     parser.add_argument("--data-dir", type=Path, default=ROOT / "data" / "raw" / "mimii")
@@ -221,6 +227,7 @@ def cap_by_label(
 def build_model(
     model_name: str,
     profile: ConditionedNormalProfile,
+    conv1d_channels: tuple[int, ...] = (4, 8, 8),
     learnable_subband_weights: bool = False,
     gate_mode: str = "hierarchical",
     normalize_gate_inputs: bool = False,
@@ -228,7 +235,12 @@ def build_model(
     harmonic_context: bool = False,
 ) -> torch.nn.Module:
     if model_name == "conv1d":
-        return Conv1DAnomalyEncoder(embedding_channels=8)
+        if len(conv1d_channels) != 3:
+            raise ValueError("Conv1D requires exactly three channel widths.")
+        return Conv1DAnomalyEncoder(
+            embedding_channels=8,
+            channels=tuple(conv1d_channels),
+        )
     signature = profile.metadata.get("frontend")
     if not isinstance(signature, dict):
         raise ValueError("normal profile does not contain a frontend signature.")
@@ -1428,6 +1440,8 @@ def main(argv: list[str] | None = None) -> None:
         raise ValueError("--normal-dir is required with --dataset-format folders.")
     if args.dataset_format == "dcase2020" and args.dcase_dir is None:
         raise ValueError("--dcase-dir is required with --dataset-format dcase2020.")
+    if len(args.conv1d_channels) != 3:
+        raise ValueError("--conv1d-channels requires exactly three values.")
 
     random.seed(args.seed)
     np.random.seed(args.seed)
@@ -1581,6 +1595,7 @@ def main(argv: list[str] | None = None) -> None:
     model = build_model(
         args.model,
         profile,
+        conv1d_channels=args.conv1d_channels,
         learnable_subband_weights=args.learnable_subband_weights,
         gate_mode=args.gate_mode,
         normalize_gate_inputs=args.normalize_gate_inputs,
