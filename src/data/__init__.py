@@ -4,8 +4,12 @@ from .anomaly_protocol import (
     split_anomaly_records,
     validate_anomaly_split,
 )
-from .anomaly_window_dataset import AnomalyWindowDataset
+from .anomaly_window_dataset import AnomalyWindowDataset, ConditionBatchSampler
 from .fsdd_dataset import FSDDDataset, FSDDRecord, find_fsdd_recordings
+from .folder_anomaly_dataset import (
+    SUPPORTED_AUDIO_SUFFIXES,
+    find_folder_anomaly_recordings,
+)
 from .mimii_dataset import (
     MIMIIDataset,
     MIMIIRecord,
@@ -20,12 +24,15 @@ __all__ = [
     "AnomalyAudioRecord",
     "AnomalyDataSplit",
     "AnomalyWindowDataset",
+    "ConditionBatchSampler",
     "DEFAULT_SPEECH_COMMANDS_LABELS",
     "FSDDDataset",
     "FSDDRecord",
     "MIMIIDataset",
     "MIMIIRecord",
     "SpeechCommandsSubset",
+    "SUPPORTED_AUDIO_SUFFIXES",
+    "find_folder_anomaly_recordings",
     "find_fsdd_recordings",
     "find_mimii_recordings",
     "split_records_stratified",

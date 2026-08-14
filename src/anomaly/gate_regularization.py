@@ -49,6 +49,8 @@ class GateRegularizer(nn.Module):
         macro_gates: torch.Tensor,
         subband_gates: torch.Tensor,
         progress: float = 0.0,
+        regularize_macro: bool = True,
+        regularize_subband: bool = True,
     ) -> dict[str, torch.Tensor]:
         self._validate_gates("macro_gates", macro_gates)
         self._validate_gates("subband_gates", subband_gates)
@@ -59,14 +61,23 @@ class GateRegularizer(nn.Module):
 
         macro_utilization = macro_gates.mean(dim=(0, 2))
         subband_utilization = subband_gates.mean(dim=(0, 2))
-        utilization_loss = 0.5 * (
-            (macro_utilization - self.macro_target_utilization).square().mean()
-            + (subband_utilization - self.subband_target_utilization).square().mean()
+        utilization_terms = []
+        binary_terms = []
+        if regularize_macro:
+            utilization_terms.append(
+                (macro_utilization - self.macro_target_utilization).square().mean()
+            )
+            binary_terms.append((macro_gates * (1.0 - macro_gates)).mean())
+        if regularize_subband:
+            utilization_terms.append(
+                (subband_utilization - self.subband_target_utilization).square().mean()
+            )
+            binary_terms.append((subband_gates * (1.0 - subband_gates)).mean())
+        zero = macro_gates.new_zeros(())
+        utilization_loss = (
+            torch.stack(utilization_terms).mean() if utilization_terms else zero
         )
-        binary_loss = 0.5 * (
-            (macro_gates * (1.0 - macro_gates)).mean()
-            + (subband_gates * (1.0 - subband_gates)).mean()
-        )
+        binary_loss = torch.stack(binary_terms).mean() if binary_terms else zero
         hardening_schedule = max(
             0.0,
             (float(progress) - self.hardening_warmup) / (1.0 - self.hardening_warmup),

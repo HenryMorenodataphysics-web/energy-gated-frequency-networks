@@ -31,7 +31,7 @@ def local_feature_descriptors(
 
 
 class ConditionedFeatureMemory:
-    """Bounded normal-feature memory with condition-specific kNN scoring."""
+    """Bounded normal-feature memory indexed by condition and subband."""
 
     def __init__(
         self,
@@ -53,21 +53,37 @@ class ConditionedFeatureMemory:
             raise ValueError("condition_ids must be non-empty and unique.")
         if len(self.memories) != len(self.condition_ids):
             raise ValueError("memories must contain one tensor per condition.")
-        if mean.ndim != 2 or mean.shape != std.shape:
-            raise ValueError("mean and std must have shape [condition, channel].")
+        if mean.ndim != 3 or mean.shape != std.shape:
+            raise ValueError(
+                "mean and std must have shape [condition, subband, channel]."
+            )
         if mean.shape[0] != len(self.condition_ids):
             raise ValueError("condition_ids must match the feature statistics.")
-        channels = mean.shape[1]
-        if any(memory.ndim != 2 or memory.shape[1] != channels for memory in self.memories):
-            raise ValueError("each memory must have shape [example, channel].")
-        if any(memory.shape[0] == 0 for memory in self.memories):
-            raise ValueError("condition memories must be non-empty.")
-        if fallback_memory.ndim != 2 or fallback_memory.shape[1] != channels:
+        subbands, channels = mean.shape[1:]
+        if any(
+            memory.ndim != 3
+            or memory.shape[0] != subbands
+            or memory.shape[2] != channels
+            for memory in self.memories
+        ):
+            raise ValueError(
+                "each memory must have shape [subband, example, channel]."
+            )
+        if any(memory.shape[1] == 0 for memory in self.memories):
+            raise ValueError("condition subband memories must be non-empty.")
+        if (
+            fallback_memory.ndim != 3
+            or fallback_memory.shape[0] != subbands
+            or fallback_memory.shape[2] != channels
+        ):
             raise ValueError("fallback_memory has an unexpected shape.")
-        if fallback_memory.shape[0] == 0:
+        if fallback_memory.shape[1] == 0:
             raise ValueError("fallback_memory must be non-empty.")
-        if fallback_mean.shape != (channels,) or fallback_std.shape != (channels,):
-            raise ValueError("fallback statistics must match the channel count.")
+        if fallback_mean.shape != (subbands, channels) or fallback_std.shape != (
+            subbands,
+            channels,
+        ):
+            raise ValueError("fallback statistics must match subbands and channels.")
         if temporal_pool <= 0 or query_chunk_size <= 0 or minimum_std <= 0:
             raise ValueError("memory configuration values must be positive.")
         if not 0 < top_fraction <= 1:
@@ -132,6 +148,11 @@ class ConditionedFeatureMemory:
         descriptors, subbands, frames = local_feature_descriptors(
             feature_map, self.temporal_pool
         )
+        if subbands != self.mean.shape[1]:
+            raise ValueError("feature_map subbands do not match the fitted memory.")
+        descriptors = descriptors.reshape(
+            feature_map.shape[0], subbands, frames, feature_map.shape[1]
+        )
         local_scores = []
         known = []
         for sample, condition_id in zip(descriptors, condition_ids, strict=True):
@@ -146,16 +167,23 @@ class ConditionedFeatureMemory:
                 mean = self.mean[index]
                 std = self.std[index]
                 known.append(True)
-            scale = std.clamp_min(self.minimum_std)
-            standardized_query = (sample - mean) / scale
-            standardized_memory = (memory - mean) / scale
-            local_scores.append(
-                self._nearest_squared_distance(
-                    standardized_query,
-                    standardized_memory,
-                    self.query_chunk_size,
-                ).reshape(subbands, frames)
-            )
+            subband_scores = []
+            for subband_index in range(subbands):
+                scale = std[subband_index].clamp_min(self.minimum_std)
+                standardized_query = (
+                    sample[subband_index] - mean[subband_index]
+                ) / scale
+                standardized_memory = (
+                    memory[subband_index] - mean[subband_index]
+                ) / scale
+                subband_scores.append(
+                    self._nearest_squared_distance(
+                        standardized_query,
+                        standardized_memory,
+                        self.query_chunk_size,
+                    )
+                )
+            local_scores.append(torch.stack(subband_scores))
         local_score = torch.stack(local_scores)
         time_top_count = max(1, math.ceil(frames * self.top_fraction))
         subband_score = local_score.topk(time_top_count, dim=-1).values.mean(dim=-1)
@@ -176,7 +204,7 @@ class ConditionedFeatureMemory:
 
     def to_dict(self) -> dict[str, object]:
         return {
-            "version": 1,
+            "version": 2,
             "condition_ids": list(self.condition_ids),
             "memories": [memory.cpu().tolist() for memory in self.memories],
             "mean": self.mean.cpu().tolist(),
@@ -192,7 +220,7 @@ class ConditionedFeatureMemory:
 
     @classmethod
     def from_dict(cls, payload: Mapping[str, object]) -> ConditionedFeatureMemory:
-        if payload.get("version") != 1:
+        if payload.get("version") != 2:
             raise ValueError("unsupported feature memory version.")
         return cls(
             condition_ids=payload["condition_ids"],
@@ -212,13 +240,16 @@ class ConditionedFeatureMemory:
         return {
             "condition_ids": list(self.condition_ids),
             "memory_sizes": {
-                condition_id: int(memory.shape[0])
+                condition_id: [int(memory.shape[1])] * int(memory.shape[0])
                 for condition_id, memory in zip(
                     self.condition_ids, self.memories, strict=True
                 )
             },
-            "fallback_memory_size": int(self.fallback_memory.shape[0]),
-            "feature_channels": int(self.mean.shape[1]),
+            "fallback_memory_sizes": [
+                int(self.fallback_memory.shape[1])
+            ] * int(self.fallback_memory.shape[0]),
+            "num_subbands": int(self.mean.shape[1]),
+            "feature_channels": int(self.mean.shape[2]),
             "temporal_pool": self.temporal_pool,
             "top_fraction": self.top_fraction,
         }
@@ -244,11 +275,12 @@ class ConditionedFeatureMemoryEstimator:
         self.minimum_std = float(minimum_std)
         self.query_chunk_size = int(query_chunk_size)
         self._generator = torch.Generator().manual_seed(seed)
-        self._moments: dict[str, dict[str, torch.Tensor | int]] = {}
-        self._memories: dict[str, torch.Tensor] = {}
-        self._priorities: dict[str, torch.Tensor] = {}
+        self._moments: dict[tuple[str, int], dict[str, torch.Tensor | int]] = {}
+        self._memories: dict[tuple[str, int], torch.Tensor] = {}
+        self._priorities: dict[tuple[str, int], torch.Tensor] = {}
+        self._num_subbands: int | None = None
 
-    def _update_key(self, key: str, descriptors: torch.Tensor) -> None:
+    def _update_key(self, key: tuple[str, int], descriptors: torch.Tensor) -> None:
         values = descriptors.detach().float().cpu()
         double_values = values.double()
         moments = self._moments.setdefault(
@@ -278,18 +310,38 @@ class ConditionedFeatureMemoryEstimator:
         feature_map: torch.Tensor,
         condition_ids: Sequence[str],
     ) -> None:
-        descriptors, _, _ = local_feature_descriptors(
+        descriptors, subbands, frames = local_feature_descriptors(
             feature_map.detach(), self.temporal_pool
         )
         if len(condition_ids) != descriptors.shape[0]:
             raise ValueError("condition_ids must contain one value per feature map.")
-        for sample, condition_id in zip(descriptors, condition_ids, strict=True):
+        if self._num_subbands is None:
+            self._num_subbands = subbands
+        elif self._num_subbands != subbands:
+            raise ValueError("all feature maps must contain the same subband count.")
+        descriptors = descriptors.reshape(
+            feature_map.shape[0], subbands, frames, feature_map.shape[1]
+        )
+        grouped_examples: dict[str, list[int]] = {}
+        for example_index, condition_id in enumerate(condition_ids):
             if not condition_id:
                 raise ValueError("condition_ids must be non-empty strings.")
-            self._update_key(condition_id, sample)
-            self._update_key("__fallback__", sample)
+            grouped_examples.setdefault(condition_id, []).append(example_index)
+        for subband_index in range(subbands):
+            fallback_values = descriptors[:, subband_index].reshape(
+                -1, feature_map.shape[1]
+            )
+            self._update_key(("__fallback__", subband_index), fallback_values)
+            for condition_id, example_indices in grouped_examples.items():
+                condition_values = descriptors[
+                    example_indices, subband_index
+                ].reshape(-1, feature_map.shape[1])
+                self._update_key(
+                    (condition_id, subband_index),
+                    condition_values,
+                )
 
-    def _statistics(self, key: str) -> tuple[torch.Tensor, torch.Tensor]:
+    def _statistics(self, key: tuple[str, int]) -> tuple[torch.Tensor, torch.Tensor]:
         moments = self._moments[key]
         count = int(moments["count"])
         mean = moments["sum"] / count
@@ -298,24 +350,49 @@ class ConditionedFeatureMemoryEstimator:
         return mean.float(), std.float()
 
     def finalize(self) -> ConditionedFeatureMemory:
-        condition_ids = tuple(sorted(set(self._moments) - {"__fallback__"}))
-        if not condition_ids or "__fallback__" not in self._moments:
+        if self._num_subbands is None:
+            raise RuntimeError("no feature maps were provided.")
+        condition_ids = tuple(
+            sorted({condition_id for condition_id, _ in self._moments if condition_id != "__fallback__"})
+        )
+        if not condition_ids:
             raise RuntimeError("no feature maps were provided.")
         means = []
         standard_deviations = []
         for condition_id in condition_ids:
-            mean, std = self._statistics(condition_id)
-            means.append(mean)
-            standard_deviations.append(std)
-        fallback_mean, fallback_std = self._statistics("__fallback__")
+            condition_statistics = [
+                self._statistics((condition_id, subband_index))
+                for subband_index in range(self._num_subbands)
+            ]
+            means.append(torch.stack([item[0] for item in condition_statistics]))
+            standard_deviations.append(
+                torch.stack([item[1] for item in condition_statistics])
+            )
+        fallback_statistics = [
+            self._statistics(("__fallback__", subband_index))
+            for subband_index in range(self._num_subbands)
+        ]
         return ConditionedFeatureMemory(
             condition_ids=condition_ids,
-            memories=[self._memories[item] for item in condition_ids],
+            memories=[
+                torch.stack(
+                    [
+                        self._memories[(condition_id, subband_index)]
+                        for subband_index in range(self._num_subbands)
+                    ]
+                )
+                for condition_id in condition_ids
+            ],
             mean=torch.stack(means),
             std=torch.stack(standard_deviations),
-            fallback_memory=self._memories["__fallback__"],
-            fallback_mean=fallback_mean,
-            fallback_std=fallback_std,
+            fallback_memory=torch.stack(
+                [
+                    self._memories[("__fallback__", subband_index)]
+                    for subband_index in range(self._num_subbands)
+                ]
+            ),
+            fallback_mean=torch.stack([item[0] for item in fallback_statistics]),
+            fallback_std=torch.stack([item[1] for item in fallback_statistics]),
             temporal_pool=self.temporal_pool,
             top_fraction=self.top_fraction,
             minimum_std=self.minimum_std,

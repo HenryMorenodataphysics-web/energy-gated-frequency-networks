@@ -1,12 +1,14 @@
 from __future__ import annotations
 
+import math
+import random
 from collections.abc import Sequence
 
 import numpy as np
 import soundfile as sf
 import torch
 from scipy.signal import resample_poly
-from torch.utils.data import Dataset
+from torch.utils.data import Dataset, Sampler
 
 from .anomaly_protocol import AnomalyAudioRecord
 
@@ -47,6 +49,11 @@ class AnomalyWindowDataset(Dataset):
 
     def __len__(self) -> int:
         return len(self._index)
+
+    def condition_id_at(self, index: int) -> str:
+        record_index, _ = self._index[index]
+        record = self.records[record_index]
+        return f"{record.dataset_name}/{record.condition_id}"
 
     def _resample(self, audio: np.ndarray, source_rate: int) -> np.ndarray:
         if source_rate == self.target_sample_rate:
@@ -108,3 +115,60 @@ class AnomalyWindowDataset(Dataset):
             "condition_id": f"{record.dataset_name}/{record.condition_id}",
             "recording_id": f"{record.dataset_name}/{record.group_id}",
         }
+
+
+class ConditionBatchSampler(Sampler[list[int]]):
+    """Build batches from one operating condition without mixing condition IDs."""
+
+    def __init__(
+        self,
+        dataset: AnomalyWindowDataset,
+        batch_size: int,
+        shuffle: bool,
+        drop_last: bool,
+        seed: int = 42,
+    ) -> None:
+        if batch_size <= 0:
+            raise ValueError("batch_size must be positive.")
+        self.dataset = dataset
+        self.batch_size = int(batch_size)
+        self.shuffle = bool(shuffle)
+        self.drop_last = bool(drop_last)
+        self.seed = int(seed)
+        self.epoch = 0
+        grouped: dict[str, list[int]] = {}
+        for index in range(len(dataset)):
+            grouped.setdefault(dataset.condition_id_at(index), []).append(index)
+        self._grouped_indices = {
+            condition_id: tuple(indices)
+            for condition_id, indices in sorted(grouped.items())
+        }
+
+    def set_epoch(self, epoch: int) -> None:
+        self.epoch = int(epoch)
+
+    def __iter__(self):
+        generator = random.Random(self.seed + self.epoch)
+        batches: list[list[int]] = []
+        for indices_tuple in self._grouped_indices.values():
+            indices = list(indices_tuple)
+            if self.shuffle:
+                generator.shuffle(indices)
+            for start in range(0, len(indices), self.batch_size):
+                batch = indices[start : start + self.batch_size]
+                if len(batch) == self.batch_size or not self.drop_last:
+                    batches.append(batch)
+        if self.shuffle:
+            generator.shuffle(batches)
+        yield from batches
+
+    def __len__(self) -> int:
+        if self.drop_last:
+            return sum(
+                len(indices) // self.batch_size
+                for indices in self._grouped_indices.values()
+            )
+        return sum(
+            math.ceil(len(indices) / self.batch_size)
+            for indices in self._grouped_indices.values()
+        )

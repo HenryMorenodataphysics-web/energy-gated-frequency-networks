@@ -7,6 +7,7 @@ import pytest
 import soundfile as sf
 import torch
 from scipy.io import wavfile
+from torch.utils.data import DataLoader
 
 from src.anomaly import (
     ConditionedEmbeddingEstimator,
@@ -17,10 +18,22 @@ from src.anomaly import (
     stabilize_center,
     standardized_embedding_scores,
 )
-from src.data import AnomalyAudioRecord, AnomalyWindowDataset
+from src.data import AnomalyAudioRecord, AnomalyWindowDataset, ConditionBatchSampler
 from src.models import Conv1DAnomalyEncoder
 from src.models import soft_event_pool
-from scripts.train_mimii_one_class import is_meaningful_improvement, make_audio_view
+from scripts.train_mimii_one_class import (
+    apply_condition_thresholds,
+    configure_training_stage,
+    complementary_subband_masks,
+    evaluate_representation_epoch,
+    fit_condition_thresholds,
+    is_meaningful_improvement,
+    make_audio_view,
+    objective_embedding,
+    representation_geometry,
+    training_stage,
+)
+from src.blocks import HierarchicalSpectralFrontend
 
 
 def test_deep_svdd_scores_and_center_stabilization() -> None:
@@ -38,6 +51,53 @@ def test_early_stopping_requires_meaningful_relative_improvement() -> None:
     assert is_meaningful_improvement(0.989, 1.0, 0.01)
 
 
+def test_learnable_filter_schedule_has_three_non_overlapping_stages() -> None:
+    stages = [training_stage(epoch, True, 2, 3) for epoch in range(1, 8)]
+
+    assert stages == [
+        "filter_warmup",
+        "filter_warmup",
+        "filter_adaptation",
+        "filter_adaptation",
+        "filter_adaptation",
+        "representation_finetune",
+        "representation_finetune",
+    ]
+    assert training_stage(1, False, 0, 0) == "representation"
+
+
+def test_filter_adaptation_freezes_every_parameter_except_filter_weights() -> None:
+    class StagedModel(torch.nn.Module):
+        def __init__(self) -> None:
+            super().__init__()
+            self.frontend = HierarchicalSpectralFrontend(
+                sample_rate=8_000,
+                macro_edges_hz=(0.0, 666.6667, 2_666.6667, 4_000.0),
+                subbands_per_macro=(2, 3, 2),
+                n_fft=256,
+                hop_length=64,
+                temporal_channels=3,
+                learnable_subband_weights=True,
+            )
+            self.encoder = torch.nn.Linear(3, 2)
+
+    model = StagedModel()
+    configure_training_stage(model, "egfn", "filter_warmup")
+    assert not model.frontend.subband_weight_logits.requires_grad
+    assert model.encoder.weight.requires_grad
+
+    trainable_count = configure_training_stage(
+        model, "egfn", "filter_adaptation"
+    )
+    trainable = [name for name, parameter in model.named_parameters() if parameter.requires_grad]
+    assert trainable == ["frontend.subband_weight_logits"]
+    assert trainable_count == model.frontend.subband_weight_logits.numel()
+
+    configure_training_stage(model, "egfn", "representation_finetune")
+    assert not model.frontend.subband_weight_logits.requires_grad
+    assert model.encoder.weight.requires_grad
+
+
 def test_anti_collapse_objective_penalizes_constant_embeddings() -> None:
     collapsed = torch.zeros(8, 4, requires_grad=True)
     result = anti_collapse_loss(collapsed, collapsed, variance_target=0.05)
@@ -46,6 +106,31 @@ def test_anti_collapse_objective_penalizes_constant_embeddings() -> None:
     assert result["variance_loss"].item() > 0
     assert result["embedding_std"].item() < 0.05
     assert collapsed.grad is not None
+
+
+def test_covariance_loss_is_normalized_by_off_diagonal_terms() -> None:
+    base = torch.linspace(-1.0, 1.0, 16).unsqueeze(1)
+    four_dimensions = base.repeat(1, 4).requires_grad_()
+    eight_dimensions = base.repeat(1, 8).requires_grad_()
+
+    four = anti_collapse_loss(
+        four_dimensions,
+        four_dimensions,
+        invariance_weight=0.0,
+        variance_weight=0.0,
+        covariance_weight=1.0,
+    )
+    eight = anti_collapse_loss(
+        eight_dimensions,
+        eight_dimensions,
+        invariance_weight=0.0,
+        variance_weight=0.0,
+        covariance_weight=1.0,
+    )
+
+    assert four["covariance_loss"].item() == pytest.approx(
+        eight["covariance_loss"].item(), rel=1e-6
+    )
 
 
 def test_standardized_score_uses_fitted_normal_scale() -> None:
@@ -94,6 +179,107 @@ def test_audio_views_preserve_shape_and_approximately_preserve_energy() -> None:
         waveform.square().mean().item(),
         rel=0.01,
     )
+
+
+def test_audio_view_is_repeatable_with_a_fixed_generator() -> None:
+    waveform = torch.randn(3, 1, 1_000)
+    first_generator = torch.Generator().manual_seed(19)
+    second_generator = torch.Generator().manual_seed(19)
+
+    first = make_audio_view(waveform, 0.01, 0.05, generator=first_generator)
+    second = make_audio_view(waveform, 0.01, 0.05, generator=second_generator)
+
+    assert torch.equal(first, second)
+
+
+def test_audio_view_shift_uses_padding_instead_of_circular_wrap() -> None:
+    waveform = torch.zeros(1, 1, 100)
+    waveform[..., -1] = 1.0
+    generator = torch.Generator().manual_seed(0)
+    view = make_audio_view(waveform, 0.0, 0.5, generator=generator)
+
+    assert view[..., 0].item() == 0.0
+
+
+def test_memory_objective_uses_mean_and_peak_of_exact_feature_map() -> None:
+    feature_map = torch.tensor([[[[0.0, 1.0, 4.0]]]])
+    embedding = objective_embedding(
+        {"gated_profile_features": feature_map},
+        "memory",
+        "gated_profile",
+    )
+
+    assert embedding.squeeze(0).tolist() == pytest.approx([5.0 / 3.0, 4.0])
+
+
+def test_representation_geometry_detects_redundant_dimensions() -> None:
+    values = torch.linspace(-1.0, 1.0, 100)
+    geometry = representation_geometry(torch.stack((values, values), dim=1))
+
+    assert geometry["active_dimensions"] == 2
+    assert geometry["effective_rank"] == pytest.approx(1.0, abs=1e-5)
+    assert geometry["mean_absolute_off_diagonal_correlation"] == pytest.approx(1.0)
+
+
+def test_complementary_masks_cover_every_subband_once() -> None:
+    masks = complementary_subband_masks(3, 16, 0.25, torch.device("cpu"))
+    coverage = torch.stack(masks).sum(dim=0)
+
+    assert len(masks) == 4
+    assert torch.equal(coverage, torch.ones_like(coverage))
+
+
+def test_condition_thresholds_use_only_normal_validation_scores() -> None:
+    validation = {
+        "condition_ids": ["id_00", "id_00", "id_02", "id_02"],
+        "labels": np.zeros(4, dtype=np.int64),
+        "scores": {"score": np.asarray([1.0, 3.0, 10.0, 14.0])},
+    }
+    thresholds, fallback = fit_condition_thresholds(validation, "score", 0.5)
+    test = {
+        "condition_ids": ["id_00", "id_02", "unknown"],
+        "scores": {"score": np.asarray([2.0, 12.0, fallback])},
+    }
+
+    calibrated = apply_condition_thresholds(
+        test, "score", thresholds, fallback
+    )
+
+    assert thresholds == pytest.approx({"id_00": 2.0, "id_02": 12.0})
+    assert calibrated.tolist() == pytest.approx([1.0, 1.0, 1.0])
+    validation["labels"][0] = 1
+    with pytest.raises(ValueError, match="only normal"):
+        fit_condition_thresholds(validation, "score", 0.5)
+
+
+def test_validation_objective_is_repeatable_for_the_same_seed() -> None:
+    model = Conv1DAnomalyEncoder(embedding_channels=4)
+    examples = [
+        {"waveform": torch.randn(1, 1_000), "condition_id": "machine"}
+        for _ in range(4)
+    ]
+    loader = DataLoader(examples, batch_size=4)
+    arguments = (
+        model,
+        "conv1d",
+        loader,
+        torch.device("cpu"),
+        0.0,
+        0.05,
+        25.0,
+        25.0,
+        0.0,
+        0.0,
+        0.25,
+        0.01,
+        0.05,
+        123,
+    )
+
+    first = evaluate_representation_epoch(*arguments)
+    second = evaluate_representation_epoch(*arguments)
+
+    assert first == pytest.approx(second)
 
 
 def test_conv1d_encoder_shares_weights_across_audio_channels() -> None:
@@ -166,3 +352,40 @@ def test_window_dataset_preserves_channels_and_reads_only_requested_window(
     assert first["waveform"][0, 0].item() == pytest.approx(0.0)
     assert last["waveform"][0, 0].item() == pytest.approx(10 / 32768)
     assert first["condition_id"] == "test/machine/id_00/condition"
+
+
+def test_condition_batch_sampler_never_mixes_operating_conditions() -> None:
+    records = [
+        AnomalyAudioRecord(
+            path=Path(f"{condition}_{index}.wav"),
+            dataset_name="test",
+            machine_type="machine",
+            machine_id=condition,
+            condition_id=condition,
+            group_id=f"{condition}-{index}",
+            label="normal",
+        )
+        for condition in ("id_00", "id_02")
+        for index in range(5)
+    ]
+    dataset = AnomalyWindowDataset(
+        records,
+        target_sample_rate=10,
+        duration_seconds=1.0,
+        crop_mode="center",
+    )
+    sampler = ConditionBatchSampler(
+        dataset,
+        batch_size=3,
+        shuffle=True,
+        drop_last=False,
+        seed=7,
+    )
+
+    batches = list(sampler)
+
+    assert len(batches) == 4
+    assert all(
+        len({dataset.condition_id_at(index) for index in batch}) == 1
+        for batch in batches
+    )
