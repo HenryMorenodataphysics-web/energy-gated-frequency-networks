@@ -152,13 +152,17 @@ numbers below come from the controlled research reports:
 | Capacity control | EGFN-Free | 188,770 | Matched the free Conv1D experiment |
 | Current demo checkpoint | Hierarchical one-class EGFN | 304 trainable | Compact anomaly encoder; profiles and memories are stored reference data |
 
-The current demo checkpoint is not directly comparable to the supervised
-classification rows: it solves a normal-only anomaly problem and keeps the
-spectral masks, profiles, and local memory outside the trainable parameter
-count.
+The current demo checkpoint is closest to the 304-parameter one-class DCASE Fan
+control. This is the fair comparison for the compact encoder, because both
+models have exactly the same trainable parameter count:
 
-The supervised comparisons are useful because they prevent overclaiming while
-still showing where the frequency-gated architecture is competitive:
+| Experiment | Conv1D-304 | EGFN-304 | Interpretation |
+| --- | ---: | ---: | --- |
+| DCASE 2020 Fan mean ROC AUC, 3 seeds | 0.515 +/- 0.032 | 0.592 +/- 0.034 | EGFN won AUC in all paired seeds at exactly 304 trainable parameters |
+| DCASE 2020 Fan mean F1, 3 seeds | 0.163 +/- 0.020 | 0.217 +/- 0.099 | EGFN had higher mean F1, but thresholded F1 was less stable and Conv1D won seed 123 |
+
+The older supervised comparisons are useful because they prevent overclaiming
+while still showing where the frequency-gated architecture is competitive:
 
 | Experiment | Conv1D baseline | EGFN variant | Interpretation |
 | --- | ---: | ---: | --- |
@@ -166,10 +170,11 @@ still showing where the frequency-gated architecture is competitive:
 | MIMII Valve calibrated F1, seed 42 | 0.809 | 0.828 (free-filter wide) | EGFN improved calibrated F1 and AUC versus the smaller Conv1D baseline |
 | Capacity-matched MIMII F1 | 0.848 | 0.828 (EGFN-Free) | Conv1D had stronger thresholded F1, while EGFN-Free kept the higher AUC at nearly equal parameter count |
 
-The conclusion is therefore deliberately modest: EGFN is valuable as a
-frequency-structured and inspectable research architecture that can remain
-competitive under capacity control, especially in ranking quality, but it is
-not a blanket replacement for Conv1D.
+The conclusion is therefore deliberately modest: at the current 304-parameter
+operating point, EGFN shows a real ranking-quality advantage on the DCASE Fan
+one-class control. The older supervised rows keep the scope honest: EGFN is a
+frequency-structured and inspectable research architecture, not a blanket
+replacement for Conv1D in every thresholded metric.
 
 ## 5. From research model to end-to-end product
 
