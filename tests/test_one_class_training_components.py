@@ -18,21 +18,34 @@ from src.anomaly import (
     stabilize_center,
     standardized_embedding_scores,
 )
-from src.data import AnomalyAudioRecord, AnomalyWindowDataset, ConditionBatchSampler
+from src.data import (
+    AnomalyAudioRecord,
+    AnomalyWindowDataset,
+    ConditionBatchSampler,
+    HybridConditionBatchSampler,
+)
 from src.models import Conv1DAnomalyEncoder
 from src.models import soft_event_pool
 from scripts.train_mimii_one_class import (
     apply_condition_thresholds,
+    apply_hybrid_calibration,
+    best_f1_threshold,
     bootstrap_normal_profile,
     build_model,
     configure_training_stage,
     complementary_subband_masks,
     evaluate_representation_epoch,
     fit_condition_thresholds,
+    fit_hybrid_calibration,
     is_meaningful_improvement,
+    load_pretrained_one_class_backbone,
     make_audio_view,
     objective_embedding,
+    pairwise_anomaly_ranking_loss,
     representation_geometry,
+    supervised_anomaly_loss,
+    supervised_anomaly_objective,
+    threshold_at_max_fpr,
     training_stage,
 )
 from src.blocks import HierarchicalSpectralFrontend
@@ -86,6 +99,110 @@ def test_wide_egfn_has_about_one_thousand_parameters(tmp_path: Path) -> None:
     assert sum(parameter.numel() for parameter in model.parameters()) == 1_032
 
 
+def test_supervised_anomaly_loss_updates_optional_head(tmp_path: Path) -> None:
+    record = AnomalyAudioRecord(
+        path=tmp_path / "normal.wav",
+        dataset_name="test",
+        machine_type="machine",
+        machine_id="id_00",
+        condition_id="machine/id_00",
+        group_id="normal.wav",
+        label="normal",
+    )
+    profile = bootstrap_normal_profile(
+        (record,), 8_000, 256, 64, None, (2, 3, 2)
+    )
+    model = build_model("egfn", profile, supervised_anomaly_head=True)
+    output = model(torch.randn(4, 1, 4_000), ["test/machine/id_00"] * 4)
+
+    loss = supervised_anomaly_loss(output, torch.tensor([0, 0, 1, 1]), 1.0)
+    loss.backward()
+
+    assert loss.item() > 0
+    assert model.anomaly_head.weight.grad is not None
+
+
+def test_pairwise_ranking_rewards_anomalies_above_normals() -> None:
+    labels = torch.tensor([0, 0, 1, 1])
+    ordered = torch.tensor([-1.0, -0.5, 0.5, 1.0], requires_grad=True)
+    reversed_logits = -ordered.detach()
+
+    ordered_loss = pairwise_anomaly_ranking_loss(ordered, labels, margin=0.5)
+    reversed_loss = pairwise_anomaly_ranking_loss(
+        reversed_logits, labels, margin=0.5
+    )
+    objective = supervised_anomaly_objective(
+        {"anomaly_logit": ordered},
+        labels,
+        positive_weight=1.0,
+        ranking_weight=0.5,
+        ranking_margin=0.5,
+    )
+    objective["supervised_loss"].backward()
+
+    assert ordered_loss < reversed_loss
+    assert objective["supervised_loss"].item() == pytest.approx(
+        (objective["bce_loss"] + 0.5 * objective["ranking_loss"]).item()
+    )
+    assert ordered.grad is not None
+
+
+def test_hybrid_calibration_uses_validation_labels_without_test_data() -> None:
+    validation = {
+        "recording_ids": [f"r{index}" for index in range(6)],
+        "condition_ids": ["machine"] * 6,
+        "labels": np.asarray([0, 0, 0, 1, 1, 1]),
+        "scores": {
+            "memory_score": np.asarray([0.1, 0.2, 0.3, 0.7, 0.8, 0.9]),
+            "supervised_score": np.asarray([0.2, 0.1, 0.3, 0.8, 0.7, 0.9]),
+        },
+    }
+
+    calibration = fit_hybrid_calibration(validation, "memory_score", 0.95)
+    scores = apply_hybrid_calibration(validation, calibration)
+    threshold = best_f1_threshold(validation["labels"], scores)
+
+    assert 0 <= calibration["alpha"] <= 1
+    assert threshold == pytest.approx(calibration["threshold"])
+    assert np.all(scores[:3] < scores[3:])
+
+
+def test_hybrid_calibration_can_use_anomaly_reference_evidence() -> None:
+    validation = {
+        "recording_ids": [f"r{index}" for index in range(6)],
+        "condition_ids": ["machine"] * 6,
+        "labels": np.asarray([0, 0, 0, 1, 1, 1]),
+        "scores": {
+            "memory_score": np.asarray([0.1, 0.2, 0.3, 0.7, 0.8, 0.9]),
+            "supervised_score": np.asarray([0.4, 0.4, 0.4, 0.4, 0.4, 0.4]),
+            "reference_score": np.asarray([0.1, 0.2, 0.1, 0.8, 0.9, 0.85]),
+        },
+    }
+
+    calibration = fit_hybrid_calibration(validation, "memory_score", 0.95)
+    scores = apply_hybrid_calibration(validation, calibration)
+
+    assert set(calibration["weights"]) == {
+        "memory_score",
+        "reference_score",
+        "supervised_score",
+    }
+    assert sum(calibration["weights"].values()) == pytest.approx(1.0)
+    assert calibration["weights"]["reference_score"] > 0
+    assert np.max(scores[:3]) < np.min(scores[3:])
+
+
+def test_fpr_constrained_threshold_respects_validation_cap() -> None:
+    labels = np.asarray([0, 0, 0, 0, 1, 1, 1, 1])
+    scores = np.asarray([0.1, 0.2, 0.3, 0.8, 0.4, 0.5, 0.7, 0.9])
+
+    threshold, metrics = threshold_at_max_fpr(labels, scores, 0.25)
+
+    assert metrics["fp"] / (metrics["fp"] + metrics["tn"]) <= 0.25
+    assert threshold == pytest.approx(0.4)
+    assert metrics["recall"] == pytest.approx(1.0)
+
+
 def test_deep_svdd_scores_and_center_stabilization() -> None:
     center = stabilize_center(torch.tensor([0.0, -0.01, 2.0]), epsilon=0.1)
     embedding = torch.stack((center, center + 1.0))
@@ -114,6 +231,103 @@ def test_learnable_filter_schedule_has_three_non_overlapping_stages() -> None:
         "representation_finetune",
     ]
     assert training_stage(1, False, 0, 0) == "representation"
+    assert training_stage(1, False, 0, 0, head_warmup_epochs=2) == "head_warmup"
+    assert training_stage(3, False, 0, 0, head_warmup_epochs=2) == "representation"
+
+
+def test_head_warmup_freezes_every_parameter_except_anomaly_head(tmp_path: Path) -> None:
+    record = AnomalyAudioRecord(
+        path=tmp_path / "normal.wav",
+        dataset_name="test",
+        machine_type="machine",
+        machine_id="id_00",
+        condition_id="machine/id_00",
+        group_id="normal.wav",
+        label="normal",
+    )
+    profile = bootstrap_normal_profile((record,), 8_000, 256, 64, None, (2, 3, 2))
+    model = build_model("egfn", profile, supervised_anomaly_head=True)
+
+    trainable = configure_training_stage(model, "egfn", "head_warmup")
+
+    assert trainable == sum(p.numel() for p in model.anomaly_head.parameters())
+    assert all(p.requires_grad for p in model.anomaly_head.parameters())
+    assert all(
+        not parameter.requires_grad
+        for name, parameter in model.named_parameters()
+        if not name.startswith("anomaly_head.")
+    )
+
+
+def test_one_class_checkpoint_load_leaves_new_head_untouched(tmp_path: Path) -> None:
+    record = AnomalyAudioRecord(
+        path=tmp_path / "normal.wav",
+        dataset_name="test",
+        machine_type="machine",
+        machine_id="id_00",
+        condition_id="machine/id_00",
+        group_id="normal.wav",
+        label="normal",
+    )
+    source_profile = bootstrap_normal_profile(
+        (record,), 8_000, 256, 64, None, (2, 3, 2)
+    )
+    source = build_model("egfn", source_profile)
+    checkpoint = tmp_path / "one_class.pt"
+    torch.save(
+        {
+            "args": {"model": "egfn", "training_mode": "one_class"},
+            "model_state": source.state_dict(),
+        },
+        checkpoint,
+    )
+    target_profile = bootstrap_normal_profile(
+        (record,), 8_000, 256, 64, None, (2, 3, 2)
+    )
+    target = build_model("egfn", target_profile, supervised_anomaly_head=True)
+    original_head = target.anomaly_head.weight.detach().clone()
+
+    loaded = load_pretrained_one_class_backbone(target, checkpoint)
+
+    assert loaded == sum(parameter.numel() for parameter in source.parameters())
+    assert torch.equal(target.encoder.input_projection.weight, source.encoder.input_projection.weight)
+    assert torch.equal(target.anomaly_head.weight, original_head)
+
+
+def test_hybrid_sampler_balances_labels_within_each_condition(tmp_path: Path) -> None:
+    records = []
+    for condition in ("id_00", "id_02"):
+        for index in range(5):
+            records.append(
+                AnomalyAudioRecord(
+                    path=tmp_path / f"{condition}_normal_{index}.wav",
+                    dataset_name="test",
+                    machine_type="machine",
+                    machine_id=condition,
+                    condition_id=condition,
+                    group_id=f"{condition}_normal_{index}",
+                    label="normal",
+                )
+            )
+        for index in range(3):
+            records.append(
+                AnomalyAudioRecord(
+                    path=tmp_path / f"{condition}_anomaly_{index}.wav",
+                    dataset_name="test",
+                    machine_type="machine",
+                    machine_id=condition,
+                    condition_id=condition,
+                    group_id=f"{condition}_anomaly_{index}",
+                    label="anomalous",
+                )
+            )
+    dataset = AnomalyWindowDataset(records, 8_000, 0.5)
+    sampler = HybridConditionBatchSampler(dataset, batch_size=4, shuffle=False)
+
+    for batch in sampler:
+        selected = [dataset.records[dataset._index[index][0]] for index in batch]
+        assert sum(record.is_normal for record in selected) == 2
+        assert len({record.condition_id for record in selected}) == 1
 
 
 def test_filter_adaptation_freezes_every_parameter_except_filter_weights() -> None:

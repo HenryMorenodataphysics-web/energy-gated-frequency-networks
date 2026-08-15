@@ -172,3 +172,81 @@ class ConditionBatchSampler(Sampler[list[int]]):
             math.ceil(len(indices) / self.batch_size)
             for indices in self._grouped_indices.values()
         )
+
+
+class HybridConditionBatchSampler(Sampler[list[int]]):
+    """Yield class-balanced batches without mixing operating conditions."""
+
+    def __init__(
+        self,
+        dataset: AnomalyWindowDataset,
+        batch_size: int,
+        shuffle: bool,
+        seed: int = 42,
+    ) -> None:
+        if batch_size < 2 or batch_size % 2 != 0:
+            raise ValueError("hybrid batch size must be a positive even integer.")
+        self.dataset = dataset
+        self.batch_size = int(batch_size)
+        self.shuffle = bool(shuffle)
+        self.seed = int(seed)
+        self.epoch = 0
+        grouped: dict[str, dict[int, list[int]]] = {}
+        for index, (record_index, _) in enumerate(dataset._index):
+            record = dataset.records[record_index]
+            condition = dataset.condition_id_at(index)
+            grouped.setdefault(condition, {0: [], 1: []})[
+                0 if record.is_normal else 1
+            ].append(index)
+        missing = [
+            condition
+            for condition, labels in grouped.items()
+            if not labels[0] or not labels[1]
+        ]
+        if missing:
+            raise ValueError(
+                "each hybrid condition needs both labels; missing: "
+                + ", ".join(sorted(missing))
+            )
+        self._grouped_indices = {
+            condition: {label: tuple(indices) for label, indices in labels.items()}
+            for condition, labels in sorted(grouped.items())
+        }
+
+    def set_epoch(self, epoch: int) -> None:
+        self.epoch = int(epoch)
+
+    def __iter__(self):
+        generator = random.Random(self.seed + self.epoch)
+        half = self.batch_size // 2
+        batches: list[list[int]] = []
+        for labels in self._grouped_indices.values():
+            normal = list(labels[0])
+            anomalous = list(labels[1])
+            if self.shuffle:
+                generator.shuffle(normal)
+                generator.shuffle(anomalous)
+            batch_count = math.ceil(max(len(normal), len(anomalous)) / half)
+            for batch_index in range(batch_count):
+                start = batch_index * half
+                batch = [
+                    normal[index % len(normal)]
+                    for index in range(start, start + half)
+                ]
+                batch.extend(
+                    anomalous[index % len(anomalous)]
+                    for index in range(start, start + half)
+                )
+                if self.shuffle:
+                    generator.shuffle(batch)
+                batches.append(batch)
+        if self.shuffle:
+            generator.shuffle(batches)
+        yield from batches
+
+    def __len__(self) -> int:
+        half = self.batch_size // 2
+        return sum(
+            math.ceil(max(len(labels[0]), len(labels[1])) / half)
+            for labels in self._grouped_indices.values()
+        )

@@ -97,6 +97,7 @@ class HierarchicalAnomalyDetector(nn.Module):
         frontend: HierarchicalSpectralFrontend,
         normal_profile: ConditionedNormalProfile,
         embedding_channels: int = 8,
+        supervised_anomaly_head: bool = False,
         scorer: ProfileAnomalyScorer | None = None,
         gate_regularizer: GateRegularizer | None = None,
     ) -> None:
@@ -113,6 +114,12 @@ class HierarchicalAnomalyDetector(nn.Module):
         )
         self.reconstruction_head = nn.Conv2d(
             embedding_channels, 1, kernel_size=1
+        )
+        embedding_dimensions = 2 * (embedding_channels + frontend.num_subbands)
+        self.anomaly_head = (
+            nn.Linear(embedding_dimensions, 1)
+            if supervised_anomaly_head
+            else None
         )
 
     @staticmethod
@@ -199,7 +206,7 @@ class HierarchicalAnomalyDetector(nn.Module):
             regularize_macro=active_macro_gates,
             regularize_subband=active_subband_gates,
         )
-        return {
+        outputs = {
             **frontend_outputs,
             **profile_outputs,
             **score_outputs,
@@ -209,3 +216,8 @@ class HierarchicalAnomalyDetector(nn.Module):
             "activation_signature_features": activation_signature_features,
             **regularization_outputs,
         }
+        if self.anomaly_head is not None:
+            outputs["anomaly_logit"] = self.anomaly_head(
+                encoder_outputs["embedding"]
+            ).squeeze(1)
+        return outputs

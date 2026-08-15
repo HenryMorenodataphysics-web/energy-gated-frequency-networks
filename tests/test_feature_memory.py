@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import pytest
 import torch
 
 from src.anomaly import ConditionedFeatureMemory, ConditionedFeatureMemoryEstimator
@@ -60,3 +61,44 @@ def test_memory_estimator_is_bounded_conditioned_and_serializable() -> None:
     assert memory.summary()["fallback_memory_sizes"] == [5]
     assert result["recording_memory_score"][:2].tolist() == [0.0, 0.0]
     assert result["known_memory_condition"].tolist() == [True, True, False]
+
+
+def test_anomaly_bank_reuses_normal_standardization_for_comparable_distances() -> None:
+    normal = ConditionedFeatureMemory(
+        condition_ids=("machine",),
+        memories=(torch.zeros(1, 2, 1),),
+        mean=torch.zeros(1, 1, 1),
+        std=torch.ones(1, 1, 1),
+        fallback_memory=torch.zeros(1, 2, 1),
+        fallback_mean=torch.zeros(1, 1),
+        fallback_std=torch.ones(1, 1),
+        temporal_pool=1,
+        top_fraction=1.0,
+    )
+    anomaly = ConditionedFeatureMemory(
+        condition_ids=("machine",),
+        memories=(torch.full((1, 2, 1), 10.0),),
+        mean=torch.full((1, 1, 1), 10.0),
+        std=torch.ones(1, 1, 1),
+        fallback_memory=torch.full((1, 2, 1), 10.0),
+        fallback_mean=torch.full((1, 1), 10.0),
+        fallback_std=torch.ones(1, 1),
+        temporal_pool=1,
+        top_fraction=1.0,
+    ).with_statistics_from(normal)
+    query = torch.tensor([[[[0.0]]], [[[10.0]]]])
+
+    normal_distance = normal.score(query, ["machine", "machine"])[
+        "recording_memory_score"
+    ]
+    anomaly_distance = anomaly.score(query, ["machine", "machine"])[
+        "recording_memory_score"
+    ]
+    reference_score = normal_distance / (
+        normal_distance + anomaly_distance + 1e-8
+    )
+
+    assert anomaly.mean.item() == 0.0
+    assert normal_distance.tolist() == [0.0, 100.0]
+    assert anomaly_distance.tolist() == [100.0, 0.0]
+    assert reference_score.tolist() == pytest.approx([0.0, 1.0])
