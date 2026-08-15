@@ -97,6 +97,7 @@ class HierarchicalAnomalyDetector(nn.Module):
         frontend: HierarchicalSpectralFrontend,
         normal_profile: ConditionedNormalProfile,
         embedding_channels: int = 8,
+        supervised_anomaly_head: bool = False,
         scorer: ProfileAnomalyScorer | None = None,
         gate_regularizer: GateRegularizer | None = None,
     ) -> None:
@@ -113,6 +114,12 @@ class HierarchicalAnomalyDetector(nn.Module):
         )
         self.reconstruction_head = nn.Conv2d(
             embedding_channels, 1, kernel_size=1
+        )
+        embedding_dimensions = 2 * (embedding_channels + frontend.num_subbands)
+        self.anomaly_head = (
+            nn.Linear(embedding_dimensions, 1)
+            if supervised_anomaly_head
+            else None
         )
 
     @staticmethod
@@ -157,24 +164,60 @@ class HierarchicalAnomalyDetector(nn.Module):
             profile_outputs["z_scores"],
             profile_outputs["known_condition"],
         )
+        encoder_mask = masked_subbands
+        active_subbands = frontend_outputs.get("active_subband_mask")
+        if (
+            active_subbands is not None
+            and self.frontend.hard_routing_top_k is not None
+        ):
+            routing_mask = ~active_subbands
+            encoder_mask = (
+                routing_mask
+                if encoder_mask is None
+                else encoder_mask.to(dtype=torch.bool, device=routing_mask.device)
+                | routing_mask
+            )
         encoder_outputs = self.encoder(
             frontend_outputs["features"],
             profile_outputs["z_scores"],
-            masked_subbands=masked_subbands,
+            masked_subbands=encoder_mask,
         )
         reconstruction = self.reconstruction_head(
             encoder_outputs["embedding_map"]
         ).squeeze(1)
+        z_features = profile_outputs["z_scores"].permute(0, 2, 1, 3)
+        gate_features = frontend_outputs["joint_gates"].unsqueeze(1)
+        gated_profile_features = torch.cat(
+            (z_features, gate_features, z_features * gate_features),
+            dim=1,
+        )
+        activation_signature_features = frontend_outputs[
+            "activation_signature"
+        ].permute(0, 2, 1).unsqueeze(-1)
+        active_macro_gates = self.frontend.gate_mode in {"macro", "hierarchical"}
+        active_subband_gates = self.frontend.gate_mode in {
+            "subband",
+            "hierarchical",
+        }
         regularization_outputs = self.gate_regularizer(
             frontend_outputs["macro_gates"],
             frontend_outputs["subband_gates"],
             progress=regularization_progress,
+            regularize_macro=active_macro_gates,
+            regularize_subband=active_subband_gates,
         )
-        return {
+        outputs = {
             **frontend_outputs,
             **profile_outputs,
             **score_outputs,
             **encoder_outputs,
             "reconstructed_log_energy_z": reconstruction,
+            "gated_profile_features": gated_profile_features,
+            "activation_signature_features": activation_signature_features,
             **regularization_outputs,
         }
+        if self.anomaly_head is not None:
+            outputs["anomaly_logit"] = self.anomaly_head(
+                encoder_outputs["embedding"]
+            ).squeeze(1)
+        return outputs

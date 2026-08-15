@@ -20,6 +20,12 @@ from .one_class import (
     standardized_embedding_scores,
 )
 from .scoring import ProfileAnomalyScorer
+from .spectral_baseline import (
+    ConditionedSpectralBaselineEstimator,
+    ConditionedSpectralBaselines,
+    LogMelFrontend,
+    build_mel_filterbank,
+)
 
 __all__ = [
     "DESCRIPTOR_NAMES",
@@ -31,6 +37,10 @@ __all__ = [
     "energy_descriptors",
     "local_feature_descriptors",
     "ProfileAnomalyScorer",
+    "ConditionedSpectralBaselineEstimator",
+    "ConditionedSpectralBaselines",
+    "LogMelFrontend",
+    "build_mel_filterbank",
     "ConditionedEmbeddingEstimator",
     "ConditionedEmbeddingProfile",
     "anti_collapse_loss",

@@ -137,6 +137,87 @@ def split_anomaly_records(
     )
 
 
+def add_hybrid_anomaly_partitions(
+    split: AnomalyDataSplit,
+    anomaly_train_ratio: float = 0.6,
+    anomaly_validation_ratio: float = 0.2,
+    seed: int = 42,
+) -> AnomalyDataSplit:
+    """Move disjoint anomalous groups into train/validation for hybrid fitting.
+
+    Normal groups keep the one-class partition exactly. Only anomalous groups
+    from the original test split are repartitioned, so normal-profile fitting
+    can continue to use the normal subset of ``train`` without contamination.
+    """
+    validate_anomaly_split(split)
+    if anomaly_train_ratio <= 0 or anomaly_validation_ratio <= 0:
+        raise ValueError("hybrid anomaly train/validation ratios must be positive.")
+    if anomaly_train_ratio + anomaly_validation_ratio >= 1:
+        raise ValueError("hybrid anomaly ratios must leave anomalous test data.")
+
+    anomalous_groups: dict[tuple[str, str], list[list[AnomalyAudioRecord]]] = {}
+    grouped: dict[tuple[str, str], list[AnomalyAudioRecord]] = {}
+    for record in split.test:
+        if not record.is_normal:
+            grouped.setdefault((record.dataset_name, record.group_id), []).append(record)
+    for group in grouped.values():
+        conditions = {(record.dataset_name, record.condition_id) for record in group}
+        if len(conditions) != 1:
+            raise ValueError(f"group_id {group[0].group_id!r} spans multiple conditions.")
+        anomalous_groups.setdefault(next(iter(conditions)), []).append(group)
+    if not anomalous_groups:
+        raise ValueError("hybrid training requires anomalous recordings.")
+
+    generator = random.Random(seed)
+    anomaly_train: list[AnomalyAudioRecord] = []
+    anomaly_validation: list[AnomalyAudioRecord] = []
+    anomaly_test: list[AnomalyAudioRecord] = []
+    for condition in sorted(anomalous_groups):
+        condition_groups = sorted(
+            anomalous_groups[condition],
+            key=lambda group: _record_sort_key(group[0]),
+        )
+        generator.shuffle(condition_groups)
+        group_count = len(condition_groups)
+        train_size = max(1, int(group_count * anomaly_train_ratio))
+        validation_size = max(1, int(group_count * anomaly_validation_ratio))
+        while train_size + validation_size >= group_count:
+            if train_size >= validation_size and train_size > 1:
+                train_size -= 1
+            elif validation_size > 1:
+                validation_size -= 1
+            else:
+                raise ValueError(
+                    "each condition needs at least three anomalous groups for hybrid splitting."
+                )
+        for group in condition_groups[:train_size]:
+            anomaly_train.extend(group)
+        for group in condition_groups[train_size : train_size + validation_size]:
+            anomaly_validation.extend(group)
+        for group in condition_groups[train_size + validation_size :]:
+            anomaly_test.extend(group)
+
+    hybrid = AnomalyDataSplit(
+        train=tuple(
+            sorted((*split.train, *anomaly_train), key=_record_sort_key)
+        ),
+        validation=tuple(
+            sorted((*split.validation, *anomaly_validation), key=_record_sort_key)
+        ),
+        test=tuple(
+            sorted(
+                (
+                    *(record for record in split.test if record.is_normal),
+                    *anomaly_test,
+                ),
+                key=_record_sort_key,
+            )
+        ),
+    )
+    validate_hybrid_anomaly_split(hybrid)
+    return hybrid
+
+
 def validate_anomaly_split(split: AnomalyDataSplit) -> None:
     """Raise when a split leaks groups or uses anomalies for fitting."""
     if any(not record.is_normal for record in split.train):
@@ -149,3 +230,26 @@ def validate_anomaly_split(split: AnomalyDataSplit) -> None:
         group_sets.append({(record.dataset_name, record.group_id) for record in records})
     if group_sets[0] & group_sets[1] or group_sets[0] & group_sets[2] or group_sets[1] & group_sets[2]:
         raise ValueError("group leakage detected between splits.")
+
+
+def validate_hybrid_anomaly_split(split: AnomalyDataSplit) -> None:
+    """Raise when a hybrid split leaks groups or omits either class."""
+    for name, records in (
+        ("train", split.train),
+        ("validation", split.validation),
+        ("test", split.test),
+    ):
+        labels = {record.label for record in records}
+        if labels != {"normal", "anomalous"}:
+            raise ValueError(f"hybrid {name} split must contain both labels.")
+
+    group_sets = [
+        {(record.dataset_name, record.group_id) for record in records}
+        for records in (split.train, split.validation, split.test)
+    ]
+    if (
+        group_sets[0] & group_sets[1]
+        or group_sets[0] & group_sets[2]
+        or group_sets[1] & group_sets[2]
+    ):
+        raise ValueError("group leakage detected between hybrid splits.")

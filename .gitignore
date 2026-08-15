@@ -8,6 +8,9 @@ pytest-cache-files-*/
 data/raw/
 data/processed/
 outputs/
+output/
+tmp/
+exports/
 
 .tmp/
 .agents/

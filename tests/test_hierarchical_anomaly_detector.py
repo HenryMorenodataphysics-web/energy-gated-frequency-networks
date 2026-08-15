@@ -60,12 +60,51 @@ def test_detector_keeps_score_and_embedding_as_separate_outputs() -> None:
 
     assert output["recording_score"].shape == (2,)
     assert output["embedding"].shape == (2, 28)
+    assert output["gated_profile_features"].shape == (
+        2,
+        5,
+        detector.frontend.num_subbands,
+        output["z_scores"].shape[-1],
+    )
+    assert output["activation_signature_features"].shape == (
+        2,
+        5,
+        detector.frontend.num_subbands,
+        1,
+    )
+    z_features = output["z_scores"].permute(0, 2, 1, 3)
+    gates = output["joint_gates"].unsqueeze(1)
+    assert torch.equal(output["gated_profile_features"][:, :2], z_features)
+    assert torch.equal(output["gated_profile_features"][:, 2:3], gates)
+    assert torch.equal(output["gated_profile_features"][:, 3:], z_features * gates)
     assert output["known_condition"].tolist() == [True, False]
     assert output["gate_regularization_loss"].ndim == 0
     assert torch.allclose(
         changed_encoder_output["recording_score"],
         output["recording_score"],
     )
+
+
+def test_none_mode_has_zero_gate_regularization() -> None:
+    detector = build_detector()
+    detector.frontend.gate_mode = "none"
+    output = detector(torch.randn(2, 1, 4_000), ["machine", "machine"])
+
+    assert output["gate_regularization_loss"].item() == 0.0
+
+
+def test_optional_supervised_head_emits_one_logit_per_recording() -> None:
+    base = build_detector()
+    detector = HierarchicalAnomalyDetector(
+        base.frontend,
+        base.normal_profile,
+        embedding_channels=8,
+        supervised_anomaly_head=True,
+    )
+
+    output = detector(torch.randn(3, 1, 4_000), ["machine"] * 3)
+
+    assert output["anomaly_logit"].shape == (3,)
 
 
 def test_detector_rejects_incompatible_profile_signature() -> None:
