@@ -26,4 +26,6 @@ reports/**/rendered_*/
 *.out
 
 .env
+.env.local
+evidence/egfn_context.sqlite3
 .DS_Store

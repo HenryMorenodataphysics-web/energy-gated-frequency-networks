@@ -1,195 +1,190 @@
-# Energy-Gated Frequency Neuron
+# Energy-Gated Frequency Network (EGFN)
 
- project exploring a physically inspired neural block
-for audio classification.
+![Acoustic anomaly detection logo](assets/egfn-logo.png)
 
-## Core Idea
+EGFN is an interpretable audio anomaly-detection project for industrial
+machines. It combines learnable frequency analysis, energy-based gating,
+normal-operation profiles, local feature memory, and a bounded OpenAI
+explanation layer.
 
-The project does not treat filters as classical activation functions. Instead,
-it builds a neural frontend that combines:
+The central product idea is simple:
 
 ```text
-raw audio -> filter bank -> activation -> band energy -> learned gate -> classifier
+engine audio
+    -> EGFN neural detector
+    -> anomaly score and calibrated threshold
+    -> possible failure / no clear failure signal
+    -> retrieved manuals and repair history (when available)
+    -> plain-English OpenAI explanation
 ```
 
-For each frequency band `k`, the first version computes:
+The neural network makes the detection decision. OpenAI does not replace the
+detector: it explains the measured result and its limitations for a non-
+technical reader.
+
+## What the demo does
+
+The Streamlit app provides two connected views:
+
+1. **Audio diagnosis**: upload a WAV recording, run the calibrated EGFN
+   checkpoint, and receive a possible-failure result with an anomaly score.
+2. **Knowledge base**: open the popup to add manuals, reports, repair records,
+   and other project documents. Retrieved text can be supplied to the LLM as
+   supporting context.
+
+The current bundled checkpoint is calibrated for **MIMII valve audio**. Fan
+support requires a separately trained and calibrated fan checkpoint; the app
+does not silently apply the valve model to a fan recording.
+
+## Quick start
+
+Use the project environment, because model inference requires PyTorch:
+
+```powershell
+.\.venv\Scripts\Activate.ps1
+python -m pip install -r requirements-dashboard.txt
+python scripts\build_evidence_json.py
+.\.venv\Scripts\python.exe -m streamlit run app\dashboard.py
+```
+
+Open `http://localhost:8502` if Streamlit selects port 8502.
+
+The app loads `OPENAI_API_KEY` from the ignored `.env.local` file. OpenAI
+explanations require API quota; EGFN audio detection remains local and works
+without an API call.
+
+## End-to-end pipeline
+
+```mermaid
+flowchart LR
+    A[WAV engine recording] --> B[Resample and crop/pad]
+    B --> C[EGFN spectral frontend]
+    C --> D[Normal profile standardization]
+    D --> E[Local feature memory]
+    E --> F[Anomaly score]
+    F --> G{Score >= calibrated threshold?}
+    G -->|Yes| H[Possible failure]
+    G -->|No| I[No clear failure signal]
+    H --> J[Retrieve relevant knowledge]
+    I --> J
+    J --> K[OpenAI Responses API]
+    K --> L[Plain-English explanation]
+```
+
+### 1. Audio preparation
+
+The uploaded WAV is converted to mono, resampled to the checkpoint sample
+rate, and center-cropped or zero-padded to the expected duration. The app does
+not make a decision from the filename; the waveform is the model input.
+
+### 2. Frequency frontend
+
+The EGFN frontend receives a waveform `x[n]` and applies a bank of learnable
+filters. For frequency band `k`:
 
 ```text
 u_k[n] = (h_k * x)[n]
-a_k[n] = phi(u_k[n] + b_k)
-E_k = mean(u_k[n]^2)
+a_k[n] = activation(u_k[n] + b_k)
+E_k   = mean(u_k[n]^2)
+```
+
+`u_k` is the filtered response, `a_k` is the activated response, and `E_k`
+summarizes the energy present in the band. The frontend retains the band
+structure instead of collapsing the signal immediately into an opaque vector.
+
+### 3. Energy gates
+
+The energy is transformed into a stable log scale and passed through learned
+gates. In the independent form:
+
+```text
 g_k = sigmoid(alpha_k * log(1 + E_k) + beta_k)
 y_k[n] = g_k * a_k[n]
 ```
 
-The project supports two gate modes:
+The repository also implements macro, subband, hierarchical, and conditional
+gate variants for controlled studies. A gate is an interpretable signal about
+which bands the frontend is using; it is not, by itself, a causal explanation
+of a prediction.
+
+### 4. Normal-operation profile
+
+The one-class detector is fitted using normal recordings only. For each
+operating condition it stores statistics for stable energy descriptors such as
+log energy and absolute temporal energy change. A new recording is
+standardized against the matching condition when available, or against a
+fallback profile when the condition is unknown.
+
+This is why the app can flag an unusual recording without requiring a defect
+label for every possible failure mode.
+
+### 5. Local feature memory and score
+
+The detector also stores a bounded memory of normal local feature descriptors.
+For a new recording it measures the distance from its local descriptors to the
+closest normal descriptors. The recording-level score pools the most unusual
+local regions rather than averaging every frame equally.
+
+The final decision is deterministic:
 
 ```text
-independent:
-g_k = sigmoid(alpha_k * log(1 + E_k) + beta_k)
-
-contextual:
-g = sigmoid(MLP([log(1 + E_1), ..., log(1 + E_K)]))
+possible_failure = anomaly_score >= validation_selected_threshold
 ```
 
-The contextual gate lets each band decision depend on the full energy pattern
-across bands while preserving interpretable per-band gates.
+The threshold is learned from validation data and kept separate from the test
+set. It is not a universal physical constant and should be recalibrated when
+the machine type, recording setup, or operating distribution changes.
 
-The goal is to test whether an interpretable, lightweight frequency-gated
-frontend can compete with simple audio baselines and improve robustness under
-controlled noise.
+### 6. Knowledge and explanation layer
 
-## Project Structure
+Manuals and repair records are stored in SQLite as documents and text chunks.
+When documentation exists, the app retrieves relevant chunks and sends only
+that bounded context together with the audio diagnosis to OpenAI. When no
+documentation exists, the detector still works and the LLM receives only the
+diagnostic evidence.
 
-```text
-frequency_gated_nn/
-|-- data/
-|   |-- raw/
-|   |-- processed/
-|-- notebooks/
-|-- outputs/
-|   |-- figures/
-|   |-- models/
-|-- scripts/
-|   |-- check_env.py
-|   |-- test_neuron.py
-|   |-- train_synthetic.py
-|-- src/
-|   |-- blocks/
-|   |-- models/
-|   |-- utils/
-|-- tests/
-|-- requirements.txt
-|-- README.md
-```
+The explanation layer is instructed to:
 
-## Initial Experimental Plan
+- state clearly whether the result indicates a possible valve failure;
+- explain the score-versus-threshold result in ordinary language;
+- suggest a practical next step without inventing a physical cause;
+- disclose what the audio cannot confirm;
+- cite the checkpoint or knowledge source used.
 
-1. Validate the block on synthetic signals with known frequency structure.
-2. Train a small classifier on synthetic frequency classes.
-3. Move to a small real audio dataset such as Free Spoken Digit Dataset.
-4. Compare against baselines:
-   - MFCC + MLP
-   - Conv1D + ReLU
-   - fixed filter bank + ReLU
-   - fixed filter bank + energy gate
-5. Evaluate robustness with controlled SNR levels.
+The LLM does not load checkpoints, query arbitrary SQL, change thresholds, or
+override the EGFN result.
 
-## Quick Start
+## Evidence and knowledge storage
+
+The evidence export is generated from local experiment artifacts:
 
 ```powershell
-python -m venv .venv
-.\.venv\Scripts\Activate.ps1
-python -m pip install --upgrade pip
-pip install -r requirements.txt
-python scripts/check_env.py
-python scripts/test_neuron.py
-python scripts/train_synthetic.py
+python scripts\build_evidence_json.py
 ```
 
-GPU check:
+The resulting `evidence/egfn_evidence.json` is a compact, reviewable snapshot
+of selected results. The app initializes `evidence/egfn_context.sqlite3` with
+these tables:
 
-```powershell
-python -c "import torch; print(torch.cuda.is_available()); print(torch.cuda.get_device_name(0) if torch.cuda.is_available() else 'CPU only')"
-```
+| Table | Purpose |
+| --- | --- |
+| `evidence` | Experiment artifacts and metric payloads |
+| `history` | Evidence ingestion history |
+| `reference_items` | Human-readable project references |
+| `documents` | Uploaded manuals and reports |
+| `document_chunks` | Searchable document fragments |
+| `repairs` | Machine, symptom, action, and outcome records |
 
-Training scripts use `--device auto` by default, so they use CUDA when PyTorch
-can see an NVIDIA GPU. You can force a device with `--device cuda` or
-`--device cpu`.
+The current document retrieval is keyword-based. Embedding retrieval is the
+next step once a real manual and repair corpus exists; there is no reason to
+generate embeddings for an empty knowledge base.
 
-Harder synthetic experiment:
+## Research evidence
 
-```powershell
-python scripts/train_synthetic.py --difficulty medium --filter-bank fine --snr-db 10 --epochs 80
-python scripts/train_synthetic.py --difficulty hard --filter-bank fine --snr-db 10 --epochs 100
-python scripts/train_synthetic.py --difficulty hard --filter-bank fine --learnable-filters --gate-mode contextual --snr-db 10 --epochs 100 --output-dir outputs/hard_contextual
-python scripts/evaluate_snr_sweep.py --difficulty hard --filter-bank fine --learnable-filters --gate-mode contextual --model-path outputs/hard_contextual/models/frequency_gated_synthetic_best.pt
-```
+### Speech Commands
 
-V2 selective sparse gate experiment:
-
-```powershell
-python scripts/train_synthetic.py --difficulty hard --filter-bank fine --learnable-filters --gate-mode independent --gate-l1 0.005 --snr-db 10 --epochs 100 --output-dir outputs/hard_sparse_gate
-python scripts/evaluate_snr_sweep.py --difficulty hard --filter-bank fine --learnable-filters --gate-mode independent --model-path outputs/hard_sparse_gate/models/frequency_gated_synthetic_best.pt --output-dir outputs/hard_sparse_gate
-```
-
-`--gate-l1` encourages the model to use fewer active bands. Good runs should
-preserve accuracy while reducing `val_gate_mean` and `val_active_bands`.
-
-## First Real Audio Experiment: FSDD
-
-Download Free Spoken Digit Dataset:
-
-```powershell
-python scripts/download_fsdd.py
-```
-
-Train a small waveform CNN baseline:
-
-```powershell
-python scripts/train_fsdd.py --model conv1d --epochs 50 --output-dir outputs/fsdd_conv1d
-```
-
-Train the current EGFN model:
-
-```powershell
-python scripts/train_fsdd.py --model egfn --filter-bank fine --learnable-filters --gate-mode independent --epochs 50 --output-dir outputs/fsdd_egfn
-```
-
-Train EGFN with a temporal convolution head:
-
-```powershell
-python scripts/train_fsdd.py --model egfn_temporal --filter-bank fine --learnable-filters --gate-mode independent --epochs 50 --output-dir outputs/fsdd_egfn_temporal
-```
-
-Train EGFN temporal with audio augmentation and early stopping:
-
-```powershell
-python scripts/train_fsdd.py --model egfn_temporal --filter-bank fine --learnable-filters --gate-mode independent --augment --epochs 80 --patience 12 --output-dir outputs/fsdd_egfn_temporal_aug
-```
-
-By default, FSDD is split by speaker so validation/test use speakers not seen
-during training. This is harder and more honest than a random split.
-
-## Larger Real Audio Experiment: Speech Commands
-
-Google Speech Commands is a better next dataset after FSDD because it has more
-speakers, more variation, and official train/validation/test splits. The
-default command subset uses 10 labels:
-
-```text
-yes, no, up, down, left, right, on, off, stop, go
-```
-
-Download and train a Conv1D baseline:
-
-```powershell
-python scripts/train_speech_commands.py --download --model conv1d --epochs 30 --augment --output-dir outputs/speech_commands_conv1d
-```
-
-Train the EGFN temporal model on the same label subset:
-
-```powershell
-python scripts/train_speech_commands.py --model egfn_temporal --filter-bank fine --learnable-filters --gate-mode independent --augment --epochs 30 --patience 8 --output-dir outputs/speech_commands_egfn_temporal
-```
-
-Train a wider EGFN temporal variant:
-
-```powershell
-python scripts/train_speech_commands.py --model egfn_temporal --filter-bank fine --learnable-filters --gate-mode independent --frontend-channels 32 --temporal-channels 64,128 --dropout 0.25 --label-smoothing 0.05 --scheduler cosine --augment --num-workers 2 --epochs 40 --patience 10 --output-dir outputs/speech_commands_egfn_temporal_wide
-```
-
-If CUDA is available, the script will use it automatically. You can force GPU
-execution with:
-
-```powershell
-python scripts/train_speech_commands.py --model egfn_temporal --filter-bank fine --learnable-filters --augment --device cuda --epochs 30 --output-dir outputs/speech_commands_egfn_temporal_cuda
-```
-
-This experiment is more useful than FSDD for evaluating whether EGFN can
-generalize beyond a tiny speaker set.
-
-Current Speech Commands results:
+The wider EGFN temporal model nearly matches a Conv1D baseline while retaining
+an interpretable frequency frontend:
 
 | Model | Best validation accuracy | Test accuracy | Test gate mean |
 | --- | ---: | ---: | ---: |
@@ -197,175 +192,75 @@ Current Speech Commands results:
 | EGFN temporal | 0.856 | 0.849 | 0.547 |
 | EGFN temporal wide | 0.893 | 0.886 | 0.444 |
 
-The wide EGFN temporal model nearly matches the Conv1D baseline while retaining
-an interpretable frequency-gated frontend.
+### MIMII valve
 
-## Industrial Audio Experiment: MIMII
-
-MIMII contains normal and anomalous sounds from industrial machines such as
-fans, pumps, valves, and sliders. Download it manually from Zenodo and place
-the extracted files under:
-
-```text
-data/raw/mimii/
-```
-
-Reference:
-
-```text
-https://zenodo.org/record/3384388
-```
-
-Inspect the local dataset:
-
-```powershell
-python scripts/inspect_mimii.py --data-dir data/raw/mimii
-```
-
-This repo currently uses `6_dB_valve.zip` as the first industrial subset.
-Inspect the local valve data:
-
-```powershell
-python scripts/inspect_mimii.py --data-dir data/raw/mimii --machine-type valve
-```
-
-Train a Conv1D baseline:
-
-```powershell
-python scripts/train_mimii.py --data-dir data/raw/mimii --machine-type valve --model conv1d --augment --balanced-loss --num-workers 2 --epochs 40 --output-dir outputs/mimii_valve_conv1d
-```
-
-Train the EGFN temporal wide model:
-
-```powershell
-python scripts/train_mimii.py --data-dir data/raw/mimii --machine-type valve --model egfn_temporal --filter-bank fine --learnable-filters --gate-mode independent --frontend-channels 32 --temporal-channels 64,128 --dropout 0.25 --label-smoothing 0.05 --scheduler cosine --augment --balanced-loss --num-workers 2 --epochs 40 --patience 10 --output-dir outputs/mimii_valve_egfn_temporal_wide
-```
-
-If Windows multiprocessing gives a permission error, retry with
-`--num-workers 0`.
-
-The industrial question is whether EGFN can detect anomalous machine sounds
-while showing which frequency bands become important for abnormal operation.
-
-Current valve results at the default `0.50` anomaly threshold:
+An earlier supervised comparison reported these results at the default
+threshold:
 
 | Model | Test accuracy | Precision | Recall | F1 | AUC |
 | --- | ---: | ---: | ---: | ---: | ---: |
 | Conv1D baseline | 0.955 | 0.765 | 0.873 | 0.816 | 0.982 |
 | EGFN temporal wide | 0.929 | 0.639 | 0.873 | 0.738 | **0.984** |
 
-Selecting the threshold on validation F1 chooses `0.78` for EGFN. On the
-untouched test split this gives `0.965` accuracy, `0.930` precision, `0.746`
-recall, and `0.828` F1. This operating point reduces false alarms from 35 to 4
-while increasing missed anomalies from 9 to 18. The appropriate threshold is
-therefore an operational decision, not a universal model constant.
+At a validation-selected threshold of `0.78`, the EGFN operating point reached
+0.965 accuracy, 0.930 precision, 0.746 recall, and 0.828 F1 on the untouched
+test split. This threshold reduces false alarms but increases missed
+anomalies, so the correct operating point depends on the maintenance cost of
+each error.
 
-Calibrate the anomaly threshold on validation data and evaluate it on the
-untouched test split:
+These research metrics are not automatically the result for an arbitrary
+uploaded audio file. The app uses the checkpoint and threshold bundled in its
+configuration, and the result should be interpreted within that calibration
+scope.
 
-```powershell
-python scripts/analyze_mimii_results.py --run-dir outputs/mimii_valve_conv1d --num-workers 2
-python scripts/analyze_mimii_results.py --run-dir outputs/mimii_valve_egfn_temporal_wide --num-workers 2
-```
-
-The analysis writes a validation threshold sweep, default-vs-calibrated test
-metrics, per-record test predictions, and calibration figures to each run's
-`analysis/` directory. For EGFN runs it also exports per-band gate and energy
-statistics for normal versus abnormal audio, plus the learned filter responses.
-Band names refer to filter initialization; the response plot shows where each
-learnable filter actually moved during training. The test set is never used to
-select the threshold.
-
-The current independent gates have similar class-level means. Most visible
-normal-versus-abnormal separation appears in band energy and the temporal head.
-Also, unconstrained learnable kernels can become multiband and move away from
-their initialized ranges. Both observations are limitations to report rather
-than evidence that the gate alone explains every prediction.
-
-### Multi-seed comparison
-
-Run the matched three-seed experiment for both models:
-
-```powershell
-python scripts/run_mimii_multiseed.py --device cuda --num-workers 2
-```
-
-The runner uses seeds `42,123,456`, reuses the completed seed-42 runs, resumes
-completed outputs automatically, and trains only missing runs. It calibrates
-every model using its own validation split and writes per-seed results plus
-mean and sample standard deviation to:
+## Repository map
 
 ```text
-outputs/mimii_valve_multiseed/multiseed_runs.csv
-outputs/mimii_valve_multiseed/multiseed_summary.csv
-outputs/mimii_valve_multiseed/multiseed_summary.json
+frequency_gated_nn/
+|-- app/dashboard.py                 Streamlit diagnosis and knowledge UI
+|-- assets/egfn-logo.png            README project logo
+|-- src/blocks/                      Frequency and spectral neural blocks
+|-- src/models/                      EGFN and anomaly model composition
+|-- src/anomaly/                     Profiles, scoring, memory, regularization
+|-- src/data/                        Dataset adapters and protocols
+|-- scripts/build_evidence_json.py  Evidence snapshot builder
+|-- scripts/train_*.py               Training entry points
+|-- evidence/                        JSON evidence and local SQLite runtime data
+|-- reports/                         Experiment logs and research figures
+|-- tests/                            Unit and protocol tests
+|-- requirements.txt                 Research/training dependencies
+|-- requirements-dashboard.txt       Dashboard, OpenAI, and PDF dependencies
 ```
 
-Rerun the same command after an interruption. Use `--force` only when every
-completed run should be trained again.
+## Limitations and governance
 
-### EGFN V2: capacity-matched frontend study
+- The current demo is calibrated for valve audio, not every industrial machine.
+- A possible failure is an anomaly alert, not a confirmed mechanical diagnosis.
+- Unknown operating conditions use a fallback threshold and should be reviewed.
+- Scanned PDFs need OCR before their text can be retrieved reliably.
+- Embeddings are intentionally not generated until a real knowledge corpus is
+  available.
+- The LLM is an explanation assistant, not an autonomous maintenance authority.
+- Human inspection and maintenance procedures remain required before action.
 
-V2 separates frontend effects from temporal-head capacity. All three controlled
-architectures use eight frontend channels followed by the same `8 -> 32`
-projection, `64,128` temporal head, classifier, augmentation, loss, and
-regularization:
-
-| Experiment | Frontend | Parameters |
-| --- | --- | ---: |
-| `conv1d_matched` | unconstrained 8-channel Conv1D | 188,754 |
-| `egfn_free` | V1 free FIR filters, energy, and gates | 188,770 |
-| `egfn_sinc` | constrained Sinc filters, energy, and gates | 187,978 |
-
-The Sinc frontend learns lower and upper cutoff frequencies while guaranteeing
-positive frequencies, at least 50 Hz bandwidth, and an upper cutoff below
-Nyquist. Its kernels remain symmetric physical band-pass filters throughout
-training.
-
-Run the first controlled comparison with seed 42:
+## Development checks
 
 ```powershell
-python scripts/run_mimii_v2.py --device cuda --num-workers 2
+.\.venv\Scripts\python.exe -m py_compile app\dashboard.py src\audio_diagnosis.py
+.\.venv\Scripts\python.exe -m pytest tests\test_egfn_context.py -q --basetemp=.tmp\pytest-run
 ```
 
-This reuses the existing `egfn_free` seed-42 result and trains only the matched
-Conv1D and Sinc EGFN. If the Sinc model remains competitive, run all three
-paired seeds:
+The Windows environment may emit temporary-directory cleanup warnings after
+pytest finishes; a direct SQLite round-trip check is also available in the
+same test module.
 
-```powershell
-python scripts/run_mimii_v2.py --seeds 42,123,456 --device cuda --num-workers 2
-```
+## Portfolio focus
 
-Completed runs are skipped automatically. Results are written to
-`outputs/mimii_v2_controlled/v2_runs.csv` and `v2_summary.csv`. If Windows
-multiprocessing fails, use `--num-workers 0`.
+This project demonstrates:
 
-### Gating ablation
-
-The capacity-matched V2 result does not by itself identify whether energy
-gating helps beyond the filter bank. `gate_mode="none"` now replaces the gate
-with exact identity modulation (`g = 1`) and removes the learned gate
-parameters, while preserving the same filters, projection, temporal head,
-training protocol, and diagnostic interface.
-
-Run the paired free-filter and Sinc ablations with:
-
-```powershell
-python scripts/run_mimii_v2.py --include-gating-ablation --seeds 42,123,456 --device cuda --num-workers 2 --output-dir outputs/mimii_v2_gating_ablation
-```
-
-This adds `filterbank_free_nogate`, `egfn_free_gated`, and
-`filterbank_sinc_nogate` to the existing matched Conv1D and gated Sinc
-experiments. Until these runs are complete, the project makes no claim that
-gating improves prediction over an otherwise identical filter bank.
-
-## Portfolio Focus
-
-This project is meant to show:
-
-- signal processing intuition,
-- custom PyTorch module design,
-- controlled experiments,
-- baseline comparisons,
-- interpretable frequency-band analysis,
-- honest limitations and ablation studies.
+- signal-processing intuition translated into a PyTorch module;
+- interpretable frequency-band and gate representations;
+- normal-only anomaly detection and validation calibration;
+- bounded evidence retrieval and document provenance;
+- a clear separation between deterministic detection and LLM explanation;
+- honest reporting of uncertainty, operating scope, and human review limits.
