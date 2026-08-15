@@ -118,6 +118,41 @@ class ConditionedFeatureMemory:
             self.query_chunk_size,
         )
 
+    def with_statistics_from(
+        self,
+        reference: ConditionedFeatureMemory,
+    ) -> ConditionedFeatureMemory:
+        """Score this bank in the same standardized space as a reference bank."""
+        if self.mean.shape[1:] != reference.mean.shape[1:]:
+            raise ValueError("feature memories must share subband and channel shapes.")
+        reference_indices = {
+            condition_id: index
+            for index, condition_id in enumerate(reference.condition_ids)
+        }
+        means = []
+        standard_deviations = []
+        for condition_id in self.condition_ids:
+            index = reference_indices.get(condition_id)
+            if index is None:
+                means.append(reference.fallback_mean)
+                standard_deviations.append(reference.fallback_std)
+            else:
+                means.append(reference.mean[index])
+                standard_deviations.append(reference.std[index])
+        return ConditionedFeatureMemory(
+            condition_ids=self.condition_ids,
+            memories=self.memories,
+            mean=torch.stack(means),
+            std=torch.stack(standard_deviations),
+            fallback_memory=self.fallback_memory,
+            fallback_mean=reference.fallback_mean,
+            fallback_std=reference.fallback_std,
+            temporal_pool=self.temporal_pool,
+            top_fraction=self.top_fraction,
+            minimum_std=self.minimum_std,
+            query_chunk_size=self.query_chunk_size,
+        )
+
     @staticmethod
     def _nearest_squared_distance(
         query: torch.Tensor,

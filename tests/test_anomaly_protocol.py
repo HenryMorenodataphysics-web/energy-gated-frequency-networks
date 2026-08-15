@@ -5,11 +5,13 @@ from pathlib import Path
 import pytest
 
 from src.data import (
+    add_hybrid_anomaly_partitions,
     AnomalyAudioRecord,
     MIMIIRecord,
     split_anomaly_records,
     to_anomaly_audio_record,
     validate_anomaly_split,
+    validate_hybrid_anomaly_split,
 )
 
 
@@ -71,6 +73,27 @@ def test_segments_from_one_source_group_never_leak() -> None:
     ]
 
     assert sorted(memberships) == [0, 0, 2]
+
+
+def test_hybrid_split_moves_disjoint_anomalies_without_moving_normals() -> None:
+    records = [make_record("dataset", "machine", index) for index in range(20)]
+    records.extend(
+        make_record("dataset", "machine", 100 + index, label="anomalous")
+        for index in range(10)
+    )
+    one_class = split_anomaly_records(records, seed=17)
+    hybrid = add_hybrid_anomaly_partitions(one_class, seed=17)
+    validate_hybrid_anomaly_split(hybrid)
+
+    assert {r.group_id for r in hybrid.train if r.is_normal} == {
+        r.group_id for r in one_class.train
+    }
+    assert {r.group_id for r in hybrid.validation if r.is_normal} == {
+        r.group_id for r in one_class.validation
+    }
+    assert sum(not record.is_normal for record in hybrid.train) == 6
+    assert sum(not record.is_normal for record in hybrid.validation) == 2
+    assert sum(not record.is_normal for record in hybrid.test) == 2
 
 
 def test_split_rejects_mixed_labels_within_source_group() -> None:

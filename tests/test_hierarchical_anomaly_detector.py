@@ -93,6 +93,20 @@ def test_none_mode_has_zero_gate_regularization() -> None:
     assert output["gate_regularization_loss"].item() == 0.0
 
 
+def test_optional_supervised_head_emits_one_logit_per_recording() -> None:
+    base = build_detector()
+    detector = HierarchicalAnomalyDetector(
+        base.frontend,
+        base.normal_profile,
+        embedding_channels=8,
+        supervised_anomaly_head=True,
+    )
+
+    output = detector(torch.randn(3, 1, 4_000), ["machine"] * 3)
+
+    assert output["anomaly_logit"].shape == (3,)
+
+
 def test_detector_rejects_incompatible_profile_signature() -> None:
     detector = build_detector()
     incompatible = build_frontend()

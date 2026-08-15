@@ -26,15 +26,18 @@ from src.anomaly import (
 )
 from src.blocks import HierarchicalSpectralFrontend
 from src.data import (
+    add_hybrid_anomaly_partitions,
     AnomalyAudioRecord,
     AnomalyWindowDataset,
     ConditionBatchSampler,
+    HybridConditionBatchSampler,
     find_dcase2020_development_split,
     find_folder_anomaly_recordings,
     find_mimii_recordings,
     split_anomaly_records,
     to_anomaly_audio_record,
     validate_anomaly_split,
+    validate_hybrid_anomaly_split,
 )
 from src.models import Conv1DAnomalyEncoder, HierarchicalAnomalyDetector
 from src.utils.binary_evaluation import metrics_at_threshold
@@ -62,6 +65,12 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         description="Train EGFN or Conv1D with a shared one-class audio protocol."
     )
     parser.add_argument("--model", choices=("egfn", "conv1d"), required=True)
+    parser.add_argument(
+        "--training-mode",
+        choices=("one_class", "hybrid"),
+        default="one_class",
+        help="Hybrid keeps normal-only representation learning and adds labeled BCE.",
+    )
     parser.add_argument(
         "--egfn-embedding-channels",
         type=int,
@@ -145,6 +154,19 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--covariance-weight", type=float, default=0.0)
     parser.add_argument("--view-noise-fraction", type=float, default=0.005)
     parser.add_argument("--view-max-shift-fraction", type=float, default=0.05)
+    parser.add_argument("--supervised-weight", type=float, default=1.0)
+    parser.add_argument("--ranking-weight", type=float, default=0.0)
+    parser.add_argument("--ranking-margin", type=float, default=0.5)
+    parser.add_argument("--anomaly-train-ratio", type=float, default=0.6)
+    parser.add_argument("--anomaly-validation-ratio", type=float, default=0.2)
+    parser.add_argument("--pretrained-one-class-checkpoint", type=Path, default=None)
+    parser.add_argument("--head-warmup-epochs", type=int, default=0)
+    parser.add_argument(
+        "--hybrid-max-validation-fpr",
+        type=float,
+        default=None,
+        help="Select the hybrid threshold under this validation false-positive-rate cap.",
+    )
     parser.add_argument("--duration", type=float, default=2.0)
     parser.add_argument("--evaluation-windows", type=int, default=5)
     parser.add_argument("--recording-quantile", type=float, default=0.95)
@@ -160,6 +182,8 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
             "sustained_score",
             "event_score",
             "subband_score",
+            "supervised_score",
+            "hybrid_score",
         ),
         default="auto",
     )
@@ -235,6 +259,7 @@ def build_model(
     profile: ConditionedNormalProfile,
     egfn_embedding_channels: int = 8,
     conv1d_channels: tuple[int, ...] = (4, 8, 8),
+    supervised_anomaly_head: bool = False,
     learnable_subband_weights: bool = False,
     gate_mode: str = "hierarchical",
     normalize_gate_inputs: bool = False,
@@ -267,6 +292,7 @@ def build_model(
         frontend,
         profile,
         embedding_channels=egfn_embedding_channels,
+        supervised_anomaly_head=supervised_anomaly_head,
     )
 
 
@@ -332,10 +358,13 @@ def training_stage(
     learnable_subband_weights: bool,
     filter_warmup_epochs: int,
     filter_adaptation_epochs: int,
+    head_warmup_epochs: int = 0,
 ) -> str:
     """Return the active stage for a one-indexed training epoch."""
     if epoch <= 0:
         raise ValueError("epoch must be positive.")
+    if epoch <= head_warmup_epochs:
+        return "head_warmup"
     if not learnable_subband_weights:
         return "representation"
     if epoch <= filter_warmup_epochs:
@@ -356,11 +385,22 @@ def configure_training_stage(
         "filter_warmup",
         "filter_adaptation",
         "representation_finetune",
+        "head_warmup",
     }
     if stage not in allowed:
         raise ValueError(f"unknown training stage: {stage}.")
     if model_name != "egfn" and stage != "representation":
         raise ValueError("filter training stages require an EGFN model.")
+
+    if stage == "head_warmup":
+        anomaly_head = getattr(model, "anomaly_head", None)
+        if anomaly_head is None:
+            raise ValueError("head warmup requires a supervised anomaly head.")
+        for parameter in model.parameters():
+            parameter.requires_grad_(False)
+        for parameter in anomaly_head.parameters():
+            parameter.requires_grad_(True)
+        return sum(parameter.numel() for parameter in anomaly_head.parameters())
 
     filter_parameter = (
         model.frontend.subband_weight_logits if model_name == "egfn" else None
@@ -388,6 +428,46 @@ def build_optimizer(
         parameters,
         lr=learning_rate,
         weight_decay=weight_decay,
+    )
+
+
+def load_pretrained_one_class_backbone(
+    model: torch.nn.Module,
+    checkpoint_path: Path,
+) -> int:
+    """Load every shared one-class tensor while leaving the new head random."""
+    checkpoint = torch.load(checkpoint_path, map_location="cpu", weights_only=False)
+    checkpoint_args = checkpoint.get("args", {})
+    if checkpoint_args.get("model") != "egfn":
+        raise ValueError("pretrained checkpoint must contain an EGFN model.")
+    if checkpoint_args.get("training_mode", "one_class") != "one_class":
+        raise ValueError("pretrained checkpoint must use one-class training.")
+    source_state = checkpoint.get("model_state")
+    if not isinstance(source_state, dict):
+        raise ValueError("pretrained checkpoint does not contain model_state.")
+    target_state = model.state_dict()
+    shared_names = [
+        name for name in target_state if not name.startswith("anomaly_head.")
+    ]
+    missing = [name for name in shared_names if name not in source_state]
+    mismatched = [
+        name
+        for name in shared_names
+        if name in source_state and source_state[name].shape != target_state[name].shape
+    ]
+    if missing or mismatched:
+        raise ValueError(
+            "pretrained backbone is incompatible: "
+            f"missing={missing[:3]} mismatched={mismatched[:3]}"
+        )
+    model.load_state_dict(
+        {name: source_state[name] for name in shared_names},
+        strict=False,
+    )
+    return sum(
+        parameter.numel()
+        for name, parameter in model.named_parameters()
+        if not name.startswith("anomaly_head.")
     )
 
 
@@ -772,6 +852,7 @@ def estimate_feature_memory(
     query_chunk_size: int,
     seed: int,
     representation: str,
+    label_filter: int | None = None,
 ) -> ConditionedFeatureMemory:
     estimator = ConditionedFeatureMemoryEstimator(
         max_vectors_per_condition=max_vectors_per_condition,
@@ -791,10 +872,21 @@ def estimate_feature_memory(
                 list(batch["condition_id"]),
                 progress=0.0,
             )
-            estimator.update(
-                local_feature_map(output, representation),
-                list(batch["condition_id"]),
-            )
+            feature_map = local_feature_map(output, representation)
+            condition_ids = list(batch["condition_id"])
+            if label_filter is not None:
+                selected = batch["label"].eq(label_filter)
+                if not bool(selected.any()):
+                    continue
+                feature_map = feature_map[selected.to(feature_map.device)]
+                condition_ids = [
+                    condition_id
+                    for condition_id, keep in zip(
+                        condition_ids, selected.tolist(), strict=True
+                    )
+                    if keep
+                ]
+            estimator.update(feature_map, condition_ids)
     return estimator.finalize().to(device)
 
 
@@ -896,6 +988,167 @@ def run_training_epoch(
     return {name: value / example_count for name, value in totals.items()}
 
 
+def supervised_anomaly_loss(
+    output: dict[str, torch.Tensor],
+    labels: torch.Tensor,
+    positive_weight: float,
+) -> torch.Tensor:
+    if "anomaly_logit" not in output:
+        raise ValueError("hybrid training requires a supervised anomaly head.")
+    if positive_weight <= 0:
+        raise ValueError("positive class weight must be positive.")
+    return torch.nn.functional.binary_cross_entropy_with_logits(
+        output["anomaly_logit"],
+        labels.float(),
+        pos_weight=output["anomaly_logit"].new_tensor(positive_weight),
+    )
+
+
+def pairwise_anomaly_ranking_loss(
+    logits: torch.Tensor,
+    labels: torch.Tensor,
+    margin: float,
+) -> torch.Tensor:
+    if margin < 0:
+        raise ValueError("ranking margin must be non-negative.")
+    normal_logits = logits[labels == 0]
+    anomalous_logits = logits[labels == 1]
+    if normal_logits.numel() == 0 or anomalous_logits.numel() == 0:
+        raise ValueError("ranking loss requires normal and anomalous examples.")
+    differences = anomalous_logits[:, None] - normal_logits[None, :]
+    return torch.nn.functional.softplus(margin - differences).mean()
+
+
+def supervised_anomaly_objective(
+    output: dict[str, torch.Tensor],
+    labels: torch.Tensor,
+    positive_weight: float,
+    ranking_weight: float,
+    ranking_margin: float,
+) -> dict[str, torch.Tensor]:
+    if ranking_weight < 0:
+        raise ValueError("ranking weight must be non-negative.")
+    bce_loss = supervised_anomaly_loss(output, labels, positive_weight)
+    ranking_loss = (
+        pairwise_anomaly_ranking_loss(
+            output["anomaly_logit"], labels, ranking_margin
+        )
+        if ranking_weight > 0
+        else bce_loss.new_zeros(())
+    )
+    return {
+        "supervised_loss": bce_loss + ranking_weight * ranking_loss,
+        "bce_loss": bce_loss,
+        "ranking_loss": ranking_loss,
+    }
+
+
+def run_supervised_epoch(
+    model: torch.nn.Module,
+    loader: DataLoader,
+    optimizer: torch.optim.Optimizer,
+    device: torch.device,
+    positive_weight: float,
+    supervised_weight: float,
+    ranking_weight: float,
+    ranking_margin: float,
+    noise_fraction: float,
+    max_shift_fraction: float,
+) -> dict[str, float]:
+    model.train()
+    totals = defaultdict(float)
+    correct = 0
+    example_count = 0
+    for batch in loader:
+        waveform = batch["waveform"].to(device, non_blocking=True)
+        labels = batch["label"].to(device, non_blocking=True)
+        optimizer.zero_grad(set_to_none=True)
+        output = forward_model(
+            model,
+            "egfn",
+            make_audio_view(waveform, noise_fraction, max_shift_fraction),
+            list(batch["condition_id"]),
+            progress=1.0,
+        )
+        objective = supervised_anomaly_objective(
+            output,
+            labels,
+            positive_weight,
+            ranking_weight,
+            ranking_margin,
+        )
+        (supervised_weight * objective["supervised_loss"]).backward()
+        optimizer.step()
+        batch_size = waveform.shape[0]
+        for name, value in objective.items():
+            totals[name] += value.item() * batch_size
+        predictions = (output["anomaly_logit"] >= 0).long()
+        correct += int((predictions == labels).sum().item())
+        example_count += batch_size
+    return {
+        **{name: value / example_count for name, value in totals.items()},
+        "supervised_accuracy": correct / example_count,
+    }
+
+
+def evaluate_supervised_epoch(
+    model: torch.nn.Module,
+    loader: DataLoader,
+    device: torch.device,
+    positive_weight: float,
+    ranking_weight: float,
+    ranking_margin: float,
+) -> dict[str, float]:
+    model.eval()
+    collected_logits = []
+    collected_labels = []
+    collected_conditions: list[str] = []
+    with torch.no_grad():
+        for batch in loader:
+            waveform = batch["waveform"].to(device, non_blocking=True)
+            labels = batch["label"].to(device, non_blocking=True)
+            output = forward_model(
+                model,
+                "egfn",
+                waveform,
+                list(batch["condition_id"]),
+                progress=1.0,
+            )
+            collected_logits.append(output["anomaly_logit"])
+            collected_labels.append(labels)
+            collected_conditions.extend(batch["condition_id"])
+    logits = torch.cat(collected_logits)
+    labels = torch.cat(collected_labels)
+    bce_loss = torch.nn.functional.binary_cross_entropy_with_logits(
+        logits,
+        labels.float(),
+        pos_weight=logits.new_tensor(positive_weight),
+    )
+    condition_losses = []
+    if ranking_weight > 0:
+        condition_array = np.asarray(collected_conditions)
+        for condition in sorted(set(collected_conditions)):
+            indices = torch.from_numpy(condition_array == condition).to(logits.device)
+            condition_losses.append(
+                pairwise_anomaly_ranking_loss(
+                    logits[indices], labels[indices], ranking_margin
+                )
+            )
+    ranking_loss = (
+        torch.stack(condition_losses).mean()
+        if condition_losses
+        else bce_loss.new_zeros(())
+    )
+    supervised_loss = bce_loss + ranking_weight * ranking_loss
+    predictions = (logits >= 0).long()
+    return {
+        "supervised_loss": float(supervised_loss.item()),
+        "bce_loss": float(bce_loss.item()),
+        "ranking_loss": float(ranking_loss.item()),
+        "supervised_accuracy": float((predictions == labels).float().mean().item()),
+    }
+
+
 def collect_window_scores(
     model: torch.nn.Module,
     model_name: str,
@@ -906,6 +1159,7 @@ def collect_window_scores(
     reconstruction_mask_fraction: float,
     reconstruction_top_fraction: float,
     memory_representation: str,
+    anomaly_feature_memory: ConditionedFeatureMemory | None = None,
 ) -> dict[str, object]:
     model.eval()
     recording_ids: list[str] = []
@@ -955,8 +1209,24 @@ def collect_window_scores(
             )
             memory_score = memory_output["recording_memory_score"]
             scores["memory_score"].extend(memory_score.cpu().tolist())
+            if anomaly_feature_memory is not None:
+                anomaly_memory_output = anomaly_feature_memory.score(
+                    local_feature_map(output, memory_representation), batch_conditions
+                )
+                anomaly_distance = anomaly_memory_output["recording_memory_score"]
+                reference_score = memory_score / (
+                    memory_score + anomaly_distance + 1e-8
+                )
+                scores["anomaly_memory_distance"].extend(
+                    anomaly_distance.cpu().tolist()
+                )
+                scores["reference_score"].extend(reference_score.cpu().tolist())
             if "recording_score" in output:
                 scores["profile_score"].extend(output["recording_score"].cpu().tolist())
+            if "anomaly_logit" in output:
+                scores["supervised_score"].extend(
+                    output["anomaly_logit"].sigmoid().cpu().tolist()
+                )
             if model_name == "egfn":
                 reconstruction_score = reconstruction_anomaly_scores(
                     model,
@@ -1073,6 +1343,189 @@ def apply_condition_thresholds(
         scale = max(float(thresholds.get(condition_id, fallback_threshold)), 1e-12)
         calibrated.append(float(score) / scale)
     return np.asarray(calibrated)
+
+
+def normal_score_outputs(outputs: dict[str, object]) -> dict[str, object]:
+    labels = outputs["labels"]
+    mask = labels == 0
+    return {
+        "recording_ids": [
+            item for item, keep in zip(outputs["recording_ids"], mask, strict=True) if keep
+        ],
+        "condition_ids": [
+            item for item, keep in zip(outputs["condition_ids"], mask, strict=True) if keep
+        ],
+        "labels": labels[mask],
+        "scores": {
+            name: values[mask] for name, values in outputs["scores"].items()
+        },
+    }
+
+
+def best_f1_threshold(labels: np.ndarray, scores: np.ndarray) -> float:
+    if not np.any(labels == 0) or not np.any(labels == 1):
+        raise ValueError("threshold selection requires both validation labels.")
+    candidates = np.unique(scores)
+    best = max(
+        (
+            (metrics_at_threshold(labels, scores, float(threshold))["f1"], -index, threshold)
+            for index, threshold in enumerate(candidates)
+        ),
+        key=lambda item: (item[0], item[1]),
+    )
+    return float(best[2])
+
+
+def threshold_at_max_fpr(
+    labels: np.ndarray,
+    scores: np.ndarray,
+    maximum_fpr: float,
+) -> tuple[float, dict[str, float | int]]:
+    if not 0 <= maximum_fpr < 1:
+        raise ValueError("maximum FPR must be in [0, 1).")
+    if not np.any(labels == 0) or not np.any(labels == 1):
+        raise ValueError("FPR calibration requires both validation labels.")
+    candidates = np.concatenate(
+        ([np.nextafter(scores.max(), np.inf)], np.unique(scores))
+    )
+    feasible = []
+    for threshold in candidates:
+        metrics = metrics_at_threshold(labels, scores, float(threshold))
+        normal_count = int(metrics["tn"]) + int(metrics["fp"])
+        fpr = int(metrics["fp"]) / normal_count
+        if fpr <= maximum_fpr + 1e-12:
+            feasible.append(
+                (
+                    float(metrics["recall"]),
+                    float(metrics["f1"]),
+                    float(metrics["precision"]),
+                    -float(threshold),
+                    float(threshold),
+                    metrics,
+                )
+            )
+    if not feasible:
+        raise RuntimeError("no validation threshold satisfies the requested FPR.")
+    *_, threshold, metrics = max(feasible, key=lambda item: item[:4])
+    return threshold, metrics
+
+
+def fit_hybrid_calibration(
+    validation_outputs: dict[str, object],
+    one_class_score_name: str,
+    normal_quantile: float,
+    maximum_validation_fpr: float | None = None,
+) -> dict[str, object]:
+    if "supervised_score" not in validation_outputs["scores"]:
+        raise ValueError("hybrid calibration requires supervised scores.")
+    normal_outputs = normal_score_outputs(validation_outputs)
+    score_names = [one_class_score_name, "supervised_score"]
+    if "reference_score" in validation_outputs["scores"]:
+        score_names.append("reference_score")
+    component_calibrations = {}
+    calibrated_components = {}
+    for score_name in score_names:
+        thresholds, fallback = fit_condition_thresholds(
+            normal_outputs, score_name, normal_quantile
+        )
+        component_calibrations[score_name] = {
+            "condition_thresholds": thresholds,
+            "fallback_threshold": fallback,
+        }
+        calibrated_components[score_name] = apply_condition_thresholds(
+            validation_outputs, score_name, thresholds, fallback
+        )
+
+    labels = validation_outputs["labels"]
+    best_key = None
+    best_configuration = None
+    if "reference_score" in score_names:
+        candidate_weights = []
+        for normal_weight in np.linspace(0.0, 1.0, 5):
+            for reference_weight in np.linspace(0.0, 1.0 - normal_weight, 5):
+                supervised_weight = 1.0 - normal_weight - reference_weight
+                candidate_weights.append(
+                    {
+                        one_class_score_name: float(normal_weight),
+                        "reference_score": float(reference_weight),
+                        "supervised_score": float(supervised_weight),
+                    }
+                )
+    else:
+        candidate_weights = [
+            {
+                one_class_score_name: float(alpha),
+                "supervised_score": float(1.0 - alpha),
+            }
+            for alpha in np.linspace(0.0, 1.0, 5)
+        ]
+    for weights in candidate_weights:
+        scores = sum(
+            weight * calibrated_components[score_name]
+            for score_name, weight in weights.items()
+        )
+        if maximum_validation_fpr is None:
+            threshold = best_f1_threshold(labels, scores)
+            metrics = metrics_at_threshold(labels, scores, threshold)
+            key = (
+                metrics["auc"],
+                metrics["f1"],
+                -max(weights.values()),
+            )
+        else:
+            threshold, metrics = threshold_at_max_fpr(
+                labels, scores, maximum_validation_fpr
+            )
+            key = (
+                metrics["recall"],
+                metrics["f1"],
+                metrics["auc"],
+                -max(weights.values()),
+            )
+        if best_key is None or key > best_key:
+            best_key = key
+            best_configuration = (weights, threshold, metrics)
+    if best_configuration is None:
+        raise RuntimeError("hybrid calibration did not produce an operating point.")
+    weights, threshold, validation_metrics = best_configuration
+    result = {
+        "one_class_score": one_class_score_name,
+        "weights": weights,
+        "threshold": float(threshold),
+        "maximum_validation_fpr": maximum_validation_fpr,
+        "validation_metrics": validation_metrics,
+        "components": component_calibrations,
+    }
+    if "reference_score" not in score_names:
+        result["alpha"] = float(weights[one_class_score_name])
+    return result
+
+
+def apply_hybrid_calibration(
+    outputs: dict[str, object],
+    calibration: dict[str, object],
+) -> np.ndarray:
+    one_class_score = str(calibration["one_class_score"])
+    weights = calibration.get("weights")
+    if weights is None:
+        alpha = float(calibration["alpha"])
+        weights = {
+            one_class_score: alpha,
+            "supervised_score": 1.0 - alpha,
+        }
+    calibrated = {}
+    for score_name in weights:
+        component = calibration["components"][score_name]
+        calibrated[score_name] = apply_condition_thresholds(
+            outputs,
+            score_name,
+            component["condition_thresholds"],
+            float(component["fallback_threshold"]),
+        )
+    return sum(
+        float(weight) * calibrated[score_name]
+        for score_name, weight in weights.items()
+    )
 
 
 def evaluate_representation_epoch(
@@ -1333,6 +1786,7 @@ def save_recovery_checkpoint(
     primary_score: str | None = None,
     condition_thresholds: dict[str, float] | None = None,
     fallback_threshold: float | None = None,
+    anomaly_feature_memory: ConditionedFeatureMemory | None = None,
 ) -> None:
     temporary_path = path.with_suffix(".tmp")
     torch.save(
@@ -1352,6 +1806,11 @@ def save_recovery_checkpoint(
             ),
             "feature_memory": (
                 None if feature_memory is None else feature_memory.to_dict()
+            ),
+            "anomaly_feature_memory": (
+                None
+                if anomaly_feature_memory is None
+                else anomaly_feature_memory.to_dict()
             ),
             "spectral_profile": (
                 None if spectral_profile is None else spectral_profile.to_dict()
@@ -1422,8 +1881,54 @@ def main(argv: list[str] | None = None) -> None:
             "a fixed ungated spectral representation has no trainable path; use "
             "--objective-representation encoder or an active gate mode."
         )
-    requested_primary_score = resolve_primary_score(args.model, args.primary_score)
-    if requested_primary_score == "memory_score":
+    if args.training_mode == "hybrid":
+        if args.model != "egfn":
+            raise ValueError("hybrid training is currently available only for EGFN.")
+        if args.supervised_weight <= 0:
+            raise ValueError("hybrid training requires a positive --supervised-weight.")
+        if args.ranking_weight < 0 or args.ranking_margin < 0:
+            raise ValueError("ranking weight and margin must be non-negative.")
+        if args.primary_score not in {"auto", "hybrid_score"}:
+            raise ValueError("hybrid training requires --primary-score auto or hybrid_score.")
+        if (
+            args.anomaly_train_ratio <= 0
+            or args.anomaly_validation_ratio <= 0
+            or args.anomaly_train_ratio + args.anomaly_validation_ratio >= 1
+        ):
+            raise ValueError("hybrid anomaly split ratios are invalid.")
+        if args.hybrid_max_validation_fpr is not None and not (
+            0 <= args.hybrid_max_validation_fpr < 1
+        ):
+            raise ValueError("--hybrid-max-validation-fpr must be in [0, 1).")
+        requested_primary_score = "hybrid_score"
+        representation_primary_score = "memory_score"
+    else:
+        if args.ranking_weight:
+            raise ValueError("--ranking-weight requires --training-mode hybrid.")
+        if args.hybrid_max_validation_fpr is not None:
+            raise ValueError(
+                "--hybrid-max-validation-fpr requires --training-mode hybrid."
+            )
+        requested_primary_score = resolve_primary_score(args.model, args.primary_score)
+        representation_primary_score = requested_primary_score
+    if args.head_warmup_epochs < 0 or args.head_warmup_epochs > args.epochs:
+        raise ValueError("--head-warmup-epochs must be between zero and --epochs.")
+    if args.pretrained_one_class_checkpoint is not None:
+        if args.training_mode != "hybrid" or args.evaluate_only:
+            raise ValueError(
+                "pretrained one-class transfer requires trainable hybrid mode."
+            )
+        if args.head_warmup_epochs <= 0:
+            raise ValueError(
+                "pretrained one-class transfer requires positive head warmup epochs."
+            )
+        if not args.pretrained_one_class_checkpoint.is_file():
+            raise FileNotFoundError(args.pretrained_one_class_checkpoint)
+    elif args.head_warmup_epochs:
+        raise ValueError("head warmup requires --pretrained-one-class-checkpoint.")
+    if args.head_warmup_epochs and args.learnable_subband_weights:
+        raise ValueError("head warmup cannot be combined with filter adaptation.")
+    if representation_primary_score == "memory_score":
         expected_objective = (
             "encoder" if args.memory_representation == "encoder" else "memory"
         )
@@ -1433,7 +1938,7 @@ def main(argv: list[str] | None = None) -> None:
                 f"use --objective-representation {expected_objective}."
             )
     if (
-        requested_primary_score == "reconstruction_score"
+        representation_primary_score == "reconstruction_score"
         and args.reconstruction_weight <= 0
     ):
         raise ValueError(
@@ -1470,6 +1975,8 @@ def main(argv: list[str] | None = None) -> None:
         "folders": f"{args.dataset_name}_one_class",
         "dcase2020": "dcase2020_one_class",
     }[args.dataset_format]
+    if args.training_mode == "hybrid":
+        default_output_name = default_output_name.replace("one_class", "hybrid")
     output_dir = args.output_dir or (
         ROOT / "outputs" / default_output_name / f"{args.model}_seed{args.seed}"
     )
@@ -1513,24 +2020,49 @@ def main(argv: list[str] | None = None) -> None:
             seed=args.seed,
         )
     validate_anomaly_split(split)
-    train_records = split.train[: args.max_train_records]
+    if args.training_mode == "hybrid":
+        split = add_hybrid_anomaly_partitions(
+            split,
+            anomaly_train_ratio=args.anomaly_train_ratio,
+            anomaly_validation_ratio=args.anomaly_validation_ratio,
+            seed=args.seed,
+        )
+        validate_hybrid_anomaly_split(split)
+    train_records = cap_by_label(split.train, args.max_train_records)
     validation_records = cap_by_label(split.validation, args.max_eval_records_per_label)
     test_records = cap_by_label(split.test, args.max_eval_records_per_label)
+    train_normal_records = tuple(record for record in train_records if record.is_normal)
+    train_anomalous_records = tuple(
+        record for record in train_records if not record.is_normal
+    )
+    validation_normal_records = tuple(
+        record for record in validation_records if record.is_normal
+    )
+    validation_anomalous_records = tuple(
+        record for record in validation_records if not record.is_normal
+    )
     print(
-        f"train_normal={len(train_records)} validation_normal={len(validation_records)} "
+        f"train_normal={len(train_normal_records)} "
+        f"train_anomalous={len(train_anomalous_records)} "
+        f"validation_normal={len(validation_normal_records)} "
+        f"validation_anomalous={len(validation_anomalous_records)} "
         f"test_records={len(test_records)}"
     )
 
-    if not train_records or not validation_records or not test_records:
+    if not train_normal_records or not validation_normal_records or not test_records:
         raise RuntimeError(
             "the split must contain training, validation, and test normal audio; "
             "provide at least three normal recordings per condition."
         )
+    if args.training_mode == "hybrid" and (
+        not train_anomalous_records or not validation_anomalous_records
+    ):
+        raise RuntimeError("hybrid training requires anomalous train and validation audio.")
     if args.dataset_format == "mimii":
         profile = ConditionedNormalProfile.load_json(args.normal_profile)
     else:
         profile = bootstrap_normal_profile(
-            train_records,
+            train_normal_records,
             args.sample_rate,
             args.n_fft,
             args.hop_length,
@@ -1539,20 +2071,20 @@ def main(argv: list[str] | None = None) -> None:
         )
     sample_rate = int(profile.metadata["frontend"]["sample_rate"])
     train_set = AnomalyWindowDataset(
-        train_records,
+        train_normal_records,
         target_sample_rate=sample_rate,
         duration_seconds=args.duration,
         crop_mode="random",
     )
     calibration_set = AnomalyWindowDataset(
-        train_records,
+        train_normal_records,
         target_sample_rate=sample_rate,
         duration_seconds=args.duration,
         crop_mode="grid",
         evaluation_windows=args.evaluation_windows,
     )
     validation_set = AnomalyWindowDataset(
-        validation_records,
+        validation_normal_records,
         target_sample_rate=sample_rate,
         duration_seconds=args.duration,
         crop_mode="grid",
@@ -1569,6 +2101,42 @@ def main(argv: list[str] | None = None) -> None:
         "num_workers": args.num_workers,
         "pin_memory": device.type == "cuda",
     }
+    hybrid_train_loader = None
+    hybrid_validation_loader = None
+    hybrid_train_batch_sampler = None
+    hybrid_positive_weight = 1.0
+    if args.training_mode == "hybrid":
+        hybrid_train_set = AnomalyWindowDataset(
+            train_records,
+            target_sample_rate=sample_rate,
+            duration_seconds=args.duration,
+            crop_mode="random",
+        )
+        hybrid_validation_set = AnomalyWindowDataset(
+            validation_records,
+            target_sample_rate=sample_rate,
+            duration_seconds=args.duration,
+            crop_mode="grid",
+            evaluation_windows=args.evaluation_windows,
+        )
+        hybrid_train_batch_sampler = HybridConditionBatchSampler(
+            hybrid_train_set,
+            batch_size=args.batch_size,
+            shuffle=True,
+            seed=args.seed,
+        )
+        hybrid_train_loader = DataLoader(
+            hybrid_train_set,
+            batch_sampler=hybrid_train_batch_sampler,
+            **loader_options,
+        )
+        hybrid_validation_loader = DataLoader(
+            hybrid_validation_set,
+            batch_size=args.batch_size,
+            shuffle=False,
+            **loader_options,
+        )
+        hybrid_positive_weight = 1.0
     calibration_loader = DataLoader(
         calibration_set,
         batch_size=args.batch_size,
@@ -1615,13 +2183,14 @@ def main(argv: list[str] | None = None) -> None:
         normalize_gate_inputs=args.normalize_gate_inputs,
         conditional_subgates=args.conditional_subgates,
         harmonic_context=args.harmonic_context,
+        supervised_anomaly_head=args.training_mode == "hybrid",
     ).to(device)
     if not args.evaluate_only and args.model == "egfn":
         profile_metadata = dict(profile.metadata)
         profile_metadata.update(
             {
                 "source_split": "current_train",
-                "source_recordings": len(train_records),
+                "source_recordings": len(train_normal_records),
                 "split_seed": args.seed,
                 "validation_normal_ratio": args.validation_normal_ratio,
                 "test_normal_ratio": args.test_normal_ratio,
@@ -1633,6 +2202,16 @@ def main(argv: list[str] | None = None) -> None:
             device,
             profile_metadata,
         )
+    if args.pretrained_one_class_checkpoint is not None:
+        loaded_parameters = load_pretrained_one_class_backbone(
+            model,
+            args.pretrained_one_class_checkpoint,
+        )
+        model.to(device)
+        print(
+            f"loaded_one_class_backbone={args.pretrained_one_class_checkpoint} "
+            f"shared_parameters={loaded_parameters}"
+        )
     trainable_parameters = sum(
         parameter.numel() for parameter in model.parameters() if parameter.requires_grad
     )
@@ -1643,6 +2222,7 @@ def main(argv: list[str] | None = None) -> None:
     best_validation_loss = float("inf")
     embedding_profiles: dict[str, ConditionedEmbeddingProfile] | None = None
     feature_memory: ConditionedFeatureMemory | None = None
+    anomaly_feature_memory: ConditionedFeatureMemory | None = None
     if args.evaluate_only:
         if not recovery_checkpoint_path.is_file():
             raise FileNotFoundError(
@@ -1671,6 +2251,7 @@ def main(argv: list[str] | None = None) -> None:
             ("harmonic_context", False),
             ("memory_representation", "encoder"),
             ("objective_representation", "encoder"),
+            ("training_mode", "one_class"),
         ):
             if checkpoint_args.get(name, legacy_default) != getattr(args, name):
                 raise ValueError(f"checkpoint {name} configuration does not match.")
@@ -1704,6 +2285,11 @@ def main(argv: list[str] | None = None) -> None:
         if not stored_memory:
             raise ValueError("checkpoint does not contain a local feature memory.")
         feature_memory = ConditionedFeatureMemory.from_dict(stored_memory).to(device)
+        stored_anomaly_memory = checkpoint.get("anomaly_feature_memory")
+        if stored_anomaly_memory:
+            anomaly_feature_memory = ConditionedFeatureMemory.from_dict(
+                stored_anomaly_memory
+            ).to(device)
         best_epoch = int(checkpoint.get("epoch", 0))
         best_validation_loss = float(
             checkpoint.get("validation_selection_loss", float("nan"))
@@ -1718,6 +2304,7 @@ def main(argv: list[str] | None = None) -> None:
             args.learnable_subband_weights,
             args.filter_warmup_epochs,
             args.filter_adaptation_epochs,
+            args.head_warmup_epochs,
         )
         stage_trainable_parameters = configure_training_stage(
             model, args.model, current_stage
@@ -1735,6 +2322,7 @@ def main(argv: list[str] | None = None) -> None:
                 args.learnable_subband_weights,
                 args.filter_warmup_epochs,
                 args.filter_adaptation_epochs,
+                args.head_warmup_epochs,
             )
             if next_stage != current_stage:
                 if best_state is None:
@@ -1769,26 +2357,55 @@ def main(argv: list[str] | None = None) -> None:
                     f"stage_trainable_parameters={stage_trainable_parameters}"
                 )
             train_batch_sampler.set_epoch(epoch)
+            if hybrid_train_batch_sampler is not None:
+                hybrid_train_batch_sampler.set_epoch(epoch)
             progress = (epoch - 1) / max(args.epochs - 1, 1)
-            train_metrics = run_training_epoch(
-                model,
-                args.model,
-                train_loader,
-                optimizer,
-                device,
-                progress,
-                args.gate_regularization_weight,
-                args.variance_target,
-                args.invariance_weight,
-                args.variance_weight,
-                args.covariance_weight,
-                args.reconstruction_weight,
-                args.mask_fraction,
-                args.view_noise_fraction,
-                args.view_max_shift_fraction,
-                args.objective_representation,
-                args.memory_representation,
-            )
+            if current_stage == "head_warmup":
+                train_metrics = {
+                    "loss": 0.0,
+                    "representation_loss": 0.0,
+                    "embedding_std": 0.0,
+                }
+            else:
+                train_metrics = run_training_epoch(
+                    model,
+                    args.model,
+                    train_loader,
+                    optimizer,
+                    device,
+                    progress,
+                    args.gate_regularization_weight,
+                    args.variance_target,
+                    args.invariance_weight,
+                    args.variance_weight,
+                    args.covariance_weight,
+                    args.reconstruction_weight,
+                    args.mask_fraction,
+                    args.view_noise_fraction,
+                    args.view_max_shift_fraction,
+                    args.objective_representation,
+                    args.memory_representation,
+                )
+            if args.training_mode == "hybrid":
+                if hybrid_train_loader is None:
+                    raise RuntimeError("hybrid training loader is unavailable.")
+                supervised_train_metrics = run_supervised_epoch(
+                        model,
+                        hybrid_train_loader,
+                        optimizer,
+                        device,
+                        hybrid_positive_weight,
+                        args.supervised_weight,
+                        args.ranking_weight,
+                        args.ranking_margin,
+                        args.view_noise_fraction,
+                        args.view_max_shift_fraction,
+                    )
+                train_metrics.update(supervised_train_metrics)
+                train_metrics["loss"] += (
+                    args.supervised_weight
+                    * supervised_train_metrics["supervised_loss"]
+                )
             if current_stage == "filter_adaptation":
                 stage_metadata = dict(profile_metadata)
                 stage_metadata["calibration_stage"] = current_stage
@@ -1817,11 +2434,30 @@ def main(argv: list[str] | None = None) -> None:
                 args.objective_representation,
                 args.memory_representation,
             )
-            selection_metric_name = (
-                "reconstruction_loss"
-                if requested_primary_score == "reconstruction_score"
-                else "representation_loss"
-            )
+            if args.training_mode == "hybrid":
+                if hybrid_validation_loader is None:
+                    raise RuntimeError("hybrid validation loader is unavailable.")
+                supervised_validation = evaluate_supervised_epoch(
+                    model,
+                    hybrid_validation_loader,
+                    device,
+                    hybrid_positive_weight,
+                    args.ranking_weight,
+                    args.ranking_margin,
+                )
+                validation_metrics.update(supervised_validation)
+                validation_metrics["hybrid_loss"] = (
+                    validation_metrics["representation_loss"]
+                    + args.supervised_weight
+                    * supervised_validation["supervised_loss"]
+                )
+                selection_metric_name = "hybrid_loss"
+            else:
+                selection_metric_name = (
+                    "reconstruction_loss"
+                    if requested_primary_score == "reconstruction_score"
+                    else "representation_loss"
+                )
             validation_loss = validation_metrics[selection_metric_name]
             row = {
                 "epoch": float(epoch),
@@ -1926,6 +2562,22 @@ def main(argv: list[str] | None = None) -> None:
             args.seed,
             args.memory_representation,
         )
+    if args.training_mode == "hybrid" and anomaly_feature_memory is None:
+        if hybrid_train_loader is None:
+            raise RuntimeError("hybrid anomaly memory requires a training loader.")
+        anomaly_feature_memory = estimate_feature_memory(
+            model,
+            args.model,
+            hybrid_train_loader,
+            device,
+            args.memory_size,
+            args.memory_temporal_pool,
+            args.memory_top_fraction,
+            args.memory_query_chunk_size,
+            args.seed + 10_000,
+            args.memory_representation,
+            label_filter=1,
+        ).with_statistics_from(feature_memory).to(device)
     geometry, gate_diagnostics = estimate_model_diagnostics(
         model,
         args.model,
@@ -1935,37 +2587,63 @@ def main(argv: list[str] | None = None) -> None:
         args.memory_representation,
     )
 
+    score_validation_loader = (
+        hybrid_validation_loader
+        if args.training_mode == "hybrid"
+        else validation_loader
+    )
+    if score_validation_loader is None:
+        raise RuntimeError("score validation loader is unavailable.")
     validation_windows = collect_window_scores(
         model,
         args.model,
-        validation_loader,
+        score_validation_loader,
         embedding_profiles,
         feature_memory,
         device,
         args.mask_fraction,
         args.memory_top_fraction,
         args.memory_representation,
+        anomaly_feature_memory,
     )
     validation_outputs = aggregate_score_outputs(
         validation_windows, args.recording_quantile
     )
-    primary_score_name = resolve_primary_score(args.model, args.primary_score)
-    if primary_score_name not in validation_outputs["scores"]:
-        raise ValueError(
-            f"primary score {primary_score_name!r} is unavailable for model {args.model!r}."
+    hybrid_calibration = None
+    if args.training_mode == "hybrid":
+        primary_score_name = "hybrid_score"
+        hybrid_calibration = fit_hybrid_calibration(
+            validation_outputs,
+            "memory_score",
+            args.normal_threshold_quantile,
+            args.hybrid_max_validation_fpr,
         )
-    condition_thresholds, fallback_threshold = fit_condition_thresholds(
-        validation_outputs,
-        primary_score_name,
-        args.normal_threshold_quantile,
-    )
-    validation_outputs["scores"]["primary_score"] = apply_condition_thresholds(
-        validation_outputs,
-        primary_score_name,
-        condition_thresholds,
-        fallback_threshold,
-    )
-    threshold = 1.0
+        validation_outputs["scores"]["primary_score"] = apply_hybrid_calibration(
+            validation_outputs, hybrid_calibration
+        )
+        threshold = float(hybrid_calibration["threshold"])
+        memory_calibration = hybrid_calibration["components"]["memory_score"]
+        condition_thresholds = memory_calibration["condition_thresholds"]
+        fallback_threshold = float(memory_calibration["fallback_threshold"])
+    else:
+        primary_score_name = resolve_primary_score(args.model, args.primary_score)
+        if primary_score_name not in validation_outputs["scores"]:
+            raise ValueError(
+                f"primary score {primary_score_name!r} is unavailable for "
+                f"model {args.model!r}."
+            )
+        condition_thresholds, fallback_threshold = fit_condition_thresholds(
+            validation_outputs,
+            primary_score_name,
+            args.normal_threshold_quantile,
+        )
+        validation_outputs["scores"]["primary_score"] = apply_condition_thresholds(
+            validation_outputs,
+            primary_score_name,
+            condition_thresholds,
+            fallback_threshold,
+        )
+        threshold = 1.0
     test_windows = collect_window_scores(
         model,
         args.model,
@@ -1976,16 +2654,22 @@ def main(argv: list[str] | None = None) -> None:
         args.mask_fraction,
         args.memory_top_fraction,
         args.memory_representation,
+        anomaly_feature_memory,
     )
     test_outputs = aggregate_score_outputs(test_windows, args.recording_quantile)
     test_labels = test_outputs["labels"]
     raw_component_scores = dict(test_outputs["scores"])
-    test_outputs["scores"]["primary_score"] = apply_condition_thresholds(
-        test_outputs,
-        primary_score_name,
-        condition_thresholds,
-        fallback_threshold,
-    )
+    if hybrid_calibration is not None:
+        test_outputs["scores"]["primary_score"] = apply_hybrid_calibration(
+            test_outputs, hybrid_calibration
+        )
+    else:
+        test_outputs["scores"]["primary_score"] = apply_condition_thresholds(
+            test_outputs,
+            primary_score_name,
+            condition_thresholds,
+            fallback_threshold,
+        )
     test_scores = test_outputs["scores"]["primary_score"]
     supervised_metrics_available = bool(np.any(test_labels == 1))
     metrics = metrics_at_threshold(test_labels, test_scores, threshold)
@@ -1994,8 +2678,16 @@ def main(argv: list[str] | None = None) -> None:
     )
     result: dict[str, object] = {
         "model": args.model,
-        "protocol": "normal_only_aligned_representation_v7",
-        "fit_labels": ["normal"],
+        "protocol": (
+            "hybrid_disjoint_anomaly_v1"
+            if args.training_mode == "hybrid"
+            else "normal_only_aligned_representation_v7"
+        ),
+        "fit_labels": (
+            ["normal", "anomalous"]
+            if args.training_mode == "hybrid"
+            else ["normal"]
+        ),
         "supervised_metrics_available": supervised_metrics_available,
         "trainable_parameters": trainable_parameters,
         "best_epoch": best_epoch,
@@ -2004,14 +2696,26 @@ def main(argv: list[str] | None = None) -> None:
             name: profile.to_dict() for name, profile in embedding_profiles.items()
         },
         "feature_memory": feature_memory.summary(),
+        "anomaly_feature_memory": (
+            None
+            if anomaly_feature_memory is None
+            else anomaly_feature_memory.summary()
+        ),
         "frontend_filters": frontend_filter_summary(model),
         "harmonic_context": harmonic_context_summary(model),
         "representation_geometry": geometry,
         "gate_diagnostics": gate_diagnostics,
         "primary_score": primary_score_name,
         "threshold_source": (
-            f"condition_validation_normal_quantile_{args.normal_threshold_quantile}"
+            (
+                f"hybrid_validation_fpr_cap_{args.hybrid_max_validation_fpr}"
+                if args.hybrid_max_validation_fpr is not None
+                else "hybrid_validation_f1"
+            )
+            if args.training_mode == "hybrid"
+            else f"condition_validation_normal_quantile_{args.normal_threshold_quantile}"
         ),
+        "hybrid_calibration": hybrid_calibration,
         "condition_thresholds": condition_thresholds,
         "fallback_threshold": fallback_threshold,
         "metrics": metrics,
@@ -2022,8 +2726,10 @@ def main(argv: list[str] | None = None) -> None:
         "metrics_by_condition": condition_metrics,
         "score_distributions_by_condition": score_distributions,
         "split_counts": {
-            "train_normal": len(train_records),
-            "validation_normal": len(validation_records),
+            "train_normal": len(train_normal_records),
+            "train_anomalous": len(train_anomalous_records),
+            "validation_normal": len(validation_normal_records),
+            "validation_anomalous": len(validation_anomalous_records),
             "test_normal": int((test_labels == 0).sum()),
             "test_anomalous": int((test_labels == 1).sum()),
         },
@@ -2046,6 +2752,7 @@ def main(argv: list[str] | None = None) -> None:
         primary_score_name,
         condition_thresholds,
         fallback_threshold,
+        anomaly_feature_memory=anomaly_feature_memory,
     )
     if not args.evaluate_only:
         save_recovery_checkpoint(
@@ -2061,6 +2768,7 @@ def main(argv: list[str] | None = None) -> None:
             primary_score_name,
             condition_thresholds,
             fallback_threshold,
+            anomaly_feature_memory=anomaly_feature_memory,
         )
     if supervised_metrics_available:
         print(
