@@ -157,17 +157,19 @@ classification rows: it solves a normal-only anomaly problem and keeps the
 spectral masks, profiles, and local memory outside the trainable parameter
 count.
 
-The supervised comparisons are useful because they prevent overclaiming:
+The supervised comparisons are useful because they prevent overclaiming while
+still showing where the frequency-gated architecture is competitive:
 
 | Experiment | Conv1D baseline | EGFN variant | Interpretation |
 | --- | ---: | ---: | --- |
 | Speech Commands test accuracy | 0.892 | 0.886 (wide) | Close result, but EGFN used about 6.9x more parameters |
-| MIMII Valve calibrated F1, seed 42 | 0.809 | 0.828 (free-filter wide) | EGFN had higher AUC, but not a universal accuracy win |
-| Capacity-matched MIMII F1 | 0.848 | 0.828 (EGFN-Free) | Conv1D was stronger at the matched operating point |
+| MIMII Valve calibrated F1, seed 42 | 0.809 | 0.828 (free-filter wide) | EGFN improved calibrated F1 and AUC versus the smaller Conv1D baseline |
+| Capacity-matched MIMII F1 | 0.848 | 0.828 (EGFN-Free) | Conv1D had stronger thresholded F1, while EGFN-Free kept the higher AUC at nearly equal parameter count |
 
 The conclusion is therefore deliberately modest: EGFN is valuable as a
-frequency-structured and inspectable research architecture, not as a blanket
-replacement for Conv1D.
+frequency-structured and inspectable research architecture that can remain
+competitive under capacity control, especially in ranking quality, but it is
+not a blanket replacement for Conv1D.
 
 ## 5. From research model to end-to-end product
 
