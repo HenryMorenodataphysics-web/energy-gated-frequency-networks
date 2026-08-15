@@ -149,7 +149,7 @@ if diagnosis:
 
 if diagnosis and st.button("Explain the result"):
     if not os.getenv("OPENAI_API_KEY"):
-        st.error("OPENAI_API_KEY is not available in the environment.")
+        st.error("The explanation service is not configured. Add an API key to .env.local.")
     else:
         try:
             with st.spinner("Generating explanation..."):
@@ -181,10 +181,10 @@ if diagnosis and st.button("Explain the result"):
             error_text = str(exc)
             if "insufficient_quota" in error_text or "current quota" in error_text:
                 st.warning(
-                    "The EGFN diagnosis completed, but OpenAI has no available quota "
-                    "for this project. Check API billing and limits."
+                    "The EGFN diagnosis completed, but the explanation service has no "
+                    "available quota. Check billing and project limits."
                 )
             elif "429" in error_text:
-                st.warning("OpenAI is temporarily rate-limited. Try again later.")
+                st.warning("The explanation service is temporarily rate-limited. Try again later.")
             else:
                 st.error(f"The explanation could not be generated: {exc}")

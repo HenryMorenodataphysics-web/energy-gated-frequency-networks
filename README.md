@@ -1,44 +1,216 @@
-# Energy-Gated Frequency Network (EGFN)
+# Energy-Gated Frequency Networks
 
 ![Acoustic anomaly detection logo](assets/egfn-logo.png)
 
-EGFN is an interpretable audio anomaly-detection project for industrial
-machines. It combines learnable frequency analysis, energy-based gating,
-normal-operation profiles, local feature memory, and a bounded LLM 
-explanation layer.
+This repository is a **research-to-product project for acoustic anomaly
+detection**. It starts with a physics-inspired neural unit for studying how
+frequency energy can control a neuron, and evolves into an end-to-end system
+that can accept an industrial recording, score it, retrieve relevant
+evidence, and explain the result in ordinary language.
 
-The central product idea is simple:
+The project is intentionally documented as a research progression rather than
+as a claim that one architecture replaces every Conv1D model. Each stage asks
+a narrower question, measures the answer, and motivates the next engineering
+change.
 
 ```text
-engine audio
-    -> EGFN neural detector
-    -> anomaly score and calibrated threshold
-    -> possible failure / no clear failure signal
-    -> retrieved manuals and repair history (when available)
-    -> plain-English OpenAI explanation
+research question
+    -> physics-inspired frequency neuron
+    -> controlled audio experiments
+    -> temporal and hierarchical EGFN variants
+    -> normal-only industrial anomaly detector
+    -> calibrated score and failure alert
+    -> SQLite knowledge base and retrieval
+    -> bounded LLM explanation API
+    -> Streamlit product demo
 ```
 
-The neural network makes the detection decision. The LLM does not replace the
-detector: it explains the measured result and its limitations for a non-
-technical reader.
+## 1. Where the project began: a physics-inspired neuron
 
-## What the demo does
+The original idea was to embed a familiar signal-processing principle inside
+a differentiable neuron: low-pass, high-pass, and band-pass filters should
+separate frequency content, while measured energy in each band should modulate
+the activation passed to the next layer.
 
-The Streamlit app provides two connected views:
+For an input waveform `x[n]`, the first EGFN unit computes a bank of responses:
 
-1. **Audio diagnosis**: upload a WAV recording, run the calibrated EGFN
-   checkpoint, and receive a possible-failure result with an anomaly score.
-2. **Knowledge base**: open the popup to add manuals, reports, repair records,
-   and other project documents. Retrieved text can be supplied to the LLM as
-   supporting context.
+```text
+u_k[n] = (h_k * x)[n]
+a_k[n] = GELU(u_k[n] + b_k)
+E_k   = mean(u_k[n]^2)
+g_k   = sigmoid(alpha_k * log(1 + E_k) + beta_k)
+y_k[n] = g_k * a_k[n]
+```
 
-The current bundled checkpoint is calibrated for **MIMII valve audio**. Fan
-support requires a separately trained and calibrated fan checkpoint; the app
-does not silently apply the valve model to a fan recording.
+The important design choice is that the response, energy, and gate remain
+observable. The network is still learned, but its intermediate quantities have
+a signal-processing interpretation that can be plotted and inspected.
 
-## Quick start
+### Original characteristics
 
-Use the project environment, because model inference requires PyTorch:
+- Raw waveform input rather than a fixed spectrogram.
+- Eight frequency bands initialized from low, high, and band-pass regions.
+- Three filter modes for research comparison: fixed FIR, free trainable FIR,
+  and Sinc-parameterized cutoffs.
+- A learned energy gate for every band.
+- A compact pooled classifier based on band statistics and gate values.
+- Controlled synthetic-signal tests before moving to spoken and industrial
+  audio.
+
+This first version was deliberately small. Its purpose was to test whether the
+frequency decomposition and energy-dependent modulation could be observed, not
+to maximize benchmark accuracy.
+
+## 2. How the architecture evolved
+
+The experiments exposed several limitations in the original pooled design.
+Global pooling removed temporal order, and a free filter could improve
+flexibility while becoming less physically interpretable. The architecture was
+therefore changed in stages:
+
+1. **Temporal head.** Gated sequences were sent to a lightweight Conv1D head
+   instead of being reduced immediately to global statistics.
+2. **Wide temporal model.** An `8 -> 32` projection and larger `64/128` temporal
+   blocks gave the frequency frontend enough capacity for harder audio tasks.
+3. **Hierarchical routing.** The industrial version uses three macro bands and
+   sixteen subbands. Parent macro gates and child subband gates expose both
+   coarse and fine spectral routing.
+4. **Normal-only anomaly detection.** The objective changed from classifying a
+   fixed list of labels to learning what normal operation looks like and
+   measuring how far a new recording deviates from it.
+5. **Calibration.** A threshold is selected on validation data and then kept
+   separate from the test set. The deployed result is therefore a calibrated
+   alert, not an arbitrary probability.
+6. **Product wrapper.** Audio preparation, checkpoint loading, evidence
+   storage, document retrieval, and a plain-language explanation layer were
+   added around the detector.
+
+The resulting industrial flow is:
+
+```mermaid
+flowchart LR
+    A[WAV recording] --> B[Mono, resample, crop or pad]
+    B --> C[Hierarchical frequency frontend]
+    C --> D[Macro and subband energy gates]
+    D --> E[Normal profile standardization]
+    E --> F[Local feature memory]
+    F --> G[Anomaly score]
+    G --> H{Score >= calibrated threshold?}
+    H -->|Yes| I[Possible failure]
+    H -->|No| J[No clear failure signal]
+    I --> K[Retrieve manuals and repair history]
+    J --> K
+    K --> L[Bounded LLM explanation API]
+    L --> M[Plain-English result]
+```
+
+## 3. The two reference dictionaries used by the detector
+
+The anomaly model does not compare an audio file with a single opaque class
+vector. It uses two complementary, normal-operation reference structures:
+
+### 3.1 Normal-operation profile dictionary
+
+For each known operating condition, the profile stores the mean, scale, and
+record count of stable spectral-energy descriptors. A new recording is
+standardized against the matching condition when available, or against a
+fallback profile when the condition is unknown.
+
+This dictionary answers: **how unusual is the energy pattern compared with
+normal operation?**
+
+### 3.2 Conditioned local-feature dictionary
+
+The detector also stores a bounded set of normal local embeddings, indexed by
+condition and subband. New local regions are compared with their nearest normal
+examples, and the most unusual regions contribute to the recording-level
+memory score.
+
+This dictionary answers: **does this local sound resemble the normal local
+patterns observed for this machine condition?**
+
+The final decision is deterministic:
+
+```text
+possible_failure = anomaly_score >= validation_selected_threshold
+```
+
+The dictionaries are reference data, not labels invented by the LLM. They can
+be retrained or extended when a real industrial deployment provides more normal
+recordings and clearly identified operating conditions.
+
+## 4. Parameter evolution and the Conv1D comparison
+
+The parameter count changed as temporal structure and capacity were added. The
+numbers below come from the controlled research reports:
+
+| Stage | Model | Trainable parameters | What changed |
+| --- | --- | ---: | --- |
+| Initial | Pooled EGFN | 4,106 | Compact pooled band statistics |
+| Temporal | EGFN temporal | 44,714 | Preserved time order with a Conv1D head |
+| Wider | EGFN temporal wide | 189,802 | Added `8 -> 32` projection and larger temporal blocks |
+| Capacity control | EGFN-Free | 188,770 | Matched the free Conv1D experiment |
+| Current demo checkpoint | Hierarchical one-class EGFN | 304 trainable | Compact anomaly encoder; profiles and memories are stored reference data |
+
+The current demo checkpoint is not directly comparable to the supervised
+classification rows: it solves a normal-only anomaly problem and keeps the
+spectral masks, profiles, and local memory outside the trainable parameter
+count.
+
+The supervised comparisons are useful because they prevent overclaiming:
+
+| Experiment | Conv1D baseline | EGFN variant | Interpretation |
+| --- | ---: | ---: | --- |
+| Speech Commands test accuracy | 0.892 | 0.886 (wide) | Close result, but EGFN used about 6.9x more parameters |
+| MIMII Valve calibrated F1, seed 42 | 0.809 | 0.828 (free-filter wide) | EGFN had higher AUC, but not a universal accuracy win |
+| Capacity-matched MIMII F1 | 0.848 | 0.828 (EGFN-Free) | Conv1D was stronger at the matched operating point |
+
+The conclusion is therefore deliberately modest: EGFN is valuable as a
+frequency-structured and inspectable research architecture, not as a blanket
+replacement for Conv1D.
+
+## 5. From research model to end-to-end product
+
+The Streamlit application exposes the research result through a simple user
+workflow:
+
+1. Upload a WAV recording from a valve or another supported machine type.
+2. The local checkpoint normalizes the waveform and computes the anomaly score.
+3. The interface reports either **possible failure** or **no clear failure
+   signal**, together with the score, threshold, and technical evidence.
+4. A knowledge-base popup accepts manuals, reports, and repair records.
+5. Relevant text is retrieved and combined with the audio diagnosis.
+6. A bounded LLM API turns that evidence into a human-readable explanation:
+   what was observed, what it may mean, what to check next, and what the audio
+   cannot confirm.
+
+The detector makes the decision. The LLM is an explanation layer: it cannot
+load checkpoints, query arbitrary SQL, change the threshold, or override the
+deterministic diagnosis.
+
+## 6. Knowledge base, APIs, and future industry data
+
+The application initializes a local SQLite database at
+`evidence/egfn_context.sqlite3` with bounded, reviewable tables:
+
+| Table | Purpose |
+| --- | --- |
+| `evidence` | Experiment artifacts and metric payloads |
+| `history` | Evidence-ingestion history |
+| `reference_items` | Human-readable project references |
+| `documents` | Uploaded manuals and reports |
+| `document_chunks` | Searchable document fragments |
+| `repairs` | Machine, symptom, action, and outcome records |
+
+The current retrieval implementation is keyword-based. Embeddings are the next
+step once a real manual and repair corpus exists; generating vectors for an
+empty knowledge base would add complexity without useful evidence. In a real
+industrial deployment, the same bounded interface can ingest approved manuals,
+maintenance logs, inspection results, and repair outcomes through scheduled
+file imports or authenticated APIs. Every retrieved item should retain its
+source path or document identifier so an explanation remains auditable.
+
+## 7. Quick start
 
 ```powershell
 .\.venv\Scripts\Activate.ps1
@@ -47,200 +219,38 @@ python scripts\build_evidence_json.py
 .\.venv\Scripts\python.exe -m streamlit run app\dashboard.py
 ```
 
-Open `http://localhost:8502` if Streamlit selects port 8502.
-
-The app loads `OPENAI_API_KEY` from the ignored `.env.local` file. OpenAI
-explanations require API quota; EGFN audio detection remains local and works
-without an API call.
-
-## End-to-end pipeline
-
-```mermaid
-flowchart LR
-    A[WAV engine recording] --> B[Resample and crop/pad]
-    B --> C[EGFN spectral frontend]
-    C --> D[Normal profile standardization]
-    D --> E[Local feature memory]
-    E --> F[Anomaly score]
-    F --> G{Score >= calibrated threshold?}
-    G -->|Yes| H[Possible failure]
-    G -->|No| I[No clear failure signal]
-    H --> J[Retrieve relevant knowledge]
-    I --> J
-    J --> K[OpenAI Responses API]
-    K --> L[Plain-English explanation]
-```
-
-### 1. Audio preparation
-
-The uploaded WAV is converted to mono, resampled to the checkpoint sample
-rate, and center-cropped or zero-padded to the expected duration. The app does
-not make a decision from the filename; the waveform is the model input.
-
-### 2. Frequency frontend
-
-The EGFN frontend receives a waveform `x[n]` and applies a bank of learnable
-filters. For frequency band `k`:
-
-```text
-u_k[n] = (h_k * x)[n]
-a_k[n] = activation(u_k[n] + b_k)
-E_k   = mean(u_k[n]^2)
-```
-
-`u_k` is the filtered response, `a_k` is the activated response, and `E_k`
-summarizes the energy present in the band. The frontend retains the band
-structure instead of collapsing the signal immediately into an opaque vector.
-
-### 3. Energy gates
-
-The energy is transformed into a stable log scale and passed through learned
-gates. In the independent form:
-
-```text
-g_k = sigmoid(alpha_k * log(1 + E_k) + beta_k)
-y_k[n] = g_k * a_k[n]
-```
-
-The repository also implements macro, subband, hierarchical, and conditional
-gate variants for controlled studies. A gate is an interpretable signal about
-which bands the frontend is using; it is not, by itself, a causal explanation
-of a prediction.
-
-### 4. Normal-operation profile
-
-The one-class detector is fitted using normal recordings only. For each
-operating condition it stores statistics for stable energy descriptors such as
-log energy and absolute temporal energy change. A new recording is
-standardized against the matching condition when available, or against a
-fallback profile when the condition is unknown.
-
-This is why the app can flag an unusual recording without requiring a defect
-label for every possible failure mode.
-
-### 5. Local feature memory and score
-
-The detector also stores a bounded memory of normal local feature descriptors.
-For a new recording it measures the distance from its local descriptors to the
-closest normal descriptors. The recording-level score pools the most unusual
-local regions rather than averaging every frame equally.
-
-The final decision is deterministic:
-
-```text
-possible_failure = anomaly_score >= validation_selected_threshold
-```
-
-The threshold is learned from validation data and kept separate from the test
-set. It is not a universal physical constant and should be recalibrated when
-the machine type, recording setup, or operating distribution changes.
-
-### 6. Knowledge and explanation layer
-
-Manuals and repair records are stored in SQLite as documents and text chunks.
-When documentation exists, the app retrieves relevant chunks and sends only
-that bounded context together with the audio diagnosis to OpenAI. When no
-documentation exists, the detector still works and the LLM receives only the
-diagnostic evidence.
-
-The explanation layer is instructed to:
-
-- state clearly whether the result indicates a possible valve failure;
-- explain the score-versus-threshold result in ordinary language;
-- suggest a practical next step without inventing a physical cause;
-- disclose what the audio cannot confirm;
-- cite the checkpoint or knowledge source used.
-
-The LLM does not load checkpoints, query arbitrary SQL, change thresholds, or
-override the EGFN result.
-
-## Evidence and knowledge storage
-
-The evidence export is generated from local experiment artifacts:
-
-```powershell
-python scripts\build_evidence_json.py
-```
-
-The resulting `evidence/egfn_evidence.json` is a compact, reviewable snapshot
-of selected results. The app initializes `evidence/egfn_context.sqlite3` with
-these tables:
-
-| Table | Purpose |
-| --- | --- |
-| `evidence` | Experiment artifacts and metric payloads |
-| `history` | Evidence ingestion history |
-| `reference_items` | Human-readable project references |
-| `documents` | Uploaded manuals and reports |
-| `document_chunks` | Searchable document fragments |
-| `repairs` | Machine, symptom, action, and outcome records |
-
-The current document retrieval is keyword-based. Embedding retrieval is the
-next step once a real manual and repair corpus exists; there is no reason to
-generate embeddings for an empty knowledge base.
-
-## Research evidence
-
-### Speech Commands
-
-The wider EGFN temporal model nearly matches a Conv1D baseline while retaining
-an interpretable frequency frontend:
-
-| Model | Best validation accuracy | Test accuracy | Test gate mean |
-| --- | ---: | ---: | ---: |
-| Conv1D baseline | 0.902 | 0.892 | 0.000 |
-| EGFN temporal | 0.856 | 0.849 | 0.547 |
-| EGFN temporal wide | 0.893 | 0.886 | 0.444 |
-
-### MIMII valve
-
-An earlier supervised comparison reported these results at the default
-threshold:
-
-| Model | Test accuracy | Precision | Recall | F1 | AUC |
-| --- | ---: | ---: | ---: | ---: | ---: |
-| Conv1D baseline | 0.955 | 0.765 | 0.873 | 0.816 | 0.982 |
-| EGFN temporal wide | 0.929 | 0.639 | 0.873 | 0.738 | **0.984** |
-
-At a validation-selected threshold of `0.78`, the EGFN operating point reached
-0.965 accuracy, 0.930 precision, 0.746 recall, and 0.828 F1 on the untouched
-test split. This threshold reduces false alarms but increases missed
-anomalies, so the correct operating point depends on the maintenance cost of
-each error.
-
-These research metrics are not automatically the result for an arbitrary
-uploaded audio file. The app uses the checkpoint and threshold bundled in its
-configuration, and the result should be interpreted within that calibration
-scope.
+Open the local URL printed by Streamlit, normally `http://localhost:8502`.
+The audio detector runs locally. The optional explanation step requires the
+configured provider API key in the ignored `.env.local` file and available
+project quota.
 
 ## Repository map
 
 ```text
 frequency_gated_nn/
 |-- app/dashboard.py                 Streamlit diagnosis and knowledge UI
-|-- assets/egfn-logo.png            README project logo
-|-- src/blocks/                      Frequency and spectral neural blocks
+|-- assets/egfn-logo.png             Project logo
+|-- src/blocks/                      Frequency and hierarchical spectral blocks
 |-- src/models/                      EGFN and anomaly model composition
 |-- src/anomaly/                     Profiles, scoring, memory, regularization
-|-- src/data/                        Dataset adapters and protocols
-|-- scripts/build_evidence_json.py  Evidence snapshot builder
+|-- src/data/                        Dataset adapters and anomaly protocols
+|-- scripts/build_evidence_json.py   Evidence snapshot builder
 |-- scripts/train_*.py               Training entry points
 |-- evidence/                        JSON evidence and local SQLite runtime data
-|-- reports/                         Experiment logs and research figures
-|-- tests/                            Unit and protocol tests
-|-- requirements.txt                 Research/training dependencies
-|-- requirements-dashboard.txt       Dashboard, OpenAI, and PDF dependencies
+|-- reports/                         Research reports, logs, and figures
+|-- tests/                           Unit and protocol tests
+|-- requirements-dashboard.txt       Dashboard, LLM API, and PDF dependencies
 ```
 
-## Limitations and governance
+## Limitations and research boundaries
 
-- The current demo is calibrated for valve audio, not every industrial machine.
+- The bundled demo is calibrated for MIMII valve audio; fan support needs a
+  separately trained and calibrated checkpoint.
 - A possible failure is an anomaly alert, not a confirmed mechanical diagnosis.
-- Unknown operating conditions use a fallback threshold and should be reviewed.
+- Unknown operating conditions use fallback reference data and require review.
 - Scanned PDFs need OCR before their text can be retrieved reliably.
-- Embeddings are intentionally not generated until a real knowledge corpus is
-  available.
-- The LLM is an explanation assistant, not an autonomous maintenance authority.
+- Embeddings are intentionally deferred until a real knowledge corpus exists.
+- Research metrics are not automatically the result for every uploaded file.
 - Human inspection and maintenance procedures remain required before action.
 
 ## Development checks
@@ -250,17 +260,8 @@ frequency_gated_nn/
 .\.venv\Scripts\python.exe -m pytest tests\test_egfn_context.py -q --basetemp=.tmp\pytest-run
 ```
 
-The Windows environment may emit temporary-directory cleanup warnings after
-pytest finishes; a direct SQLite round-trip check is also available in the
-same test module.
-
-## Portfolio focus
-
-This project demonstrates:
-
-- signal-processing intuition translated into a PyTorch module;
-- interpretable frequency-band and gate representations;
-- normal-only anomaly detection and validation calibration;
-- bounded evidence retrieval and document provenance;
-- a clear separation between deterministic detection and LLM explanation;
-- honest reporting of uncertainty, operating scope, and human review limits.
+This repository demonstrates a complete path from a physical hypothesis to a
+reviewable applied-AI system: interpretable signal structure, controlled
+baselines, normal-only anomaly scoring, calibrated decisions, evidence
+provenance, retrieval, and an explanation interface suitable for both
+researchers and non-technical users.
