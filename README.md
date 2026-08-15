@@ -18,7 +18,7 @@ engine audio
     -> plain-English OpenAI explanation
 ```
 
-The neural network makes the detection decision. OpenAI does not replace the
+The neural network makes the detection decision. The LLM does not replace the
 detector: it explains the measured result and its limitations for a non-
 technical reader.
 
