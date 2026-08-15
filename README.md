@@ -4,7 +4,7 @@
 
 EGFN is an interpretable audio anomaly-detection project for industrial
 machines. It combines learnable frequency analysis, energy-based gating,
-normal-operation profiles, local feature memory, and a bounded OpenAI
+normal-operation profiles, local feature memory, and a bounded LLM 
 explanation layer.
 
 The central product idea is simple:
