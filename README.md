@@ -160,11 +160,11 @@ count.
 The supervised comparisons are useful because they prevent overclaiming while
 still showing where the frequency-gated architecture is competitive:
 
-| Experiment | Parameter comparison | Conv1D baseline | EGFN variant | Interpretation |
-| --- | --- | ---: | ---: | --- |
-| Speech Commands test accuracy | Not matched: 27,594 vs 189,802 trainable parameters | 0.892 | 0.886 (wide) | Close result, but EGFN used about 6.9x more parameters |
-| MIMII Valve calibrated F1, seed 42 | Not matched: smaller Conv1D vs wider EGFN | 0.809 | 0.828 (free-filter wide) | EGFN improved calibrated F1 and AUC versus the smaller Conv1D baseline |
-| Capacity-matched MIMII F1 | Matched: 188,754 vs 188,770 trainable parameters | 0.848 | 0.828 (EGFN-Free) | Conv1D had stronger thresholded F1, while EGFN-Free kept the higher AUC at nearly equal parameter count |
+| Experiment | Conv1D baseline | EGFN variant | Interpretation |
+| --- | ---: | ---: | --- |
+| Speech Commands test accuracy | 0.892 | 0.886 (wide) | Close result, but EGFN used about 6.9x more parameters |
+| MIMII Valve calibrated F1, seed 42 | 0.809 | 0.828 (free-filter wide) | EGFN improved calibrated F1 and AUC versus the smaller Conv1D baseline |
+| Capacity-matched MIMII F1 | 0.848 | 0.828 (EGFN-Free) | Conv1D had stronger thresholded F1, while EGFN-Free kept the higher AUC at nearly equal parameter count |
 
 The conclusion is therefore deliberately modest: EGFN is valuable as a
 frequency-structured and inspectable research architecture that can remain
